@@ -14,7 +14,7 @@ https://infosecwriteups.com/exploiting-format-string-vulnerability-97e3d588da1b
 
 Below is the main function where our vulnerability sits. The check_pass function has no actual vulnerability.
 
-```cs
+```json
 undefined8 main(void)
 
 {
