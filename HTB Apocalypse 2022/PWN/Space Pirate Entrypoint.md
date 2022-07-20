@@ -1,4 +1,4 @@
-# **Space Pirate:Entrypoint**
+**# Space Pirate:Entrypoint**
 
 ### Tools: Ghidra, Pwndbg
 
