@@ -14,7 +14,7 @@ https://infosecwriteups.com/exploiting-format-string-vulnerability-97e3d588da1b
 
 Below is the main function where our vulnerability sits. The check_pass function has no actual vulnerability.
 
-```json
+```cs
 undefined8 main(void)
 
 {
@@ -117,7 +117,7 @@ By inputting a couple of %p we can see that the address 0xdeadbeef is at offset 
 
 
 
-```js
+```rust
 $rax   : 0x0               
 $rbx   : 0x0               
 $rcx   : 0x007ffff7af2031  →  0x5777fffff0003d48 ("H="?)
