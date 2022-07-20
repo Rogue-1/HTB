@@ -25,7 +25,7 @@ Now the way I actually figured out there was a format string vulnerability was b
 
 By inputting a couple of %p we can see that the address 0xdeadbeef is at offset 6 and input data is put into offset 7. Anything after becomes arbitrary.
 
-`{
+~~~
 $rax   : 0x0               
 $rbx   : 0x0               
 $rcx   : 0x007ffff7af2031  →  0x5777fffff0003d48 ("H="?)
@@ -94,7 +94,7 @@ gef➤  x/50x $rsp
 0x7fffffffdd90: 0x00000000      0x00007fff      0x00000000      0x00000000
 0x7fffffffdda0: 0x00000000      0x00000000
 gef➤
-}`
+~~~
  
 
 So now that we know where we need to point the format string attack we can set up the command. Also we only need to change the last 2 bytes for the attack
