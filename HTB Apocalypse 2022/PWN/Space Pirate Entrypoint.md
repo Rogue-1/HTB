@@ -91,7 +91,8 @@ gef➤  x/50x $rsp
 0x7fffffffdd70: 0x00000000      0x00000000      0x00000000      0x00000000
 0x7fffffffdd80: 0x722bc83c      0x5dd90a07      0xb035c83c      0x5dd91ab8
 0x7fffffffdd90: 0x00000000      0x00007fff      0x00000000      0x00000000
-0x7fffffffdda0: 0x00000000      0x00000000} 
+0x7fffffffdda0: 0x00000000      0x00000000
+gef➤  } 
  
 
 So now that we know where we need to point the format string attack we can set up the command. Also we only need to change the last 2 bytes for the attack
