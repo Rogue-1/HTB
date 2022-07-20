@@ -117,7 +117,7 @@ By inputting a couple of %p we can see that the address 0xdeadbeef is at offset 
 
 
 
-```cs
+```bash
 $rax   : 0x0               
 $rbx   : 0x0               
 $rcx   : 0x007ffff7af2031  →  0x5777fffff0003d48 ("H="?)
