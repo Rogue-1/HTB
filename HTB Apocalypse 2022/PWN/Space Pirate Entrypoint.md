@@ -14,7 +14,7 @@ https://infosecwriteups.com/exploiting-format-string-vulnerability-97e3d588da1b
 
 Below is the main function where our vulnerability sits. The check_pass function has no actual vulnerability.
 
-```
+
 undefined8 main(void)
 
 {
@@ -56,7 +56,7 @@ undefined8 main(void)
                     /* WARNING: Subroutine does not return */
   __stack_chk_fail();
 }
-```
+
 
 We can see that local 48 = 0xdeadbeef but if local_48 = 0xdead1337 then it will open_door which is the function that prints our flag. So our goal is to change the value of 0xdeadbeef to 0xdead1337.
 Now the way I actually figured out there was a format string vulnerability was by putting in different % commands to see if anything happened and luckily I found that %p was printing addresses. %s and %n will cause a segmentation fault.
