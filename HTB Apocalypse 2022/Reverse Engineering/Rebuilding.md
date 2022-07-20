@@ -2,7 +2,7 @@
 
 ### Challenge: Reverse Engineering
 
-### Tools: Ghidra, GDB
+### Tools: Ghidra, Python, Xor decoder/Cyberchef
 
 Running ./rebuilding shows preparing secret keys and missing required argument.
 
