@@ -82,14 +82,14 @@ Password length is incorrect
 We now get preparing secret keys and password length is incorrect.
 If we look at the ghidras main function we can see on line 32 is says if 
 ~~~cs
-( v5 == 32 )
+( local_14 == 32 )
 ~~~
 puts (“The password is correct”)
 
 This means that the length of the password needs to be 32 characters in length. Great, now we just need to find the password.
 
 Going to Ghidra instead we use the same decompiler of the main function and double click on encrypted to take us to some interesting hexidecimals.
-~~~objc
+~~~yml
                              encrypted                                       XREF[3]:     Entry Point(*), main:00100964(*), 
                                                                                           main:0010096b(R)  
         00301020 29 38 2b        undefine
@@ -135,7 +135,7 @@ Going to Ghidra instead we use the same decompiler of the main function and doub
 We can see [0] - [32] with hexidecimals to compliment them. The 32 in length earlier reveals that this is our password, but it’s encrypted. Converting these to various different formats did not provide any possible passwords because we are missing the key.
 
 In the picture below a key is revealed.
-~~~scala
+~~~yml
                              s_umans_00301043                                XREF[4,5]:   Entry Point(*), 
                              s_mans_00301044                                              _INIT_1:0010085a(W), 
                              s_ans_00301045                                               main:00100991(*), 
