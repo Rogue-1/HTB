@@ -71,8 +71,8 @@ Your card is: 0x7ffdfc86f2d0 0x7f734ef768c0 (nil) 0xf (nil) 0xdeadbeef 0x7ffdfc8
 
 By inputting a couple of %p we can see that the address 0xdeadbeef is at offset 6 and input data is put into offset 7. Anything after becomes arbitrary.
 
-```
-$rax   : 0x0               
+
+```$rax   : 0x0               
 $rbx   : 0x0               
 $rcx   : 0x007ffff7af2031  →  0x5777fffff0003d48 ("H="?)
 $rdx   : 0x1f              
