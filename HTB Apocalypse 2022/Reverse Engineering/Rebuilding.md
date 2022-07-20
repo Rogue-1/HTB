@@ -89,7 +89,7 @@ puts (“The password is correct”)
 This means that the length of the password needs to be 32 characters in length. Great, now we just need to find the password.
 
 Going to Ghidra instead we use the same decompiler of the main function and double click on encrypted to take us to some interesting hexidecimals.
-~~~cs
+~~~scala
                              encrypted                                       XREF[3]:     Entry Point(*), main:00100964(*), 
                                                                                           main:0010096b(R)  
         00301020 29 38 2b        undefine
@@ -194,4 +194,5 @@ if __name__ == "__main__":
 └─$ python3 flag.py    
 HTB{h1d1ng_1n_c0nstruct0r5_1n1t}
 ~~~
+![image](https://user-images.githubusercontent.com/105310322/180051684-4799641c-069a-4229-b461-8dbfbdbb4640.png)
 
