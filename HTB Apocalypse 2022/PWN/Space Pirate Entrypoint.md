@@ -66,7 +66,8 @@ Insert card's serial number: %p %p %p %p %p %p %p %p %p %p %p %p
                                                                                                                                                    
 Your card is: 0x7ffdfc86f2d0 0x7f734ef768c0 (nil) 0xf (nil) 0xdeadbeef 0x7ffdfc871970 0x7025207025207025 0x2520702520702520 0x2070252070252070     
                                                                                                                                                    
-[-] Invalid ID! Intruder detected! 🚨 🚨 ```                                                                                                          
+[-] Invalid ID! Intruder detected! 🚨 🚨 
+```                                                                                                          
                                                 
 
 By inputting a couple of %p we can see that the address 0xdeadbeef is at offset 6 and input data is put into offset 7. Anything after becomes arbitrary.
