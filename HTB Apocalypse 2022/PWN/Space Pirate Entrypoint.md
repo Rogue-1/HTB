@@ -14,8 +14,49 @@ https://infosecwriteups.com/exploiting-format-string-vulnerability-97e3d588da1b
 
 Below is the main function where our vulnerability sits. The check_pass function has no actual vulnerability.
 
+```
+undefined8 main(void)
 
-
+{
+  long lVar1;
+  long in_FS_OFFSET;
+  long local_48;
+  long *local_40;
+  char local_38 [40];
+  long local_10;
+  
+  local_10 = *(long *)(in_FS_OFFSET + 0x28);
+  setup();
+  banner();
+  local_48 = 0xdeadbeef;
+  local_40 = &local_48;
+  printf(&DAT_001025e0);
+  lVar1 = read_num();
+  if (lVar1 != 1) {
+    if (lVar1 == 2) {
+      check_pass();
+    }
+    printf(&DAT_00102668,&DAT_0010259a);
+                    /* WARNING: Subroutine does not return */
+    exit(0x1b39);
+  }
+  printf("\n[!] Scanning card.. Something is wrong!\n\nInsert card\'s serial number: ");
+  read(0,local_38,0x1f);
+  printf("\nYour card is: ");
+  printf(local_38);
+  if (local_48 == 0xdead1337) {
+    open_door();
+  }
+  else {
+    printf(&DAT_001026a0,&DAT_0010259a);
+  }
+  if (local_10 == *(long *)(in_FS_OFFSET + 0x28)) {
+    return 0;
+  }
+                    /* WARNING: Subroutine does not return */
+  __stack_chk_fail();
+}
+```
 
 We can see that local 48 = 0xdeadbeef but if local_48 = 0xdead1337 then it will open_door which is the function that prints our flag. So our goal is to change the value of 0xdeadbeef to 0xdead1337.
 Now the way I actually figured out there was a format string vulnerability was by putting in different % commands to see if anything happened and luckily I found that %p was printing addresses. %s and %n will cause a segmentation fault.
