@@ -61,7 +61,7 @@ undefined8 main(void)
 We can see that local 48 = 0xdeadbeef but if local_48 = 0xdead1337 then it will open_door which is the function that prints our flag. So our goal is to change the value of 0xdeadbeef to 0xdead1337.
 Now the way I actually figured out there was a format string vulnerability was by putting in different % commands to see if anything happened and luckily I found that %p was printing addresses. %s and %n will cause a segmentation fault.
 
-```
+```console
 (base) ┌──(rogue1㉿rogue1)-[~/HTB/CTF/Apocalypse2022/challenge]
 └─$ ./sp_entrypoint          
 
