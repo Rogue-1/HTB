@@ -1,4 +1,6 @@
-**# Space Pirate:Entrypoint**
+# Space Pirate:Entrypoint
+
+### Challenge: PWN
 
 ### Tools: Ghidra, Pwndbg
 
@@ -8,6 +10,6 @@ This challenge is in the form of a format string  vulnerability. Since I had nev
 
 https://kevinalmansa.github.io/application%20security/Format-Strings
 
-https://infosecwriteups.com/exploiting-format-string-vulnerability-97e3d588da1b
+[infosec](https://infosecwriteups.com/exploiting-format-string-vulnerability-97e3d588da1b)
 
 Below is the main function where our vulnerability sits. The check_pass function has no actual vulnerability.
