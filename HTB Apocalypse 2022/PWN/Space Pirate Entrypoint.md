@@ -2,7 +2,7 @@
 
 ### Challenge: PWN
 
-### Tools: Ghidra, Pwndbg
+### Tools: Ghidra, GDB
 
 ### Vulnerability: Format String
 
@@ -58,7 +58,7 @@ undefined8 main(void)
 }
 ```
 
-We can see that local 48 = 0xdeadbeef but if local_48 = 0xdead1337 then it will open_door which is the function that prints our flag. So our goal is to change the value of 0xdeadbeef to 0xdead1337.
+We can see that local_48 = 0xdeadbeef but if local_48 = 0xdead1337 then it will open_door which is the function that prints our flag. So our goal is to change the value of 0xdeadbeef to 0xdead1337.
 Now the way I actually figured out there was a format string vulnerability was by putting in different % commands to see if anything happened and luckily I found that %p was printing addresses. %s and %n will cause a segmentation fault.
 
 ```console
@@ -117,7 +117,8 @@ By inputting a couple of %p we can see that the address 0xdeadbeef is at offset 
 
 
 
-```$rax   : 0x0               
+```console
+$rax   : 0x0               
 $rbx   : 0x0               
 $rcx   : 0x007ffff7af2031  →  0x5777fffff0003d48 ("H="?)
 $rdx   : 0x1f              
@@ -198,7 +199,7 @@ Command = `%4919c%7$hn`
 
 
 
-```
+```console
 1. Scan card 💳                                                                                                                                    
 2. Insert password ↪                                                                                                                               
 > 1                                                                                                                                                
