@@ -135,26 +135,63 @@ Going to Ghidra instead we use the same decompiler of the main function and doub
 We can see [0] - [32] with hexidecimals to compliment them. The 32 in length earlier reveals that this is our password, but it’s encrypted. Converting these to various different formats did not provide any possible passwords because we are missing the key.
 
 In the picture below a key is revealed.
+~~~scala
+                             s_umans_00301043                                XREF[4,5]:   Entry Point(*), 
+                             s_mans_00301044                                              _INIT_1:0010085a(W), 
+                             s_ans_00301045                                               main:00100991(*), 
+                             s_ns_00301046                                                main:00100998(R), 
+                             s_s_00301047                                                 _INIT_1:00100861(W), 
+                             key                                                          _INIT_1:00100868(W), 
+                                                                                          _INIT_1:0010086f(W), 
+                                                                                          _INIT_1:00100876(W), 
+                                                                                          _INIT_1:0010087d(W)  
+        00301042 68 75 6d        ds         "humans"
+                 61 6e 73 00
+~~~
 
+At first I believed the key was humans but upon further inspection I found that in the function _INIT_1 that the real key was aliens.
 
+~~~cs
+void _INIT_1(void)
 
-At first I believed the key was humans but upon further inspection we found the real key was aliens.
-
-I did a quick search for keys and found where in the decompile window were the real keys.
-
-
-
-
-
-
-
-
-
-
-
+{
+  puts("Preparing secret keys");
+  key[0] = 'a';
+  key[1] = 'l';
+  key[2] = 'i';
+  key[3] = 'e';
+  key[4] = 'n';
+  key[5] = 's';
+  return;
+}
+~~~
 
 
 We are nearly done, we just have to decode the hexidecimal with the key
 
-We did this with 2 different methods. Python and the XOR Cipher website.
+I did this with 2 different methods. Python and the XOR Cipher website.
+
+~~~python
+#!/usr/bin/python3
+from itertools import cycle
+def xor():    
+    key = "aliens"
+    hex_array = [0x29, 0x38, 0x2b, 0x1e, 0x06, 0x42, 0x05, 0x5d, 0x07, 0x02, 0x31, 0x42, 0x0f, 0x33, 0x0a, 0x55, 0x00, 0x00, 0x15, 0x1e, 0x1c, 0x06, 0x1a, 0x43, 0x13, 0x59, 0x36, 0x54, 0x00, 0x42, 0x15, 0x11]
+    temp = ""
+    for i in hex_array:
+        temp += chr(i)
+    flag = ''.join(chr(ord(c)^ord(k)) for c,k in zip(temp, cycle(key)))
+    print(flag)
+
+def main():
+    xor()
+
+if __name__ == "__main__":
+    main()
+~~~
+~~~console
+(base) ┌──(rogue1㉿rogue1)-[~/HTB/CTF/Apocalypse2022/rev_rebuilding]
+└─$ python3 flag.py    
+HTB{h1d1ng_1n_c0nstruct0r5_1n1t}
+~~~
 
