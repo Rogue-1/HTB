@@ -124,3 +124,5 @@ p.recvline()
 p.interactive()
 ```
 Summary: Definitely not what I was ready for and I got a crash course in buffer overflow and how to spot it. Some of the code in the Python script is leftover from the challenge and it was required to establish a tcp connection to launch the binary.
+
+#NOTE: THIS IS FOR THE CTF VERSION OF THE BINARY!!!
