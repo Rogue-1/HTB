@@ -1,10 +1,10 @@
-#HTB PWN: Going Deeper
+# HTB PWN: Going Deeper
 
-###Tools: Ghidra, Python
+### Tools: Ghidra, Python
 
-###Vulnerability: Stack Overflow
+### Vulnerability: Stack Overflow
 
-###Description: We are inside D12! We bypassed the scanning system, and now we are right in front of the Admin Panel. The problem is that there are some safety mechanisms enabled so that not everyone can access the admin panel and become the user right below Draeger. Only a few of his intergalactic team members have access there, and they are the mutants that Draeger trusts. Can you disable the mechanisms and take control of the Admin Panel?
+### Description: We are inside D12! We bypassed the scanning system, and now we are right in front of the Admin Panel. The problem is that there are some safety mechanisms enabled so that not everyone can access the admin panel and become the user right below Draeger. Only a few of his intergalactic team members have access there, and they are the mutants that Draeger trusts. Can you disable the mechanisms and take control of the Admin Panel?
 
 Alright this was one of the first PWN that I have ever done and I could not have got as far as I did without some help with python scripting.
 
@@ -125,4 +125,4 @@ p.interactive()
 ```
 Summary: Definitely not what I was ready for and I got a crash course in buffer overflow and how to spot it. Some of the code in the Python script is leftover from the challenge and it was required to establish a tcp connection to launch the binary.
 
-#NOTE: THIS IS FOR THE CTF VERSION OF THE BINARY!!!
+# NOTE: THIS IS FOR THE CTF VERSION OF THE BINARY!!!
