@@ -82,7 +82,7 @@ The reason Cutter worked for me is that its hexdump section put it together nice
 For example 0x80000a was in the 0x0a location of the hexdump that equals H.
 
 So when we decode it we get
-```cs
+```python
 0a      H
 08      T
 24      B
