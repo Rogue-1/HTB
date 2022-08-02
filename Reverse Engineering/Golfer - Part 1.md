@@ -73,10 +73,11 @@ fcn.0800012f ();
 0x08000137      ret
 ```
 
-![image](https://user-images.githubusercontent.com/105310322/182473819-c6ee656b-df6d-40c5-9974-6fcfa20e0a0d.png)
+![image](https://user-images.githubusercontent.com/105310322/182474806-697f16eb-6cae-46db-b362-6566fb58ca66.png)
 
 
-The reason Cutter worked for me is that its hexdump section put it together nicely that I could take the data that the call function was using and cross reference it to the hexdump.
+
+The reason Cutter worked for me is that its hexdump section put it together nicely that I could take the data that the call functions were using and cross reference it to the hexdump.
 
 For example 0x80000a was in the 0x0a location of the hexdump that equals H.
 
