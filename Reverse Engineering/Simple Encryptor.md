@@ -6,7 +6,7 @@
 
 ### Files: encrypt, flag.enc
 
-### Description:On our regular checkups of our secret flag storage server we found out that we were hit by ransomware! The original flag data is nowhere to be found, but luckily we not only have the encrypted file but also the encryption program itself.
+### Description: On our regular checkups of our secret flag storage server we found out that we were hit by ransomware! The original flag data is nowhere to be found, but luckily we not only have the encrypted file but also the encryption program itself.
 
 For starters I did not solve this challenge without a lot of help from some good people, this write up will be more for learning and record keeping.
 
