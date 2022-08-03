@@ -1,4 +1,4 @@
-# Impossible Password
+# Simple Encryptor
 
 ### Challenge: Reverse Engineering
 
