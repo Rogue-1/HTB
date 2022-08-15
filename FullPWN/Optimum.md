@@ -387,6 +387,8 @@ meterpreter > cat root.txt
 51ed1b36553c8461f4552c2e92b3eeed
 ```
 
+The original method I was trying to do was use sherlock.ps1 or winpeas.exe to make finding an exploit much quicker. Then transfer said exploit onto the victims computer to run it and take over root.
+		
 Still not sure what problem I was running into with transferring files. I tried really hard not to use metasploit but this machine might be broken. After this challenge looking at other guides showed no issues with transferring exploits onto the victim's system. From what I could tell there methods were not too different from mine. Could also be a pwnbox problem, ive run into plenty of issues already with HTB's VM.
-
+	
 Anyways GG..
