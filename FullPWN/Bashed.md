@@ -2,7 +2,7 @@
 
 ### Challenge: FullPWN
 
-### Tools: Nmap, msfexploit
+### Tools: Nmap, 
 
 Running Nmap we get port 80 running Apache 2.4.18. Curl did not give anything extra and an Nmap scripot scan did not find anything. We did get some luck with Dirb and we can check that part out.
 
