@@ -2,7 +2,7 @@
 
 ### Challenge: FullPWN
 
-### Tools: Nmap
+### Tools: Nmap, Metasploit
 
 Running Nmap reveals port 80 is open hosting HFS version 2.3.
 
@@ -379,8 +379,14 @@ Mode              Size  Type  Last modified              Name
 
 meterpreter > 
 ```
+	
+And we finally have our flag!
 
 ```console  
 meterpreter > cat root.txt
 51ed1b36553c8461f4552c2e92b3eeed
 ```
+
+Still not sure what problem I was running into with transferring files. I tried really hard not to use metasploit but this machine might be broken. After this challenge looking at other guides showed no issues with transferring exploits onto the victim's system. From what I could tell there methods were not too different from mine. Could also be a pwnbox problem, ive run into plenty of issues already with HTB's VM.
+
+Anyways GG..
