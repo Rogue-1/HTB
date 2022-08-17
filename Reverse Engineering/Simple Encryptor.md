@@ -167,9 +167,9 @@ gcc decrypt.c -o decrypt
 ```console
 └──╼ [★]$ ./decrypt 
 ---------START OF FLAG---------
-```
+
 <!--- HTB{vRy_s1MplE_F1LE3nCryp0r} -->
-```
+
 ----------END OF FLAG----------
 ```
 
