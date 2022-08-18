@@ -2,9 +2,9 @@
 
 ### Challenge: FullPWN
 
-### Tools: nmap,
+### Tools: nmap, python, dirb
 
-### Vulnerabilities: IIS, WebDAV, SeImpersonatePrivelege
+### Vulnerabilities: IIS, WebDAV, SeImpersonatePrivilege
 
 This is practically the same challenge as Granny except I used a different method to get into the system with grandpa.
 
