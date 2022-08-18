@@ -360,23 +360,4 @@ HOORAY!
 
 I was a little disappointed by this box being so similar to Granny or Vice versa. Maybe because its so old they did not have these exploits at the time making it a bit different. 
 At least this time I was able to get onto the system using a slightly different method than I did for Granny.
-Again you can run this through metasploit for a quicker machine but learning how these things work is important for harder machines.
-
-
-
-
-
-
-
-
-
-
-| First row | After two perk choices | After four perk choices | After eight perk choices | After ten perk choices |
-| --------- | ---------------------- | ----------------------- | ------------------------ | ---------------------- |   
-|Overload Bows (Arms)|Scout Rifle Loader (Arms)|Glaive Loader (Arms)|Overload LMG (Arms) Uninterrupted fire from equipped Machine Guns will stun enemies with a beam that delays energy regeneration and reduces enemy damage output. Strong against Overload Champions.|Thunderous Retort (Class): Arc Supers do more damage when cast while in critical condition or while amplified. 
-|Unstoppable Pulse Rifles (Arms)|Sword Ammo Scavengers (Legs)|Focusing Strike (Arms): Causing damage with a melee ability grants class ability energy.|Anti-Barrier Snipers (Arms)|	Hype Train Conductor (Class): +2 seconds to amplified timer. Stacks.|
-|Anti-Barrier Scout Rifles (Arms)|Machine Gun Holster (Legs): Gradually reloads stowed Machine Guns over time. Stacks.|Combo Arc + Solar Resist (Chest)|Bad Amplitude (Class): Damaging a Champion with an Arc ability causes the Champion to become jolted.|Trace Evidence (Class): Precision hits on Arc debuffed targets will generate Ionic Traces.|
-|Anti-Barrier Auto Rifles (Arms)|Scout and Sniper Targeting (Head)|Machine Gun Ammo Scavenger (Legs)|Surge Detonators (Class): Arc grenades disrupt combatants, stunning them, delaying ability regeneration and lowering combatant damage output. Strong against Overload Champions. |Lightning Strikes Twice (Class): After throwing an Arc grenade, gain increased grenade recharge for a short time. Arc final blows extend the duration of this benefit. | 
-|Unstoppable Shotguns (Arms)|Bottomless Bounty 1 (Head): Improves two Origin Perks.|Bottomless Bounty 2 (Head): Improves two Origin perks.|Inferno Whip (Class): Solar melee abilities Unstoppable icon.pngstun unshielded combatants. Strong against Unstoppable Champions. |Sundering Glare (Class): Rapid precision hits against distant combatants weaken them for a short duration.|
-
-
+Again you can run this through metasploit for a quicker PWN but learning how these things work is important for harder machines.
