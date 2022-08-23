@@ -342,7 +342,7 @@ nt authority\system
 C:\WINDOWS\TEMP>
 ```
 
-Navigate to these locations and we get our 2 flags!
+Navigate to these locations and we get our 2 flags!!
 
 ```console
 C:\Documents and Settings\Harry\Desktop>type user.txt
