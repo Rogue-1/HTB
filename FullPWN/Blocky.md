@@ -178,7 +178,8 @@ GENERATED WORDS: 20458
                                                                       
 ```  
 
-In blockycore.jar we have a small file that reveals a sqlpass and sqluser.
+Using ```jd-gui``` from the terminal will open the program and we can open blockycore.jar.
+It is a small file that reveals a sqlpass and sqluser.
 
 ![image](https://user-images.githubusercontent.com/105310322/186242875-61349b7a-819b-4972-958f-88b233bcfbff.png)
 
