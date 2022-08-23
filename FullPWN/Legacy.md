@@ -210,4 +210,4 @@ meterpreter > cat root.txt
 993442d258b0e0ec917cae9e695d5713
 ```
 
-GG
+GG!
