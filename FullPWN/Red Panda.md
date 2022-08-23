@@ -128,6 +128,7 @@ cat user.txt
 e42c0d8eb6f8e80b686462868084ab43
 woodenk@redpanda:/home/woodenk$ 
 ```
+
 Next thing I did was run linpeas from the /tmp folder and we get a few interesting things back.
 
 ```console
