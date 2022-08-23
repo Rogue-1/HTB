@@ -140,7 +140,7 @@ Ncat: Connection from 10.129.64.44:33962.
 /bin/sh: 0: can't access tty; job control turned off
 $ 
 ```
-We still can't do anything different but running sudo -l shows that scriptmanager can be used. Note: running the reverse shell ro use script manager is required since the limited php shell from the webpage would not allow the sudo command with scriptmanager.
+We still can't do anything different but running sudo -l shows that scriptmanager can be used. Note: running the reverse shell to use script manager is required since the limited php shell from the webpage would not allow the sudo command with scriptmanager.
 
 ```console
 $ sudo -l
