@@ -202,6 +202,6 @@ $ sudo knife exec ~/flag.rb
 42aba59bd6f8d5ab6d7ab1e9c83945bb
 ```
 
-Voila we have both flags!
+Voila we have both flags!!
 
 Pretty simple box. I had a little trouble after the GTFO bins didn't work on the knife command, but a little digging showed that it can run ruby scripts so then my next challenge became creating a ruby script to read the flag.
