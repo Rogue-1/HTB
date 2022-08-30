@@ -1,6 +1,4 @@
-# Antique
-
-### Challenge: FullPWN
+![image](https://user-images.githubusercontent.com/105310322/187503034-e4779280-4727-4427-bad3-119e4a54ee69.png)
 
 ### Tools: Nmap, telnet, SNMP
 
