@@ -1,6 +1,4 @@
-# Return
-
-### Challenge: FullPWN
+![image](https://user-images.githubusercontent.com/105310322/187504257-02bb28d7-d9e9-4274-b542-951c181b0b30.png)
 
 ### Tools: Nmap, FTP, SSH, Linpeas, Python
 
