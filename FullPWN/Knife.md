@@ -1,6 +1,4 @@
-# Knife
-
-### Challenge: FullPWN
+![image](https://user-images.githubusercontent.com/105310322/187503628-bc497651-e7cf-4967-bb53-a7f33613718d.png)
 
 ### Tools: Nmap, 
 
