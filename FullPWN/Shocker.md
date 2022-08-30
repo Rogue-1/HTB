@@ -2,7 +2,7 @@
 
 ### Challenge: FullPWN
 
-### Tools: nmap, dirb
+### Tools: nmap, gobuster
 
 ### Vulnerabilities: CGI
 
