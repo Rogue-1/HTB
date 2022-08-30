@@ -1,6 +1,4 @@
-# Blocky
-
-### Challenge: FullPWN
+![image](https://user-images.githubusercontent.com/105310322/187503223-277a4fc5-0ee2-446d-ac4b-d18e9dd8ca8f.png)
 
 ### Tools: nmap, dirb, jd-gui
 
