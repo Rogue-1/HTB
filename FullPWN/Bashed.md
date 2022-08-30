@@ -1,6 +1,4 @@
-# Bashed
-
-### Challenge: FullPWN
+![image](https://user-images.githubusercontent.com/105310322/187503139-1330b005-f9be-4a05-9bf9-5296ecc3d166.png)
 
 ### Tools: Nmap, 
 
