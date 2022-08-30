@@ -1,6 +1,4 @@
-# Grandpa
-
-### Challenge: FullPWN
+![image](https://user-images.githubusercontent.com/105310322/187503460-128f0c76-9a1d-4206-a001-853c90204f2c.png)
 
 ### Tools: nmap, python, dirb
 
