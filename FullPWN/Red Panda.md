@@ -1,6 +1,4 @@
-# Red Panda
-
-### Challenge: FullPWN
+![image](https://user-images.githubusercontent.com/105310322/187504141-74ea8c5a-868e-4ec4-9295-1701770ea229.png)
 
 ### Tools: nmap, burpsuite, exiftool, dirb, linpeas
 
