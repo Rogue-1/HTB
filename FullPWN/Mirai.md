@@ -1,8 +1,11 @@
+
+![image](https://user-images.githubusercontent.com/105310322/187500795-e2801f1b-8201-400d-9017-01895b8492b9.png)
+
 # Mirai
 
 ### Challenge: FullPWN
 
-### Tools: nmap, gobuster
+### Tools: nmap, gobuster, ssh
 
 ### Vulnerabilities: Pi-Hole, Default credentials
 
