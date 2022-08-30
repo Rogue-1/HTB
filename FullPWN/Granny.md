@@ -1,6 +1,4 @@
-# Granny
-
-### Challenge: FullPWN
+![image](https://user-images.githubusercontent.com/105310322/187503546-48a4c7be-f47c-41b5-ade8-a6df645169bd.png)
 
 ### Tools: nmap, cadaver, davtest, msfvenom
 
