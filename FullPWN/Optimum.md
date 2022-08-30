@@ -1,6 +1,4 @@
-# Optimum
-
-### Challenge: FullPWN
+![image](https://user-images.githubusercontent.com/105310322/187504056-4756f5f4-a2ed-4cb0-a7a5-558394c4d00d.png)
 
 ### Tools: Nmap, Metasploit
 
