@@ -1,6 +1,4 @@
-# Shocker
-
-### Challenge: FullPWN
+![image](https://user-images.githubusercontent.com/105310322/187502717-ef017f09-d945-45f7-a1e9-46e7eea95bc9.png)
 
 ### Tools: nmap, gobuster
 
