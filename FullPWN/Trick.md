@@ -1,5 +1,6 @@
+![image](https://user-images.githubusercontent.com/105310322/188749113-14fa8d46-e967-43ba-814d-b1ee655b6a25.png)
 
-### Tools: nmap, gobuster, dig
+### Tools: nmap, gobuster, dig, ffuf, ssh
 
 ### Vulnerabilities: sql injection, fail2ban
 
