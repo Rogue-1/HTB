@@ -3,15 +3,23 @@
 ### Type: Mobile
 
 
+Android Studio is not needed but I added the link for later reference since I just started doing Mobile challenges. Tried using it in another challenge but it wasn't needed either. However I think It ill be useful in the future.
 
 https://wiki.debian.org/AndroidStudio
 
 
+This link was nescessary to unpack the .ab file and read the contents of the backup.
+
+Note: ADB is a toolkit for Android that also had an exploit where you could remote into it and gain access to a victims phone.
+
 https://sourceforge.net/projects/android-backup-toolkit/
 
+After Downloading navigate to your folder and start unpacking.
+
+```
 ┌─[us-dedivip-1]─[10.10.14.53]─[htb-0xrogue@pwnbox-base]─[~/Downloads/android-backup-tookit/android-backup-processor/executable]
 └──╼ [★]$ java -jar abp.jar unpack ~/Downloads/cat.ab ~/Downloads/cat.zip
-
+```
 
 Just accessing the zip file reveals a few empty directories except for the pictures.
 
