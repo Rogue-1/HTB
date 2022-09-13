@@ -5,7 +5,7 @@
 ### Tools: apktool, jadx-gui, android studio, visual studio
 
 
-I had to install a few tools to finish this challenge. 
+Since pwnbox does not natively come with important Moible challenge tools I had to install a few to finish this challenge. 
 
 ```console
 └──╼ [★]$ Sudo apt install jadx
