@@ -5,26 +5,38 @@
 ### Tools: apktool, jadx-gui, android studio, visual studio
 
 
-Sudo apt install apktool
+I had to install a few tools to finish this challenge. 
 
-apktool d APKey.apk
+```console
+└──╼ [★]$ Sudo apt install jadx
+└──╼ [★]$ jadx-gui
+```
+Starting off, if we open the program in jadx-gui we can see we have a username ```admin``` it is encrypted with md5 and we have an encrypted string.
 
-
-
-Sudo apt install jadx
-jadx-gui
+All we have to do is change that encrypted string to one that we create.
 
 ![image](https://user-images.githubusercontent.com/105310322/189731859-fc60ce5e-e137-4cb7-bc2e-7a743edeaf76.png)
 
 
-
+Here I am creating an md5 hash of the word pass.
 
 ```console
 └──╼ [★]$ echo 'pass' | md5sum
 4528e6a7bb9341c36c425faf40ef32c3
 ```
 
-install APKlab in Visual Studio
+Next I am going to decompile the apk file with apktool
+
+```console
+└──╼ [★]$ Sudo apt install apktool
+└──╼ [★]$ apktool d APKey.apk
+```
+
+Next we are going to open the decompiled APKey folder in Visual Studio and install the APKlab extension (follow the directions in the APKlab extension)
+
+Here is the classes.dex that contains the info we are going to overwrite.
+
+I find the old hash and overwrite with ```const-string v1, "4528e6a7bb9341c36c425faf40ef32c3"```
 
 ```c
 .class public Lcom/example/apkey/MainActivity$a;
@@ -233,9 +245,11 @@ install APKlab in Visual Studio
     return-void
 .end method
 ```
+Next we need to rebuild the APK.
 
+No matter what I did I was unable to rebuild the apk using this command that would normally work. However apktool uses aapt so I tested that out instead.
 
-So no matter what I did I was unable to rebuild the apk using this command that would normally work. However apktool uses aapt so I tested that out instead.
+However running the ```apktool b``` command still rebuilt the classes.dex. So with that we can use aapt to fix the orignial apk.
 
 ```console
 └──╼ [★]$ apktool b APKey -o APKey1.apk
@@ -273,4 +287,4 @@ If apktool b APKey -o APKey1 would have worked before than I still would have ha
 └──╼ [★]$ jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore mykey.keystore APKey1.apk APKey1
 ```
 
-All thats left is to run the new program with an emulator such as Android studio and login with the password you created with the MD5 hash.
+All thats left is to run the new program with an emulator such as Android studio and login with the password you created with the MD5 hash to get the flag!
