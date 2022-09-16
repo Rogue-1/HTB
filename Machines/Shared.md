@@ -31,3 +31,39 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 305.76 seconds
 ```
+
+```console
+└──╼ [★]$ gobuster vhost -w /usr/share/seclists/Discovery/DNS/subdomains-top1million-110000.txt -u shared.htb
+===============================================================
+Gobuster v3.1.0
+by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
+===============================================================
+[+] Url:          http://shared.htb
+[+] Method:       GET
+[+] Threads:      10
+[+] Wordlist:     /usr/share/seclists/Discovery/DNS/subdomains-top1million-110000.txt
+[+] User Agent:   gobuster/3.1.0
+[+] Timeout:      10s
+===============================================================
+2022/09/16 22:38:25 Starting gobuster in VHOST enumeration mode
+===============================================================
+Found: checkout.shared.htb (Status: 200) [Size: 3229]
+```
+
+james_mason
+
+fc895d4eddc2fc12f995e18c865cf273 = Soleil101
+
+```console
+└──╼ [★]$ ssh james_mason@shared.htb
+james_mason@shared.htb's password: 
+Linux shared 5.10.0-16-amd64 #1 SMP Debian 5.10.127-1 (2022-06-30) x86_64
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+Last login: Fri Sep 16 18:43:35 2022 from 10.10.14.6
+```
