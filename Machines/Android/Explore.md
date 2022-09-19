@@ -237,7 +237,7 @@ ls: /storage/emulated/: Permission denied
 Alarms  DCIM     Movies Notifications Podcasts  backups   user.txt 
 Android Download Music  Pictures      Ringtones dianxinos 
 1|:/storage $ cat /storage/emulated/0/user.txt                                 
-f32017174c7c7e8f50c6da52891ae250
+f320****************************
 :/storage $ 
 ```
 With this being my first android machine I tried a few different methods similar to linux boxes, but I was not getting anywhere.
@@ -282,7 +282,7 @@ Navigate to the /data folder and cat the flag!
 
 ```console
 :/ # cat data/root.txt
-f04fc82b6d49b41c9b08982be59338c5
+f04f****************************
 :/ # 
 ```
 
