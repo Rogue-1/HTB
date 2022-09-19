@@ -227,7 +227,7 @@ Info: Establishing connection to remote endpoint
 ```
 ```console
 *Evil-WinRM* PS C:\Users\support\Desktop> cat user.txt
-e5e4df8ff7b70b6d1b41b9893c2ec44c
+e5e4d***************************
 ```
 
 # Privilege Escalation
@@ -318,7 +318,7 @@ Navigate and cat the flag!
 
 ```
 C:\Users\Administrator\Desktop>type root.txt
-1a586ea32eb4efd6d2fd9f310f94e31c
+1a586***************************
 
 C:\Users\Administrator\Desktop>
 ```
