@@ -265,14 +265,14 @@ root@Shocker:/usr/lib/cgi-bin#
 ```console
 root@Shocker:/home/shelly# ccaatt  uusseerr..ttxxtt
 
-2ec24e11320026d1e70ff3e16695b233
+2ec2****************************
 root@Shocker:/home/shelly# 
 ```
 
 ```console
 root@Shocker:~# ccaatt  rroooott..ttxxtt
 
-52c2715605d70c7619030560dc1ca467
+52c2****************************
 root@Shocker:~# 
 ```
 
