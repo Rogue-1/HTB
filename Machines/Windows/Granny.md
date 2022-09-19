@@ -271,12 +271,12 @@ Bada bing bada boom we have full access and can get both flags :)
 ```console
 C:\Documents and Settings\Lakis\Desktop>type user.txt
 type user.txt
-700c5dc163014e22b3e408f8703f67d1
+700c****************************
 ```
 ```console
 C:\Documents and Settings\Administrator\Desktop>type root.txt
 type root.txt
-aa4beed1c0584445ab463a6747bd06e9
+aa4b****************************
 ```
 
 Learned a few new things and I am trying to steer away from metasploit so I can prepare for the OSCP.
