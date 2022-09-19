@@ -163,7 +163,7 @@ Last login: Fri Aug  5 19:29:30 2022 from 10.10.14.93
 nathan@cap:~$ ls
 user.txt
 nathan@cap:~$ cat user.txt
-e62962879f1dc62e87f32fe0c15f0596
+e629****************************
 ```
 
 Awesome but now we need to get the root flag, however we can't just waltz right in there. We are going to have to priveledge escalate. So lets run linpeas from Nathan's account.
@@ -212,7 +212,7 @@ root@cap:/bin# cd /root
 root@cap:/root# ls
 root.txt  snap
 root@cap:/root# cat root.txt
-b6af56f563c273361dbc6236d2489cf5
+b6af****************************
 ```
 
 Congratulations on PWNing this box and I hope this writeup taught you something.
