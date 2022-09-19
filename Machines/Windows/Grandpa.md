@@ -345,13 +345,13 @@ Navigate to these locations and we get our 2 flags!!
 ```console
 C:\Documents and Settings\Harry\Desktop>type user.txt
 type user.txt
-bdff5ec67c3cff017f2bedc146a5d869
+bdff****************************
 ```
 
 ```console
 C:\Documents and Settings\Administrator\Desktop>type root.txt
 type root.txt
-9359e905a2c35f861f6a57cecf28bb7b
+9359****************************
 ```
 
 HOORAY!
