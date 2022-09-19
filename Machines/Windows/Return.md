@@ -96,7 +96,7 @@ Info: Establishing connection to remote endpoint
 ```
 ```console
 *Evil-WinRM* PS C:\Users\svc-printer> cat Desktop/user.txt
-572404b45e49f57e4014851b47458ab4
+5724****************************
 ```
 I struggled for a bit on privilege escalating here until I got some help with the group permission *Server Operators* With this membership we can get our reverse shell.
 
@@ -149,7 +149,7 @@ This shell is very unstable and only lasts about 60 sec but it is just enough ti
 ```
 C:\Users\Administrator\Desktop>type root.txt
 type root.txt
-8e5dd6807afea34697b12d6c823e6482
+8e5d****************************
 ```
 
 GG!
