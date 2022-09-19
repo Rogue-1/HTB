@@ -208,7 +208,7 @@ See "man sudo_root" for details.
 notch@Blocky:~$ ls
 minecraft  user.txt
 notch@Blocky:~$ cat user.txt
-0f10d469927782d02fa148d543bdb3ab
+0f10d****************************
 notch@Blocky:~$ 
 ```
 Whenever I get into a machine as a user I always like to check my sudo permissions. This 1 was a suprise since it can run everything as sudo. 1st time for everything on HTB.
@@ -230,7 +230,7 @@ root@Blocky:~#
 root@Blocky:/root# ls
 root.txt
 root@Blocky:/root# cat root.txt
-46ea558791cc4b4319e8eb4860b37c64
+46ea****************************
 root@Blocky:/root# 
 ```
 
