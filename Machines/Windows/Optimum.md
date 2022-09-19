@@ -161,7 +161,7 @@ Awesome we quickly got the user flag.
 
 ```console
 PS C:\Users\kostas\Desktop> cat user.txt.txt 
-d0c39409d7b994a9a1389ebf38ef5f73
+d0c3****************************
 ```
 
 For the privilege escalation I struggled for a long time since nothing seemed to work with sherlock or winpeas. This is the 1st time I have ran into issues using "python -m http.server 8000" and any other method of putting files on the victim machine. I was unable to create any files even though my server was receiving successful GET requests. SO i had to back up and use Metasploit to get a root shell.
@@ -382,7 +382,7 @@ And we finally have our flag!
 
 ```console  
 meterpreter > cat root.txt
-51ed1b36553c8461f4552c2e92b3eeed
+51ed****************************
 ```
 
 The original method I was trying to do was use sherlock.ps1 or winpeas.exe to make finding an exploit much quicker. Then transfer said exploit onto the victims computer to run it and take over root.
