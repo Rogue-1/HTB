@@ -192,7 +192,7 @@ Mode              Size  Type  Last modified              Name
 100444/r--r--r--  32    fil   2017-03-16 06:19:49 +0000  user.txt
 
 meterpreter > cat user.txt
-e69af0e4f443de7e36876fda4ec7644f
+e69a****************************
 ```
 
 ```console
@@ -205,7 +205,7 @@ Mode              Size  Type  Last modified              Name
 100444/r--r--r--  32    fil   2017-03-16 06:18:50 +0000  root.txt
 
 meterpreter > cat root.txt 
-993442d258b0e0ec917cae9e695d5713
+9934****************************
 ```
 
 GG!
