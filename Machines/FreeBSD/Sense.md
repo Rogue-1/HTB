@@ -241,12 +241,12 @@ And both flags super quick!
 
 ```console
 # cat user.txt
-8721327cc232073b40d27d9c17e7348b
+8721****************************
 #
 ```
 ```console
 # cat root.txt	
-d08c32a5d4f8c8b10e76eb51a69f1a86
+d08c****************************
 # 
 ```
 
