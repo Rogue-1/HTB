@@ -121,7 +121,7 @@ phpbash.php
 www-data@bashed
 :/home/arrexel# cat user.txt
 
-343cfcbe7fd570aa1a5218f0db7e0946
+343c****************************
 ```
 We set up the listener and run the script and we are in.
 
@@ -205,6 +205,6 @@ id
 uid=0(root) gid=0(root) groups=0(root)
 # cat /root/root.txt
 cat /root/root.txt
-353dbd73edc7c3073b68d735599731c9
+353d****************************
 ```
 WHOOOOOO!!!!
