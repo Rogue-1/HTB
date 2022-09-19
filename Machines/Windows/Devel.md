@@ -274,13 +274,13 @@ Navigate and cap the flags!
 ```console
 c:\Users\babis\Desktop>type user.txt
 type user.txt
-966e18842873faf5d490df3e3d0cd0dd
+966e****************************
 ```
 
 ```console
 c:\Users\Administrator\Desktop>type root.txt
 type root.txt
-47833225dc5a52f1a60343e17b6f7770
+4783****************************
 
 c:\Users\Administrator\Desktop>
 ```
