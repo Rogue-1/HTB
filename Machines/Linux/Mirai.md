@@ -120,7 +120,7 @@ root@raspberrypi:/home/pi#
 ```
 ```console
 root@raspberrypi:/home/pi/Desktop# cat user.txt
-ff837707441b257a20e32199d7c8838d
+ff83****************************
 ```
 
 It was too good to be true :(
@@ -152,7 +152,7 @@ After using cat on sdb if pops alot of incomprehensible code but at the bottom w
 
 ```console
 root@raspberrypi:/dev# cat sdb
-�|}*,.������+-���3d3e483143ff12ec505d026fa13e020b
+�|}*,.������+-���3d3e****************************
 Damnit! Sorry man I accidentally deleted your files off the USB stick.
 Do you know if there is any way to get them back?
 
