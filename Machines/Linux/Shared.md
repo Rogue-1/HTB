@@ -103,3 +103,28 @@ Last login: Fri Sep 16 18:43:35 2022 from 10.10.14.6
 Vulnerable to CVE-2021-3560
 
 Vulnerable to CVE-2022-0847
+
+Running ipython
+
+```console
+2022/09/19 18:42:54 CMD: UID=1000 PID=16733  | 
+2022/09/19 18:43:00 CMD: UID=1000 PID=16734  | -bash 
+2022/09/19 18:43:01 CMD: UID=0    PID=16736  | /usr/sbin/CRON -f 
+2022/09/19 18:43:01 CMD: UID=0    PID=16735  | /usr/sbin/CRON -f 
+2022/09/19 18:43:01 CMD: UID=1001 PID=16737  | /bin/sh -c /usr/bin/pkill ipython; cd /opt/scripts_review/ && /usr/local/bin/ipython 
+2022/09/19 18:43:01 CMD: UID=1001 PID=16738  | /usr/bin/pkill ipython 
+2022/09/19 18:43:01 CMD: UID=0    PID=16740  | /usr/sbin/CRON -f 
+2022/09/19 18:43:01 CMD: UID=1001 PID=16739  | /usr/bin/python3 /usr/local/bin/ipython 
+2022/09/19 18:43:01 CMD: UID=0    PID=16741  | /bin/sh -c /root/c.sh 
+2022/09/19 18:43:01 CMD: UID=0    PID=16742  | sleep 5 
+2022/09/19 18:43:06 CMD: UID=0    PID=16744  | 
+2022/09/19 18:43:06 CMD: UID=0    PID=16746  | /bin/bash /root/c.sh 
+2022/09/19 18:43:06 CMD: UID=0    PID=16745  | /bin/bash /root/c.sh 
+2022/09/19 18:43:06 CMD: UID=0    PID=16747  | perl -ne s/\((\d+)\)/print " $1"/ge 
+2022/09/19 18:43:06 CMD: UID=0    PID=16748  | /bin/bash /root/c.sh 
+2022/09/19 18:43:06 CMD: UID=0    PID=16749  | 
+2022/09/19 18:43:06 CMD: UID=0    PID=16752  | 
+2022/09/19 18:43:06 CMD: UID=0    PID=16753  | (s-server) 
+```
+
+https://medium.com/@klockw3rk/privilege-escalation-hijacking-python-library-2a0e92a45ca7
