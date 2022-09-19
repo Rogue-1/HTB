@@ -123,7 +123,7 @@ python3 -c 'import pty; pty.spawn("/bin/bash")'
 ```console
 woodenk@redpanda:/home/woodenk$ cat user.txt
 cat user.txt
-e42c0d8eb6f8e80b686462868084ab43
+e42c0d**************************
 woodenk@redpanda:/home/woodenk$ 
 ```
 
@@ -497,7 +497,7 @@ Finally got the flag!
 root@redpanda:~# ls
 root.txt  run_credits.sh
 root@redpanda:~# cat root.txt
-d9ffbae08334a7789213359874e43b0e
+d9ffbae*************************
 root@redpanda:~# 
 ```
 
