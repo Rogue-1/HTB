@@ -70,7 +70,7 @@ uid=7(lp) gid=7(lp) groups=7(lp),19(lpadmin)
 ```
 ```console
 > exec cat user.txt
-e8b892894bb1678349dd26804cc892bf
+e8b8****************************
 ```
 Set up a listner and then we can execute this bash shell to give us a pretty good shell. Now we are going to run linpeas, I had issues with the telnet shell but after creating this new shell I was able to get and run it much easier.
 
@@ -155,7 +155,7 @@ The exploit works and we get the flag!!!
 id
 uid=0(root) gid=0(root) groups=0(root)
 cat /root/root.txt
-3573f881d294e079a4d1141e1e8c1626
+3573****************************
 ```
 
 This is not the only method. I'm sure the other CVE's could have worked and The Cups 1.6.1 read file from root exploit is also confirmed to work. Also there was another version of the same CVE that I used that nearly worked but it wanted me to input a password that I did not have. Luckily I saw this one that came with a password.
