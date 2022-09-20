@@ -58,7 +58,7 @@ Server: Apache/2.4.41 (Ubuntu)
 X-Powered-By: PHP/8.1.0-dev
 Content-Type: text/html; charset=UTF-8
 ```
-A quick google search gives us an axploit we can run to get a shell on the host.
+A quick google search gives us an exploit we can run to get a shell on the host.
 
 ```python
 # Exploit Title: PHP 8.1.0-dev - 'User-Agentt' Remote Code Execution
