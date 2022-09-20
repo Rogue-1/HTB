@@ -207,4 +207,4 @@ uid=0(root) gid=0(root) groups=0(root)
 cat /root/root.txt
 353d****************************
 ```
-WHOOOOOO!!!!
+WHOOOOOO!!!
