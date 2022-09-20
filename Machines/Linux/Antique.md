@@ -160,4 +160,4 @@ cat /root/root.txt
 
 This is not the only method. I'm sure the other CVE's could have worked and The Cups 1.6.1 read file from root exploit is also confirmed to work. Also there was another version of the same CVE that I used that nearly worked but it wanted me to input a password that I did not have. Luckily I saw this one that came with a password.
 
-GG!
+GG!!
