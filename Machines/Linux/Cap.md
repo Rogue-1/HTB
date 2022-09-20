@@ -215,4 +215,4 @@ root@cap:/root# cat root.txt
 b6af****************************
 ```
 
-Congratulations on PWNing this box and I hope this writeup taught you something.
+Congratulations on PWNing this box and I hope this writeup taught you something!
