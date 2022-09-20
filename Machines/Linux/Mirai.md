@@ -162,4 +162,4 @@ root@raspberrypi:/dev#
 
 If using cat to read the sdb file did not work then my next option would have been to extract or mount the usb to try and read the files but luckily the important information was all there.
 
-GG!!
+GG!
