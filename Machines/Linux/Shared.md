@@ -69,6 +69,7 @@ Inputting into the credit card field will not give us anything back since the da
 After messing with the custom_cart cookie to find what vulnerability exists I finally got some results using sql injection and union select. The links below do a really good job of inputting it properly to leak a sql database.
 
 https://book.hacktricks.xyz/pentesting-web/sql-injection
+
 https://www.noobsec.net/sqli-cheatsheet/
 
 This command shows us that whatever is in the b position will show up in the field.
