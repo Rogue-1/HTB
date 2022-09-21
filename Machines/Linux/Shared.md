@@ -320,6 +320,7 @@ Now we can login to the redis-cli with the password
 
 Note: using the password in the command will make it so you do not have to constantly authorize in redis-cli.
 
+
 ```console
 dan_smith@shared:/tmp$ redis-cli -a F2WHqJUz2WEz=Gqq
 Warning: Using a password with '-a' or '-u' option on the command line interface may not be safe.
