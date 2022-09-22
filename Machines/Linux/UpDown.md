@@ -300,6 +300,10 @@ function getExtension($file) {
 </html>
 ```
 
+<?php 
+phpinfo();
+
+
 There was one last thing I was missing that I got some help on and it was the fact that certain functions in php were disabled. Except for proc_open. The link below gives the script and all you have to do is put in your reverse shell/
 
 https://www.php.net/manual/en/function.proc-open.php
