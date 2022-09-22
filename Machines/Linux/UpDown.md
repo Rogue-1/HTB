@@ -1,8 +1,8 @@
+![image](https://user-images.githubusercontent.com/105310322/191848802-6425b2c6-cc62-412a-9f6f-9a9e97497148.png)
 
 ### Tools: gobuster, feroxbuster, git
 
-### Vulnerabilities: Reverse Shell file upload, Python sandbox escape
-
+### Vulnerabilities: Reverse Shell file upload, Python sandbox escape, sudo
 
 Nmap gives us a webpage and ssh back.
 
@@ -46,20 +46,35 @@ OS and Service detection performed. Please report any incorrect results at https
 Nmap done: 1 IP address (1 host up) scanned in 403.74 seconds
 ```
 
+The site simply checks if a site is up or down but it does give us its domain. ```siteisup.htb``` So we can add this to our /etc/hosts and perform a gobuster on it.
+
+![image](https://user-images.githubusercontent.com/105310322/191851461-2bb45d0b-4913-4c68-985d-6a5c994ce217.png)
+
+
 Since it's a webpage lets check for subdirectories and other domains.
+
+gobuster finds another domain but we do not have access to it.
 
 ```
 └──╼ [★]$ gobuster vhost -u http://siteisup.htb -w /usr/share/wordlists/dirbuster/directory-list-lowercase-2.3-medium.txt -t30 -q
 Found: dev.siteisup.htb (Status: 403) [Size: 281]
 ```
 
+Using feroxbuster (feroxbuster has recursion by default so it can look deeper unlike gobuster) We get a hit on /dev/.git.
 
+Lets check if there is anything hiding inside.
+
+
+Download all of the files .git has to offer.
 
 ```
 └──╼ [★]$ wget -r http://siteisup.htb/dev/.git/
 ```
 
+
 Note: Before dealing with .git files be sure to run the commands in the parent directory. In this case mine was /siteisup.htb/dev/
+
+We get a couple of different files that seem interesting.
 
 ```
 └──╼ [★]$ git ls-files --stage
@@ -71,6 +86,8 @@ Note: Before dealing with .git files be sure to run the commands in the parent d
 100644 3b6b838805812d0b0690699f244aeced9709b5b6 0	stylesheet.css
 ```
 
+And git log gives us a hint about a header to protect their dev.siteisup.htb site.
+
 ```
 └──╼ [★]$ git log
 commit 8812785e31c879261050e72e20f298ae8c43b565
@@ -80,6 +97,10 @@ Date:   Wed Oct 20 16:38:54 2021 +0200
     New technique in header to protect our dev vhost.
     
 ```
+
+Checking the git file in the logs against the up to date file it gives us the special header ```Special-Dev: only4dev```
+
+Using this header we can finally access the dev site.
 
 ```
 └──╼ [★]$ git diff 8812785e31c879261050e72e20f298ae8c43b565 bc4ba79e596e9fd98f1b2837b9bd3548d04fe7ab
@@ -93,7 +114,10 @@ index b317ab5..44ff240 100644
  Allow from env=Required-Header
 ```
 
-Navigate to dev.updown.htb
+
+Next we are going to fire up burpsuite and navigate to dev.siteisup.htb
+
+After burpsuite grabs the page be sure to add in the header anywhere in the field
 
 ```
 GET / HTTP/1.1
@@ -108,6 +132,15 @@ Connection: close
 Upgrade-Insecure-Requests: 1
 Sec-GPC: 1
 ```
+
+Doing so gives us a similar webpage but this time we can upload a file. This part turned out to not be so simple and requires looking at the other .git files.
+
+![image](https://user-images.githubusercontent.com/105310322/191851887-f432a5ed-bb67-426a-9a17-cb10c62df2c5.png)
+
+
+If we look into the checker.php it is actually shows the extensions that are excluded. A bunch of them are not allowed except for .phar files. It also states that are files are located in /uploads.
+
+Now every time we upload files the script is deleting the uploaded file after it is read.
 
 ```php
 └──╼ [★]$ git cat-file -p 20a2b359105529ee120796c446ff68e6d8a46bfe
