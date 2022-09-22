@@ -300,6 +300,12 @@ function getExtension($file) {
 </html>
 ```
 
+There was one last thing I was missing that I got some help on and it was the fact that certain functions in php were disabled. Except for proc_open. The link below gives the script and all you have to do is put in your reverse shell/
+
+https://www.php.net/manual/en/function.proc-open.php
+
+
+
 Now we can take everything that checker.php is checking for and form our payload.
 
 
@@ -309,7 +315,7 @@ Now we can take everything that checker.php is checking for and form our payload
 4. Make sure your burp suite is ready to go with ```Special-Dev: only4dev```
 5. Alternatively you can run this Curl command from another user ```curl -H 'Special-Dev: only4dev' -s http://dev.siteisup.htb/uploads/ | grep "\[DIR\]" | cut -d "\"" -f 8 > folder-names; while read -r line; do curl -v -H 'Special-Dev: only4dev' "http://dev.siteisup.htb/uploads/${line}<PHAR-FILE-NAME>.phar"; done < folder-names``` and it should work but I have not tested.
 
-https://www.php.net/manual/en/function.proc-open.php
+
 
 ```php
 http://siteisdown.htb
