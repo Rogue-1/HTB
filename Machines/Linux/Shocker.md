@@ -77,7 +77,7 @@ by OJ Reeves (@TheColonial) & Christian Mehlmauer (@firefart)
 ===============================================================
 
 ```
-Further inspection of the cgi-bin page reveals a script that can be ran (/user.sh) This is likely to be a shellshock vulnerability. Here we go we have our AV!
+Further inspection of the cgi-bin page reveals a script that can be ran (/user.sh) This is likely to be a shellshock vulnerability. Here we go, we have our AV!
 
 ```console
 ─[us-dedivip-1]─[10.10.14.35]─[htb-0xrogue@pwnbox-base]─[~]
@@ -276,4 +276,4 @@ root@Shocker:~# ccaatt  rroooott..ttxxtt
 root@Shocker:~# 
 ```
 
-GG
+GG!
