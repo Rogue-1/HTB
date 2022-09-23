@@ -1,3 +1,10 @@
+
+### Tools: feroxbuster, 
+
+### Vulnerabilities: Sqli, credentials in binary, docker
+
+Our Nmap scan gives us ssh, http, and copycat are open. Copycat turned out to be a rabbit hole but lets take a look at the webpage.
+
 ```console
 ┌──(npayne㉿Nate-kali)-[~]
 └─$ nmap -A -p- -T4 -Pn 10.129.70.70
@@ -82,11 +89,19 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 117.17 seconds
 ```
+
+Before we can access the page we need to add it to /etc/hosts. At the same time lets run a feroxbuster for more directories.
+
+
 http://shoppy.htb/login
 
 https://book.hacktricks.xyz/pentesting-web/login-bypass
 
 https://book.hacktricks.xyz/pentesting-web/nosql-injection
+
+
+
+Since one of the usernames is admin we can put that in front of our sqlinjection.
 
 admin'||'1==1
 
