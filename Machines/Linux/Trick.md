@@ -294,4 +294,4 @@ bash-5.0#
 
 Awesome we got both flags and learned a little about persistence. I also tried ssh keys as root which I am sure should work but I kept getting problems logging in. Added public keys to authorized_keys file and edited ssh_config and sshd_config in conjuction with systemctl restart ssh but None of my keys were working still. Try again another time.
 
-GG!
+GG!!
