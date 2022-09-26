@@ -1,5 +1,5 @@
 
-### Tools: feroxbuster, 
+### Tools: Feroxbuster, Gobuster
 
 ### Vulnerabilities: Sqli, credentials in binary, docker
 
@@ -92,7 +92,7 @@ Nmap done: 1 IP address (1 host up) scanned in 117.17 seconds
 
 Before we can access the page we need to add it to /etc/hosts. At the same time lets run a feroxbuster for more directories and a gobuster for more domain enumeration.
 
-Feroxbuster gets back to us with a login page. These 2 links will help but do not have the direct answer.
+Feroxbuster gets back to us with a login page that is vulnerable. These 2 links will help but do not have the direct answer.
 https://book.hacktricks.xyz/pentesting-web/login-bypass
 
 https://book.hacktricks.xyz/pentesting-web/nosql-injection
