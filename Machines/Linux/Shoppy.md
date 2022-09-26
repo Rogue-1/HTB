@@ -135,6 +135,11 @@ Now if we navigate to search for more users and input the same sqli it will popu
 
 josh credentials
 
+
+Gobuster finds a subdomain as mattermost, most of the other worldlists did not have this particular domain but if you were to google the the nmap info that returned for port 9093 you can find a hint for the mattermost server that is running. Such as the link below that my google search returned.
+
+http://push.mattermost.com/metrics
+
 ```console
 
 └──╼ [★]$ gobuster vhost -u http://shoppy.htb/ -w /usr/share/SecLists/Discovery/DNS/bitquark-subdomains-top100000.txt -q
@@ -147,6 +152,26 @@ Found: mattermost.shoppy.htb (Status: 200) [Size: 3122]
 
 ![image](https://user-images.githubusercontent.com/105310322/192319017-5dfd3369-63f1-48e4-ace0-10c184737abd.png)
 
+```console
+└──╼ [★]$ ssh jaeger@10.129.69.87
+The authenticity of host '10.129.69.87 (10.129.69.87)' can't be established.
+ECDSA key fingerprint is SHA256:KoI81LeAk+ps7zoc1ru39Mg7srdxjzOb1UgmdW6T6kI.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '10.129.69.87' (ECDSA) to the list of known hosts.
+jaeger@10.129.69.87's password: 
+Linux shoppy 5.10.0-18-amd64 #1 SMP Debian 5.10.140-1 (2022-09-02) x86_64
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+manpath: can't set the locale; make sure $LC_* and $LANG are correct
+jaeger@shoppy:~$ 
+```
+
+�u��}�u2�}���u)H�=�.�����H�u,H�5�.H��+H���/������UH���������]��AWL�=W)AVI��AUI��ATA��UH�-P)SL)�H�����H��t�L��L��D��A��H��H9�u�H�[]A\A]A^A_��H�H��Welcome to Josh password manager!Please enter your master password: SampleAccess granted! Here is creds !cat /home/deploy/creds.txtAccess denied! This incident will be reported !@����0����@���h%����
 
 
 ```console
