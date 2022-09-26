@@ -127,16 +127,14 @@ After inputting this string ```admin'||'1==1``` we are in.
 
 Now if we navigate to search for more users and input the same sqli it will populate the users on the system.
 
+We get some hashes for the users and if we put josh's in to a hash cracker we get a password!
 
 ![image](https://user-images.githubusercontent.com/105310322/192316925-2bf380d6-61d9-4aec-8ae0-4f8e7551d39d.png)
 
 
-6ebcea65320589ca4f2f1ce039975995	md5	remembermethisway
+With the password ```remembermethisway``` and username ```josh``` we can go to the next step.
 
-josh credentials
-
-
-Gobuster finds a subdomain as mattermost, most of the other worldlists did not have this particular domain but if you were to google the the nmap info that returned for port 9093 you can find a hint for the mattermost server that is running. Such as the link below that my google search returned.
+These creds were not for ssh but Gobuster finds a subdomain as mattermost, most of the other worldlists did not have this particular domain but if you were to google the the nmap info that returned for port 9093 you can find a hint for the mattermost server that is running. Such as the link below that my google search returned.
 
 http://push.mattermost.com/metrics
 
@@ -146,6 +144,8 @@ http://push.mattermost.com/metrics
 
 Found: mattermost.shoppy.htb (Status: 200) [Size: 3122]
 ```
+
+Navigating to the site brings us another login.
 
 ![image](https://user-images.githubusercontent.com/105310322/192318703-c2ad5e68-8e51-46df-94c1-29b628552852.png)
 
