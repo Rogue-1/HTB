@@ -272,6 +272,7 @@ gbyolo@faculty:~$
 ```
 Next we can run sudo -l to see if we find anything. We get back meta-git. There was not anything in GTFO bins for it but I did not an exploit on hacker-one.
 
+https://hackerone.com/reports/728040
 
 ```console
 gbyolo@faculty:/tmp$ sudo -l
