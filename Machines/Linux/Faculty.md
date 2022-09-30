@@ -32,7 +32,7 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 18.10 seconds
 ```
-Run a quick feroxbuster before navigating to the webpage and it finds alot. Most notably is the admin/login.php and admin/db_connect.php
+Run a quick feroxbuster before navigating to the webpage and it finds alot. Most notably is the /admin/login.php and /admin/db_connect.php
 
 ```console
 ─$ feroxbuster -u http://faculty.htb/ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -x php,html,txt,git -q
@@ -107,7 +107,7 @@ Run a quick feroxbuster before navigating to the webpage and it finds alot. Most
 ```
 
 
-The login page looks pretty good and happens to be vulnerable to a SQLI login bypass. I tried using burp intruder for this but it was not working for me. eventually I got it through manual input since I am avoiding using sqlmap these things are tougher.
+The login page looks pretty good and happens to be vulnerable to a SQLI login bypass. I tried using burp intruder for this but it was not working for me. Eventually I got it through manual input since I am avoiding using sqlmap these things are tougher.
 
 
 ![image](https://user-images.githubusercontent.com/105310322/193356140-b6d21417-508b-45d5-bacd-9c952ad28fb2.png)
@@ -170,7 +170,7 @@ Send it in burpsuite and take the pdf link and put it at the end of your url.
 
 http://faculty.htb/mpdf/tmp/OKQVoYJgi9AqWEu045DZNwdzfX.pdf
 
-Doing so should bring you to a blank page, however attached to the pdf is the file passwd. So download it and we can view it on our machine.
+Doing so should bring you to a blank page, however attached to the pdf is the file ```passwd```. So download it and we can view it on our machine.
 
 ![image](https://user-images.githubusercontent.com/105310322/193356488-7d911901-4866-4208-9d11-0b91ab700a1e.png)
 
