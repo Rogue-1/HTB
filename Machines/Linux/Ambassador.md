@@ -1,3 +1,4 @@
+![image](https://user-images.githubusercontent.com/105310322/193700576-4c367863-b493-473b-811d-8f9f18946064.png)
 
 
 ```console
@@ -141,7 +142,7 @@ Nmap done: 1 IP address (1 host up) scanned in 131.31 seconds
 
 ![image](https://user-images.githubusercontent.com/105310322/193699279-feb25054-fb07-4c79-9ba4-ea5ae01264de.png)
 
-
+```console
 └─$ feroxbuster -u http://10.129.51.253:3000/ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -x php,html,txt,git -q
 
 WLD      GET        2l        2w       29c Got 302 for http://10.129.51.253:3000/43612f99366348e7940a2c4ca064091d (url length: 32)
@@ -239,7 +240,7 @@ WLD         -         -         - http://10.129.51.253:3000/3ca9506f5a03461685b7
 401      GET        1l        1w       27c http://10.129.51.253:3000/api_test.txt
 401      GET        1l        1w       27c http://10.129.51.253:3000/api_test.git
 302      GET        2l        2w       54c http://10.129.51.253:3000/public/app/plugins/datasource => /public/app/plugins/datasource/
-
+```
 
 Gave back a login screen, attempted login bypass with sql injection but had no luck.
 
