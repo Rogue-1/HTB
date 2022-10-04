@@ -439,3 +439,35 @@ developer@ambassador:~$
 2022/10/04 16:25:01 CMD: UID=0    PID=30443  | /bin/bash /root/cleanup.sh 
 2022/10/04 16:25:01 CMD: UID=0    PID=30444  | find /etc/consul.d/config.d/* -mmin +10 -delete 
 ```
+```
+╔══════════╣ Active Ports
+╚ https://book.hacktricks.xyz/linux-hardening/privilege-escalation#open-ports
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      -                   
+tcp        0      0 127.0.0.1:8600          0.0.0.0:*               LISTEN      -                   
+tcp        0      0 127.0.0.1:33060         0.0.0.0:*               LISTEN      -                   
+tcp        0      0 0.0.0.0:3306            0.0.0.0:*               LISTEN      -                   
+tcp        0      0 127.0.0.1:8300          0.0.0.0:*               LISTEN      -                   
+tcp        0      0 127.0.0.1:8301          0.0.0.0:*               LISTEN      -                   
+tcp        0      0 127.0.0.1:8302          0.0.0.0:*               LISTEN      -                   
+tcp        0      0 127.0.0.1:8500          0.0.0.0:*               LISTEN      -                   
+tcp        0      0 127.0.0.53:53           0.0.0.0:*               LISTEN      -                   
+tcp6       0      0 :::22                   :::*                    LISTEN      -                   
+tcp6       0      0 :::3000                 :::*                    LISTEN      -                   
+tcp6       0      0 :::80                   :::*                    LISTEN      -  
+```
+
+
+```
+developer@ambassador:/tmp$ curl http://127.0.0.1:8500
+Consul Agent: UI disabled. To enable, set ui_config.enabled=true in the agent configuration and restart.
+```
+
+```
+developer@ambassador:/tmp$ consul --version
+Consul v1.13.2
+Revision 0e046bbb
+Build Date 2022-09-20T20:30:07Z
+Protocol 2 spoken by default, understands 2 to 3 (agent will automatically use protocol >2 when speaking to compatible agents)
+```
+
+https://blog.pentesteracademy.com/hashicorp-consul-remote-command-execution-via-services-api-d709f8ac3960
