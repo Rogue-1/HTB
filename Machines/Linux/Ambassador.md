@@ -417,3 +417,25 @@ developer@ambassador:~$ sudo -l
 Sorry, user developer may not run sudo on ambassador.
 developer@ambassador:~$ 
 ```
+
+```
+2022/10/04 16:24:54 CMD: UID=0    PID=1063   | /usr/sbin/apache2 -k start 
+2022/10/04 16:24:54 CMD: UID=0    PID=1060   | sshd: /usr/sbin/sshd -D [listener] 0 of 10-100 startups 
+2022/10/04 16:24:54 CMD: UID=0    PID=106    | 
+2022/10/04 16:24:54 CMD: UID=0    PID=105    | 
+2022/10/04 16:24:54 CMD: UID=0    PID=1048   | /sbin/agetty -o -p -- \u --noclear tty1 linux 
+2022/10/04 16:24:54 CMD: UID=0    PID=104    | 
+2022/10/04 16:24:54 CMD: UID=0    PID=103    | 
+2022/10/04 16:24:54 CMD: UID=0    PID=1029   | /usr/sbin/atd -f 
+2022/10/04 16:24:54 CMD: UID=0    PID=1023   | /usr/sbin/cron -f 
+2022/10/04 16:24:54 CMD: UID=0    PID=102    | 
+2022/10/04 16:24:54 CMD: UID=0    PID=1017   | /usr/bin/consul agent -config-dir=/etc/consul.d/config.d -config-file=/etc/consul.d/consul.hcl 
+2022/10/04 16:24:54 CMD: UID=0    PID=101    | 
+2022/10/04 16:24:54 CMD: UID=0    PID=100    | 
+2022/10/04 16:24:54 CMD: UID=0    PID=10     | 
+2022/10/04 16:24:54 CMD: UID=0    PID=1      | /sbin/init maybe-ubiquity 
+2022/10/04 16:25:01 CMD: UID=0    PID=30441  | /usr/sbin/CRON -f 
+2022/10/04 16:25:01 CMD: UID=0    PID=30442  | /usr/sbin/CRON -f 
+2022/10/04 16:25:01 CMD: UID=0    PID=30443  | /bin/bash /root/cleanup.sh 
+2022/10/04 16:25:01 CMD: UID=0    PID=30444  | find /etc/consul.d/config.d/* -mmin +10 -delete 
+```
