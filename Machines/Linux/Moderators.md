@@ -111,3 +111,22 @@ Logs
 [02/05/2021] Posting approval sent to the owners.
 [02/07/2021] Approval pending......
 
+
+
+
+
+
+Wget one of the logs.pdf files and upload it from the page.
+
+Then capture in burpsuite and edit out the pdf content with our own payload.
+
+
+
+![image](https://user-images.githubusercontent.com/105310322/194648359-03a0333b-00f3-467f-9306-0353c31b93fe.png)
+
+
+
+<?php
+phpinfo();
+
+![image](https://user-images.githubusercontent.com/105310322/194648168-1e62ad99-1e4f-4fe7-993b-7bdf3a2a6a34.png)
