@@ -302,7 +302,7 @@ ZsB0ZFVFeB8QZPt/0Rd0U9uPDKLOWKnYHAS+Lm07oqDWwDLw/U74P0jXQ0nsGW9O/jc=
 
 Then also base64 encode the salt.
 
-Note: it is also required to take off the ```o=```
+Note: It is also required to take off the ```o=```
 
 ```console
 └─$ echo 'sO3XIbeW14' |base64    
@@ -456,9 +456,7 @@ Before running our exploit we are going to create a webhook on the same webpage.
 
 My settings were as follows
 
-
-
-
+![image](https://user-images.githubusercontent.com/105310322/194601049-d9a1351d-bf2e-4e54-b3f1-b6d11ff20e31.png)
 
 
 Then on the mysql database we are going to run our command to update the task aka "webhook" that we just created. Dont forget to setup your listner to catch the file.
