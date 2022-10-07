@@ -122,10 +122,11 @@ Logs
 ```
 
 
+![image](https://user-images.githubusercontent.com/105310322/194651486-d61e8bfb-b8b7-4b94-a34a-09c5a2cd03c3.png)
 
+However it only allows us to upload pdf files and we cannot get a reverse shell through a pdf.
 
-
-Wget one of the logs.pdf files and upload it from the page.
+So Wget one of the logs.pdf files and upload it from the page.
 
 Then capture in burpsuite and edit out the pdf content with our own payload.
 
