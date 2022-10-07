@@ -523,5 +523,6 @@ Failed to connect to https://changelogs.ubuntu.com/meta-release-lts. Check your 
 root@health:~# cat /root/root.txt 
 dce53***************************
 ```
+Had alot of help with this one, struggled with the hashing part. Felt like alot of work for the level of this box.
 
 GG!
