@@ -1,12 +1,8 @@
-# Incomplete
-
-
 ![image](https://user-images.githubusercontent.com/105310322/194118518-d3bfb867-a11d-4800-80b0-a4fcc96a6e7e.png)
 
+### Tools: Redirect.py, Burpsuite, Hashcat, Mysql
 
-### Tools: Redirect.py, Burpsuite, Hashcat, 
-
-### Vulnerabilities: URL Redirect, SQLI Union Select: WAF bypass, Salted Hash,
+### Vulnerabilities: URL Redirect, SQLI Union Select: WAF bypass, Salted Hash, Mysql task from webhook
 
 Nmap reveals ssh, a webpage and a filtered port 3000.
 
