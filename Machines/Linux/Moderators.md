@@ -382,7 +382,7 @@ https://book.hacktricks.xyz/network-services-pentesting/pentesting-mysql
 └─$ hashcat hash /usr/share/wordlists/rockyou.txt
 
 ```
-https://www.useotools.com/wordpress-password-hash-generator/output
+https://www.useotools.com/wordpress-password-hash-generator
 
 Password must be hashed to run the password
 
@@ -394,6 +394,10 @@ Rows matched: 1  Changed: 1  Warnings: 0
 sudo vim /etc/hosts
 add moderators.htb to localhost
 
+
+![image](https://user-images.githubusercontent.com/105310322/195166895-12278582-196a-4555-9ee9-3d41e7f45499.png)
+
+![image](https://user-images.githubusercontent.com/105310322/195166832-08ab62be-bf7c-4051-9717-f81fc3234d77.png)
 
 
 ```
