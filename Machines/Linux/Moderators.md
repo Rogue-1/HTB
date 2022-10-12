@@ -1,3 +1,6 @@
+# INCOMPLETE
+
+![image](https://user-images.githubusercontent.com/105310322/195461585-c6706010-0bf4-4471-b4ea-fff2df309ced.png)
 
 
 ### Tools: Feroxbuster, ffuf, python, chisel, vbox
@@ -501,9 +504,19 @@ FQGVHxktaFKkrEl71gqoHPll8zNwNY9BjpxFPy48B1RgkxkfHSNZ8ujSI6Wse3tX6T03HD
 fotkBDyCmCDxz3AAAAD2pvaG5AbW9kZXJhdG9ycwECAw==
 -----END OPENSSH PRIVATE KEY-----
 ```
+Add the ssh key to a file and login.
 
 ```console
-john@moderators:
+└─$ ssh john@10.129.204.224 -i id_rsa
+john@moderators:~$ id
+uid=1000(john) gid=1000(john) groups=1000(john),1002(moderators)
+```
+
+The next step I had alot of trouble with getting a VM up and running
+
+Inside john's home directory is a VBOX image as well as some text messages that offer some hints to the VBOX and a bunch of scripts.
+
+So grab the files and transfer them to your host computer.
 
 ```console
 john@moderators:~/stuff/VBOX$ ls -la
@@ -514,7 +527,7 @@ drwxr-xr-x 4 john john      4096 Jul 14 10:50 ..
 -rwxr-xr-x 1 john john 121634816 Sep 18  2020 2019.vdi
 ```
 
-Change 2019-08-01.vbox too
+Next we need to edit the .vbox file and take out the ubuntu.vdi disk image and change the location for ./2019.vdi to read wherever yours is located.
 
 ```xml
 <?xml version="1.0"?>
