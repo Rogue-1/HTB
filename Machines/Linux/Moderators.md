@@ -543,8 +543,7 @@ Next we need to edit the .vbox file and take out the ubuntu.vdi disk image and c
       <HardDisks>
         <HardDisk uuid="{12b147da-5b2d-471f-9e32-a32b1517ff4b}" location="./2019.vdi" format="VDI" type="Normal"/>
       </HardDisks>
-      <DVDImages>
-        <Image uuid="{7653d755-c513-4004-8891-be83fc130dba}" location="/home/npayne/Downloads/10.129.204.224:8000/VBOX/F:/ubuntu-22.04-desktop-amd64.iso"/>
+      <DVDImagess>
       </DVDImages>
     </MediaRegistry>
     <ExtraData>
