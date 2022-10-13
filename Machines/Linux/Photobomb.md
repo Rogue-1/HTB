@@ -2,7 +2,7 @@
 
 ### Tools: msfvenom
 
-### Vulnerabilities: ,Sudo: Change Path Variable
+### Vulnerabilities: Command Execution,Sudo: Change Path Variable
 
 Nmap gives shows a webpage and ssh is open.
 
