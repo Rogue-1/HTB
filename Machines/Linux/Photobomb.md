@@ -114,7 +114,7 @@ Checking out cleanup.sh shows that it is running chown whenever cleanup.sh is ra
 
 Our plan of attack is to have cleanup.sh read our own file chown before anything else. 
 
-```
+```console
 wizard@photobomb:/tmp$ cat /opt/cleanup.sh
 cat /opt/cleanup.sh
 #!/bin/bash
