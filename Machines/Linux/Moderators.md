@@ -634,3 +634,14 @@ Starting pyvboxdie-cracker...
 ```
 
 ![image](https://user-images.githubusercontent.com/105310322/195453290-0d3c2c0a-48e2-45e5-8091-9899098f9b94.png)
+
+https://ubuntu.com/download/desktop
+
+
+Download a Ubuntu iso and start up virtualbox, then in the virtual machine settings change your optical drive and choose your iso
+
+boot using cdrom and set up ubuntu with "try Ubuntu"
+
+after gaining access to your new VM with the 2019.vdi run ```sudo mount /dev/sda/ /tmp``` and you will see that it is still encrypted.
+
+$_THE_best_Sysadmin_Ever_
