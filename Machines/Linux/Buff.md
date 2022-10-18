@@ -1,7 +1,7 @@
 ![image](https://user-images.githubusercontent.com/105310322/196471216-474e621b-00c3-4a90-8d50-55ead69fd885.png)
 
 
-### Tools:
+### Tools: Feroxbuster, exploit.db
 
 ### Vulnerabilities: Gym Management Service, Buffer Overflow: CloudMe.exe
 
