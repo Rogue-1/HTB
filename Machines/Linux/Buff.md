@@ -49,11 +49,16 @@ A quick feroxbuster shows that their is an upload page and a logout page. Which 
 200      GET      113l      268w     4252c http://buff.htb:8080/feedback.php
 200      GET      168l      486w     7791c http://buff.htb:8080/packages.php
 ```
+![image](https://user-images.githubusercontent.com/105310322/196527333-07a9eab7-2381-490c-b6cb-42b190c322a2.png)
 
 
 After checking out the website just a bit we can see that it is running Gym Management Service 1.0. A quick google search gives us an exploit we can run.
 
 https://www.exploit-db.com/exploits/48506
+
+![image](https://user-images.githubusercontent.com/105310322/196527449-f3c3b91b-3d9a-49b0-8dee-2c2e7568186b.png)
+
+
 
 After running the exploit we quickly gain access to the shaun user and nab the first flag.
 
@@ -63,7 +68,6 @@ C:\xampp\htdocs\gym\upload> whoami
 �
 buff\shaun
 ```
-
 ```console
 C:\xampp\htdocs\gym\upload> type c:\users\shaun\Desktop\user.txt
 �PNG
@@ -117,7 +121,6 @@ Mode                LastWriteTime         Length Name
 -a----       16/06/2020     16:26       17830824 CloudMe_1112.exe  
 ```
 
-
 Again I am going to run winpeas without transferring it to the victim.
 
 On host
@@ -165,7 +168,7 @@ Linpeas shows the running processes and also tells us that the CloudMe service i
   TCP        127.0.0.1             3306          0.0.0.0               0               Listening         8628            C:\xampp\mysql\bin\mysqld.exe
   TCP        127.0.0.1             8888          0.0.0.0               0               Listening         4280            CloudMe
 ```
-This PoC should do the job pretty quickly.
+This PoC should do the job pretty quickly but we will need to modify the script a little to
 
 https://www.exploit-db.com/exploits/48389
 
