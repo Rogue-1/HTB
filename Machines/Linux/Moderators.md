@@ -75,9 +75,7 @@ Scanning: http://10.129.99.138/logs/uploads
 ```
 
 However the blog section of the webpage seemed very interesting and it was actually hiding more reports than what was shown.
-
-![image](https://user-images.githubusercontent.com/105310322/195454870-6cb78e65-7c11-4414-8c77-b1e2e38ed01d.png)
-
+![image](https://user-images.githubusercontent.com/105310322/196727525-81f23c7b-6675-4357-a269-4f1896e6a8c6.png)
 
 By fuzzing we can find the rest of the reports and take a look at them.
 
@@ -151,6 +149,7 @@ Logs
 [02/05/2021] Posting approval sent to the owners.
 [02/07/2021] Approval pending......
 ```
+
 
 ![image](https://user-images.githubusercontent.com/105310322/194651486-d61e8bfb-b8b7-4b94-a34a-09c5a2cd03c3.png)
 
@@ -454,10 +453,9 @@ Note: Be sure to add moderators.htb to your hosts file for the IP 127.0.0.1
 
 Navigate to http://moderators.htb/wp-login.php and login with the password you created.
 
-![image](https://user-images.githubusercontent.com/105310322/195166895-12278582-196a-4555-9ee9-3d41e7f45499.png)
+![image](https://user-images.githubusercontent.com/105310322/196727076-780a9efa-4365-4639-86af-88f6b43c224f.png)
 
-![image](https://user-images.githubusercontent.com/105310322/195166832-08ab62be-bf7c-4051-9717-f81fc3234d77.png)
-
+![image](https://user-images.githubusercontent.com/105310322/196727163-117047d9-8a1d-430f-b707-c8970c5d7cf7.png)
 
 Hiding in nearly plain site is the ssh key for John!
 
