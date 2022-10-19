@@ -1,9 +1,9 @@
 ![image](https://user-images.githubusercontent.com/105310322/196730660-c5ef0194-cbad-4040-9a86-2d7f0c361d86.png)
 
 
-### Tools: 
+### Tools: Feroxbuster, Wfuzz, Perl
 
-### Vulnerabilities: 
+### Vulnerabilities: Hidden Domain: SSTI, Perl: Cap_setuid
 
 Nmap reveals 3 ports open, SSH, HTTP, and HTTPS. They give us the domain so lets add that to our hosts file.
 
