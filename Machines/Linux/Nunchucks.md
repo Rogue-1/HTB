@@ -64,15 +64,9 @@ Scanning: https://nunchucks.htb/assets/css
 ```
 Checking out the terms and privacy pages we get a bunch of hints about a possible template injection. Looking more into it the firefox extension wappalyzer tells me NodeJS is running. Also looking up some SSTI on Hacktricks says that Nunjucks is running on SSTI! The fact that the box's name was Nunchucks means there is a really good chance this is the attack vector. However I was not able to find any vulnerabilties on this webpage. So lets fuzz for some more.
 
+https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection#nunjucks
 
-
-
-
-
-
-
-
-
+![image](https://user-images.githubusercontent.com/105310322/196767115-f63dc311-df7f-4d16-9f2c-a25e3438c436.png)
 
 
 Running wfuzz we are finally able to locate another domain!
@@ -102,6 +96,9 @@ Requests/sec.: 35.17474
 On this webpage we have a single input field and if we test out an SSTI it takes it!
 
 https://book.hacktricks.xyz/pentesting-web/ssti-server-side-template-injection#nunjucks
+
+![image](https://user-images.githubusercontent.com/105310322/196767486-f42cb8d3-6a7a-4263-b758-037bb357cacb.png)
+
 
 The following is the payload I used in burp suite after capturing the store.nunchucks.htb input button.
 
