@@ -170,16 +170,14 @@ I searched the APK for a while looking for anything that popped out. We can find
 
 
 
-### For reasons I wont get into I am unable to run the app to get to the next step. So I got some help with this portion.
+## For reasons I wont get into I am unable to run the app to get to the next step. So I got some help with this portion.
+
+## The whole portion of running the android app and proxy is skipped!
+
+What we want to do is set up the emulator and proxy the application traffic through Burp. Since I am unable to run the app I skipped directly to burp with some the help of just using the burp headers. 
 
 
-Our Attack Vector was a bit of a hidden one
-
-
-
-
-
-After running the app and capturing the requests in Burpsuite we can perform Remote Code Execution.
+After "running" the app and "capturing" the requests in Burpsuite we can perform Remote Code Execution.
 
 ```
 POST /api/v4/monitoring/router/dev/check/deviceAccess HTTP/1.1
@@ -212,7 +210,7 @@ Since no reverse shells were working likely because of the firewall, we are goin
 
 1. Create Keys on your host
 2. On the victim echo your public key into a file named authorized_keys in the /tmp folder.
-3. On the victim copy the auhtorized_keys file into their .ssh folder.
+3. On the victim copy the authorized_keys file into their .ssh folder.
 4. Chmod 600 the file so it can be used.
 
 ```
