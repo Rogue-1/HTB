@@ -157,16 +157,14 @@ Scanning: http://10.129.227.47/js/vendor
 The interesting part is that the webpage has a download for an APK file so lets grab that.
 
 
-
-
-
+![image](https://user-images.githubusercontent.com/105310322/197001191-23ba52c8-3c23-4f3e-a586-893807885ef1.png)
 
 
 
 I searched the APK for a while looking for anything that popped out. We can find the domain ```routerspace.htb``` but not much else. Also Fuzzing for other domains was not fruitful.
 
 
-
+![image](https://user-images.githubusercontent.com/105310322/197001529-44a8bdca-f09f-402c-ac5e-d765fc8a656c.png)
 
 
 
