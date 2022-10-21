@@ -44,6 +44,14 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 29.65 seconds
 ```
 
+
+![image](https://user-images.githubusercontent.com/105310322/197298762-ddbb84f3-c98d-446d-ad1c-79866651b5f2.png)
+
+
+
+
+
+
 I enumerated and fuzzed alot of places but eventually I noticed burp had a request timeout when trying to send a request.
 
 This was done after sending it to the repeater and sending it again.
@@ -70,6 +78,7 @@ Content-Type: text/html; charset=iso-8859-1
 
 So if take office.paper and put it in our hosts file we can go to a different subdomain.
 
+![image](https://user-images.githubusercontent.com/105310322/197298809-bb312954-48ca-4a2d-ad4f-dab46100c1a2.png)
 
 
 Feroxbuster tells us that this webpage is running wordpress, wordpress happens to be vulnerable to alot of exploits so this is good news.
@@ -102,7 +111,7 @@ Feroxbuster tells us that this webpage is running wordpress, wordpress happens t
 200      GET        0l        0w        0c http://office.paper/wp-includes/theme.php
 ```
 
-If we look through the page code we can see what version the wordpress is.
+If we look through the page code we can see what version the wordpress is. """""""""""""""""""""""""""""""
 
 ```
 <meta name="generator" content="WordPress 5.2.3" />
@@ -112,6 +121,7 @@ A google search actually pops up a few vulnerabilites for this version but this 
 
 https://vulners.com/zdt/1337DAY-ID-33546\
 
+![image](https://user-images.githubusercontent.com/105310322/197298858-4cfda36e-7a26-4c21-86d3-78ac4f8e88a1.png)
 
 
 
@@ -125,6 +135,10 @@ Afer inputting ```http://office.paper/?static=1``` as our Url we get back a page
 ```http://chat.office.paper/register/8qozr226AhkCHZdyY```
 
 
+![image](https://user-images.githubusercontent.com/105310322/197298898-1d3c2590-fb3d-46c7-8a48-18df3bf67a68.png)
+
+
+
 
 Navigating to this subdomain allows us to register for something...
 
@@ -133,13 +147,21 @@ Navigating to this subdomain allows us to register for something...
 
 After registering we get access to one of the greatest chat rooms of all time :)
 
+Also it shows that we have access to a bot but we can't use the general chat... hmmmm.
 
 
+![image](https://user-images.githubusercontent.com/105310322/197298996-7b67e16b-b4f7-46a5-97f2-3adadd0a2a8a.png)
 
 
+After reading the general chat you can see that you can still direct message with the bot. Doing so allows us to read or list files.
+
+![image](https://user-images.githubusercontent.com/105310322/197299325-45e89c8d-fd51-4a06-be3a-d48e02bbc3bc.png)
 
 
 It turns out this bot was vulnerable to directory traversal and after enumerating most of the files I stumbled on /hubot/.env that was holding a password.
+
+![image](https://user-images.githubusercontent.com/105310322/197299580-83dc196b-12f0-447a-89aa-e68a0f5ccc47.png)
+
 
 ```
 recyclops file ../hubot/.env
