@@ -1,7 +1,7 @@
 
-Type: Forensics
+### Type: Forensics
 
-Challenge: Halloween Invitation
+### Challenge: Halloween Invitation
 
 
 We get a document to open so make sure you have libreoffice or something similar installed and ready to view it.
