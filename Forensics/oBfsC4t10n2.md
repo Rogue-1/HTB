@@ -130,6 +130,6 @@ Which gives us......
 
 ```HTB{n0w_eXc3l_4.0_M4cr0s_r_b4cK}```
 
-WHOOO!
+WHOOO!!
 
 I am still surprised this was listed as hard for a forensics challenge but alot of these things are not rated correctly anyways.
