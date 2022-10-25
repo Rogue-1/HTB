@@ -192,12 +192,14 @@ Now if we go back to cyberchef and convert it from Hex we get this. At first I d
 
 I looked for a good int to chr converter but I actually could not find one. Instead I made my own simple and ugly one with python :)
 
-Now even this part was not perfect because in the above conversion to integer some of the data got messed up. I soon noticed that the integers needed to be separted.
+Now even this part was not perfect because in the above conversion to integer some of the data got messed up. I soon noticed that the integers needed to be fixed.
 
 ```Ex. 11865 = 118, 65``` or ```Ex. 10365 = 103,65```
 
 This took some time to manually go through and edit each of them. I am sure there is a faster way but VS was pretty good about it.
 
+
+After fixing it all my messy python code was ready to rock.
 
 ```python
 #!/usr/bin/python3
