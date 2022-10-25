@@ -8,8 +8,12 @@ We get a document to open so make sure you have libreoffice or something similar
 
 Interestingly my program detects macros.
 
+![image](https://user-images.githubusercontent.com/105310322/197890329-79cefff7-fe4c-4824-adfe-f75cd4689d13.png)
+
+
 Taking a look at the macros reveals alot obfuscated data.
 
+Note: Macros are located at tools > macros > edit macros
 
 ```
 Rem Attribute VBA_ModuleType=VBADocumentModule
