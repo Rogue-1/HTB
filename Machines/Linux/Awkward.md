@@ -19,7 +19,7 @@ Nmap done: 1 IP address (1 host up) scanned in 17.84 seconds
 ```
 
 ```console
-└─$ ffuf -w /usr/share/seclists/Discovery/DNS/bitquark-subdomains-top100000.txt  -u http://FUZZ.hat-valley.htb/ -v -fs 0  -c   
+└─$ ffuf -w /usr/share/seclists/Discovery/DNS/bitquark-subdomains-top100000.txt  -u http://hat-valley.htb -H "HOST: FUZZ.hat-valley.htb" -v -fs 0,132  -c
 
         /'___\  /'___\           /'___\       
        /\ \__/ /\ \__/  __  __  /\ \__/       
@@ -32,18 +32,19 @@ Nmap done: 1 IP address (1 host up) scanned in 17.84 seconds
 ________________________________________________
 
  :: Method           : GET
- :: URL              : http://FUZZ.hat-valley.htb/
+ :: URL              : http://hat-valley.htb
  :: Wordlist         : FUZZ: /usr/share/seclists/Discovery/DNS/bitquark-subdomains-top100000.txt
+ :: Header           : Host: FUZZ.hat-valley.htb
  :: Follow redirects : false
  :: Calibration      : false
  :: Timeout          : 10
  :: Threads          : 40
  :: Matcher          : Response status: 200,204,301,302,307,401,403,405,500
- :: Filter           : Response size: 0
+ :: Filter           : Response size: 0,132
 ________________________________________________
 
-[Status: 401, Size: 188, Words: 6, Lines: 8, Duration: 173ms]
-| URL | http://store.hat-valley.htb/
+[Status: 401, Size: 188, Words: 6, Lines: 8, Duration: 31ms]
+| URL | http://hat-valley.htb
     * FUZZ: store
 ```
 
