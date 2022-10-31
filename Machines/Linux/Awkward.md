@@ -1,6 +1,10 @@
-### Tools: 
+![image](https://user-images.githubusercontent.com/105310322/199113459-d3af37e1-60fc-4ef8-888f-1c5b14316ed1.png)
 
-### Vulnerabilities: 
+
+
+### Tools: ffuf, jwt_tool
+
+### Vulnerabilities: SSRF:Internal ports, JWT cookie cracking, Awk abuse, Sed abuse.
 
 Nmap shows an ssh port open and of course a webpage.
 
