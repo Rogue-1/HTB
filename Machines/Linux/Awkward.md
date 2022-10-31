@@ -722,12 +722,14 @@ bean@awkward:/tmp$ cat /var/www/store/README.md
 Right now, the user's cart is stored within /cart, and is named according to the user's session ID. All products are appended to the same file for each user.
 To test cart functionality, create a new cart file and add items to it, and see how they are reflected on the store website!
 ```
-
+We learn that the username for nginx is admin and since bean.hill is the admin we can use his password to login.
 
 ```console
 bean@awkward:/tmp$ cat /etc/nginx/conf.d/.htpasswd 
 admin:$apr1$lfvrwhqi$hd49MbBX3WNluMezyjWls1
 ```
+
+
 ```console
 ╔══════════╣ Active Ports
 ╚ https://book.hacktricks.xyz/linux-hardening/privilege-escalation#open-ports                                                            
