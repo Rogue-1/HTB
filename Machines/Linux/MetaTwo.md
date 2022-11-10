@@ -264,3 +264,45 @@ if ( ! defined( 'ABSPATH' ) ) {
 /** Sets up WordPress vars and included files. */
 require_once ABSPATH . 'wp-settings.php';
 ```
+
+
+
+jnelson
+Cb4_JmWM8zUZWMu@Ys
+
+
+└─$ ssh jnelson@10.10.11.186
+jnelson@10.10.11.186's password: 
+Linux meta2 5.10.0-19-amd64 #1 SMP Debian 5.10.149-2 (2022-10-21) x86_64
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+Last login: Thu Nov 10 21:43:14 2022 from 10.10.14.155
+jnelson@meta2:~$ sudo -l
+
+We trust you have received the usual lecture from the local System
+Administrator. It usually boils down to these three things:
+
+    #1) Respect the privacy of others.
+    #2) Think before you type.
+    #3) With great power comes great responsibility.
+
+jnelson@meta2:~$ ls -la
+total 36
+drwxr-xr-x 5 jnelson jnelson 4096 Nov 10 21:43 .
+drwxr-xr-x 3 root    root    4096 Oct  5 15:12 ..
+lrwxrwxrwx 1 root    root       9 Jun 26 15:59 .bash_history -> /dev/null
+-rw-r--r-- 1 jnelson jnelson  220 Jun 26 15:46 .bash_logout
+-rw-r--r-- 1 jnelson jnelson 3526 Jun 26 15:46 .bashrc
+drwx------ 3 jnelson jnelson 4096 Nov 10 21:52 .gnupg
+drwxr-xr-x 3 jnelson jnelson 4096 Oct 25 12:51 .local
+dr-xr-x--- 3 jnelson jnelson 4096 Oct 25 12:52 .passpie
+-rw-r--r-- 1 jnelson jnelson  807 Jun 26 15:46 .profile
+-rw-r----- 1 root    jnelson   33 Nov 10 21:42 user.txt
+jnelson@meta2:~$ cat user.txt 
+20525b65d686a39d3e411576b7dc4826
+```
