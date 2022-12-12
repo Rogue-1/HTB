@@ -225,4 +225,19 @@ Connection: close
 Success
 ```
 
+![image](https://user-images.githubusercontent.com/105310322/207165908-0858b1aa-657f-4cfd-bfe0-fdff3e94cbef.png)
 
+
+Open a new private window and navigate to the webpage you specified in the link.
+
+![image](https://user-images.githubusercontent.com/105310322/207165827-e73a6882-8862-40ca-a960-90086097994c.png)
+
+
+
+
+![image](https://user-images.githubusercontent.com/105310322/207165880-4f1503bf-8ff8-4276-9d46-9602e11de7e9.png)
+
+
+```console
+
+```
