@@ -1,3 +1,9 @@
+
+
+Tools: Python, Burpsuite
+
+Vulnerabilities: Web Cache Deception, Tensorflow vulnerability in python script
+
 ```console
 ─$ nmap -A -p- -T4 -Pn 10.10.11.188
 Starting Nmap 7.93 ( https://nmap.org ) at 2022-11-18 10:37 CST
