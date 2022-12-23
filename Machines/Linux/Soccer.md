@@ -132,6 +132,9 @@ Scanning: http://soccer.htb/tiny/uploads
 
 Navigating to the page presents us with a login page.
 
+![image](https://user-images.githubusercontent.com/105310322/209409258-5e8be53a-71cf-435a-9a41-949e4411ed9d.png)
+
+
 A quick lookup shows some default creds we can use
 
 https://github.com/prasathmani/tinyfilemanager/wiki/Security-and-User-Management
@@ -139,6 +142,10 @@ https://github.com/prasathmani/tinyfilemanager/wiki/Security-and-User-Management
 admin/admin@123
 
 Next we are presented with an upload section. Pretty simply lets upload a php reverse shell.
+
+![image](https://user-images.githubusercontent.com/105310322/209409232-de3cfaff-8e8a-4a06-b31e-c5af6a123980.png)
+
+
 
 I used pentest monkeys php shell.
 
@@ -301,6 +308,8 @@ After it was setup I could access the webpage.
 
 It was almost identical except it had another login page, signups, and tickets.
 
+So create a login. You can google temp email sites for a throwaway email.
+
 Feroxbuster also revealed different capitalizations for the directories.
 
 ```console
@@ -327,6 +336,10 @@ Scanning: http://soc-player.soccer.htb/js
 Scanning: http://soc-player.soccer.htb/
 Scanning: http://soc-player.soccer.htb/img
 ```    
+
+![image](https://user-images.githubusercontent.com/105310322/209409342-d980c733-a09c-4fda-b557-47403f349e10.png)
+
+
 
 If we check out the source code for the ```Check``` page we can see it has another open socket and is also another domain. So I went ahead and added this to my hosts file.
 
