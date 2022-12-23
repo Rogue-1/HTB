@@ -3,7 +3,7 @@
 
 ## Tools: Chisel, Sqlmap, Dstat
 
-## Vulnerabilities: 
+## Vulnerabilities: Default Creds, SQLI: Time Based BLind, Runas/Dstat
 
 
 ```console
