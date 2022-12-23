@@ -353,9 +353,9 @@ If we check out the source code for the ```Check``` page we can see it has anoth
 If you are able to capture a ticket response in burp then the output of the websocket will look like this. (It was really inconsistent and did not always work, Also I made sure I was on the "Check" webpage. Captilization matters"
 
 ```json
-{"id":"85285}
+{"id":"85285"}
 ```
-After messing around a bit and not having luck with my own union select I googled some about it and found his webpage.
+After messing around a bit and not having luck with my own union select I googled some about it and found this webpage.
 
 https://rayhan0x01.github.io/ctf/2021/04/02/blind-sqli-over-websocket-automation.html
 
