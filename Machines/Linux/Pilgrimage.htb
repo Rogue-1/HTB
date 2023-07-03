@@ -24,3 +24,23 @@ PORT   STATE SERVICE VERSION
 Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
 
+
+└──╼ [★]$ git-dumper http://pilgrimage.htb/.git/ DIR
+
+
+└──╼ [★]$ ls
+assets  dashboard.php  index.php  login.php  logout.php  magick  register.php  vendor
+
+└──╼ [★]$ ./magick -version
+Version: ImageMagick 7.1.0-49 beta Q16-HDRI x86_64 c243c9281:20220911 https://imagemagick.org
+Copyright: (C) 1999 ImageMagick Studio LLC
+License: https://imagemagick.org/script/license.php
+Features: Cipher DPC HDRI OpenMP(4.5) 
+Delegates (built-in): bzlib djvu fontconfig freetype jbig jng jpeg lcms lqr lzma openexr png raqm tiff webp x xml zlib
+Compiler: gcc (7.5)
+
+
+https://www.metabaseq.com/imagemagick-zero-days/
+
+
+https://github.com/voidz0r/CVE-2022-44268
