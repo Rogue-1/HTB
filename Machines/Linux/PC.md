@@ -67,7 +67,7 @@ sau@pc:~$ id
 uid=1001(sau) gid=1001(sau) groups=1001(sau)
 
 sau@pc:~$ cat user.txt
-474dded2f0348a7c9aacbad64cb7e513
+474dded2************************
 ```
 
 After logging in I ran linpeas and noticed port 8000 was open.
