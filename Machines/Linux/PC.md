@@ -36,3 +36,14 @@ gRPC Web UI available at http://127.0.0.1:32953/
 ![image](https://github.com/Rogue-1/HTB/assets/105310322/6a096f4e-55c8-41a7-b58a-7a4ca47692dd)
 
 ![image](https://github.com/Rogue-1/HTB/assets/105310322/ba5b0b95-e080-4f05-8355-b9564cedfe57)
+
+![image](https://github.com/Rogue-1/HTB/assets/105310322/89b443cb-3cd5-40c0-b7bf-bfb58ec18094)
+
+└──╼ [★]$ ssh sau@10.129.94.151
+sau@10.129.94.151's password: 
+Last login: Mon May 15 09:00:44 2023 from 10.10.14.19
+sau@pc:~$ id
+uid=1001(sau) gid=1001(sau) groups=1001(sau)
+
+sau@pc:~$ cat user.txt
+474dded2f0348a7c9aacbad64cb7e513
