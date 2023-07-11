@@ -52,9 +52,9 @@ However in the getinfo section we can see that it may be vulnerable to sql injec
 
 After alot of messing around we finally get some data back with usernames and passwords to log in through ssh as sau - HereIsYourPassword1431
 
-![image](https://github.com/Rogue-1/HTB/assets/105310322/ba5b0b95-e080-4f05-8355-b9564cedfe57)
+![image](https://github.com/Rogue-1/HTB/assets/105310322/cf957875-1695-4199-b76c-70173edc6386)
 
-![image](https://github.com/Rogue-1/HTB/assets/105310322/89b443cb-3cd5-40c0-b7bf-bfb58ec18094)
+![image](https://github.com/Rogue-1/HTB/assets/105310322/e2c71132-d908-40ab-b22d-19e60477e86b)
 
 
 Login and grab the user flag.
