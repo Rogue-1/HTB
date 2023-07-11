@@ -33,3 +33,5 @@ gRPC Web UI available at http://127.0.0.1:32953/
 
 ![image](https://github.com/Rogue-1/HTB/assets/105310322/e08a1923-efe7-4dcc-81f0-d6052dcd9eca)
 
+![image](https://github.com/Rogue-1/HTB/assets/105310322/6a096f4e-55c8-41a7-b58a-7a4ca47692dd)
+
