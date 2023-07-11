@@ -18,3 +18,18 @@ Trying 10.129.85.76...
 Connected to 10.129.85.76.
 Escape character is '^]'.
 ?�?� ?@Did not receive HTTP/2 settings before handshake timeoutConnection closed by foreign host.
+
+https://github.com/fullstorydev/grpcui
+
+└──╼ [★]$ go install github.com/fullstorydev/grpcui/cmd/grpcui@latest
+
+└──╼ [★]$ chmod -R 777 go/
+
+└──╼ [★]$ ./grpcui -plaintext 10.129.94.151:50051
+gRPC Web UI available at http://127.0.0.1:32953/
+
+
+![image](https://github.com/Rogue-1/HTB/assets/105310322/1798d19a-54b0-47d8-8efa-4114f991063c)
+
+![image](https://github.com/Rogue-1/HTB/assets/105310322/e08a1923-efe7-4dcc-81f0-d6052dcd9eca)
+
