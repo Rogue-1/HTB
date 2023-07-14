@@ -39,5 +39,7 @@ PORT      STATE    SERVICE VERSION
 |_    Content-Length: 0
 
 
+https://gist.github.com/b33t1e/3079c10c88cad379fb166c389ce3b7b3
+
 
 https://github.com/entr0pie/CVE-2023-27163
